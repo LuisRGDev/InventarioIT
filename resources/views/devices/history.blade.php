@@ -75,10 +75,10 @@
                                         'gray'  => 'bg-gray-100 text-gray-800',
                                     ];
                                     $deliveryCond = $assignment->condition_on_delivery
-                                        ? \App\Enums\DeviceCondition::from($assignment->condition_on_delivery)
+                                        ? \App\Enums\DeviceCondition::tryFrom($assignment->condition_on_delivery)
                                         : null;
                                     $returnCond = $assignment->condition_on_return
-                                        ? \App\Enums\DeviceCondition::from($assignment->condition_on_return)
+                                        ? \App\Enums\DeviceCondition::tryFrom($assignment->condition_on_return)
                                         : null;
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition-colors">
