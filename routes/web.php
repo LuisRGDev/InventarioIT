@@ -31,7 +31,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('employees.history');
 
     // Equipos
-    Route::get('/devices/export', [DeviceController::class, 'export'])->name('devices.export');
+    Route::get('devices/export', [DeviceController::class, 'export'])->name('devices.export');
+    Route::get('devices/import-template', [DeviceController::class, 'downloadTemplate'])->name('devices.import.template');
+    Route::post('devices/import', [DeviceController::class, 'import'])->name('devices.import');
     Route::resource('devices', DeviceController::class);
     Route::get('devices/{device}/history', [DeviceController::class, 'history'])
         ->name('devices.history');

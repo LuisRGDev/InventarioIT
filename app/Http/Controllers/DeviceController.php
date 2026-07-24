@@ -14,7 +14,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DevicesExport;
+use App\Exports\DevicesTemplateExport;
+use App\Imports\DevicesImport;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
@@ -135,5 +138,39 @@ class DeviceController extends Controller
     public function export(): BinaryFileResponse
     {
         return Excel::download(new DevicesExport, 'inventario_equipos_' . date('Y-m-d') . '.xlsx');
+    }
+
+    public function downloadTemplate(): BinaryFileResponse
+    {
+        return Excel::download(new DevicesTemplateExport, 'plantilla_importacion_equipos.xlsx');
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Debes subir un archivo.',
+            'file.mimes'    => 'El archivo debe ser un Excel (.xlsx, .xls o .csv).',
+            'file.max'      => 'El archivo no debe pesar más de 5MB.'
+        ]);
+
+        try {
+            Excel::import(new DevicesImport, $request->file('file'));
+            
+            return redirect()->route('devices.index')
+                ->with('success', 'Importación masiva completada correctamente.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            foreach ($failures as $failure) {
+                $row = $failure->row();
+                $errors = implode(', ', $failure->errors());
+                $errorMessages[] = "Fila {$row}: {$errors}";
+            }
+            return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Ocurrió un error inesperado al importar el archivo: ' . $e->getMessage());
+        }
     }
 }
