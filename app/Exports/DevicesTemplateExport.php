@@ -12,6 +12,11 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
     {
         return [
             [
+                'Juan Perez',
+                'juan.perez@itam.local',
+                'EMP-001',
+                'Ventas',
+                'Gerente',
                 'Portátil',
                 'Dell',
                 'Latitude 5420',
@@ -19,11 +24,6 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 'PC-ITAM-001',
                 '00:1A:2B:3C:4D:5E',
                 '00:1A:2B:3C:4D:5F',
-                'juan.perez@itam.local',
-                'EMP-001',
-                'Ventas',
-                'Gerente',
-                'Juan Perez',
                 '2024-01-15',
                 '2027-01-15',
                 'Intel Core i5',
@@ -37,15 +37,15 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 'Equipo nuevo para gerencia'
             ],
             [
+                '',
+                '',
+                '',
+                '',
+                '',
                 'Smartphone',
                 'Apple',
                 'iPhone 13',
                 'IMEI-987654321',
-                '',
-                '',
-                '',
-                '',
-                '',
                 '',
                 '',
                 '',
@@ -67,6 +67,11 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
     public function headings(): array
     {
         return [
+            'Nombre Empleado',
+            'Correo Empleado',
+            'No. Empleado',
+            'Departamento',
+            'Puesto',
             'Categoría',
             'Marca',
             'Modelo',
@@ -74,11 +79,6 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
             'Hostname',
             'MAC Ethernet',
             'MAC WiFi',
-            'Correo Empleado',
-            'No. Empleado',
-            'Departamento',
-            'Puesto',
-            'Nombre Empleado',
             'Fecha Compra',
             'Garantía Expira',
             'Procesador CPU',
