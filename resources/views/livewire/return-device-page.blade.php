@@ -20,7 +20,7 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 sm:p-8">
-            @if (!$device)
+            @if (!$this->device)
                 <div class="text-center py-10">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -33,7 +33,7 @@
                         </a>
                     </div>
                 </div>
-            @elseif (!$device->currentAssignment)
+            @elseif (!$this->device->currentAssignment)
                 <div class="text-center py-10">
                     <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
                         <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +41,7 @@
                         </svg>
                     </div>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">Equipo no asignado</h3>
-                    <p class="mt-1 text-sm text-gray-500">Este equipo ({{ $device->serial_number }}) actualmente se encuentra disponible en almacén, no tiene una asignación activa para devolver.</p>
+                    <p class="mt-1 text-sm text-gray-500">Este equipo ({{ $this->device->serial_number }}) actualmente se encuentra disponible en almacén, no tiene una asignación activa para devolver.</p>
                     <div class="mt-6">
                         <a href="{{ route('assignments.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">
                             Volver a Asignaciones
@@ -61,10 +61,10 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $device->brand }} {{ $device->model }}</p>
-                                    <p class="text-sm text-gray-500">SN: {{ $device->serial_number }}</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ $this->device->brand }} {{ $this->device->model }}</p>
+                                    <p class="text-sm text-gray-500">SN: {{ $this->device->serial_number }}</p>
                                     <span class="inline-flex mt-2 items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        {{ $device->category->name }}
+                                        {{ $this->device->category->name }}
                                     </span>
                                 </div>
                             </div>
@@ -78,9 +78,9 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $device->currentAssignment->employee->name }}</p>
-                                    <p class="text-sm text-gray-500">{{ $device->currentAssignment->employee->department }} - {{ $device->currentAssignment->employee->position }}</p>
-                                    <p class="text-xs text-gray-400 mt-1">Asignado el: {{ $device->currentAssignment->assigned_at->format('d/m/Y') }}</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ $this->device->currentAssignment->employee->name }}</p>
+                                    <p class="text-sm text-gray-500">{{ $this->device->currentAssignment->employee->department }} - {{ $this->device->currentAssignment->employee->position }}</p>
+                                    <p class="text-xs text-gray-400 mt-1">Asignado el: {{ $this->device->currentAssignment->assigned_at->format('d/m/Y') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -182,10 +182,10 @@
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">¿Confirmar Devolución?</h3>
                             <div class="mt-2 text-sm text-gray-500">
                                 <p>Estás a punto de devolver el equipo al almacén. Se registrará la fecha y tu usuario como responsable de la recepción.</p>
-                                @if($device)
+                                @if($this->device)
                                     <ul class="mt-3 list-disc pl-5 space-y-1">
-                                        <li><strong>Equipo:</strong> {{ $device->serial_number }}</li>
-                                        <li><strong>Empleado:</strong> {{ $device->currentAssignment?->employee->name }}</li>
+                                        <li><strong>Equipo:</strong> {{ $this->device->serial_number }}</li>
+                                        <li><strong>Empleado:</strong> {{ $this->device->currentAssignment?->employee->name }}</li>
                                         <li><strong>Nuevo Estatus:</strong> {{ ucfirst($newStatus) }}</li>
                                     </ul>
                                 @endif
