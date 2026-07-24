@@ -53,9 +53,11 @@ class AssignDevicePage extends Component
                 $q->where('device_category_id', $this->selectedCategoryId)
             )
             ->when($this->deviceSearch, fn($q) =>
-                $q->where('serial_number', 'like', "%{$this->deviceSearch}%")
-                  ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
-                  ->orWhere('model', 'like', "%{$this->deviceSearch}%")
+                $q->where(fn($w) => 
+                    $w->where('serial_number', 'like', "%{$this->deviceSearch}%")
+                      ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
+                      ->orWhere('model', 'like', "%{$this->deviceSearch}%")
+                )
             )
             ->orderBy('brand')
             ->limit(15)
