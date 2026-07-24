@@ -23,7 +23,15 @@ class StoreDeviceRequest extends FormRequest
             'mac_address_wifi'    => ['nullable', 'string', 'max:17', 'unique:devices,mac_address_wifi'],
             'brand'               => ['required', 'string', 'max:100'],
             'model'               => ['required', 'string', 'max:100'],
-            'status'              => ['required', Rule::enum(DeviceStatus::class)],
+            'status'              => [
+                'required', 
+                Rule::enum(DeviceStatus::class),
+                function ($attribute, $value, $fail) {
+                    if ($value === DeviceStatus::Asignado->value && empty($this->input('assign_to_employee_id'))) {
+                        $fail('No puedes registrar un equipo con estatus "Asignado" si no seleccionas a un empleado en la sección de "Asignación Inmediata".');
+                    }
+                }
+            ],
             'purchase_date'       => ['nullable', 'date'],
             'warranty_expires_at' => ['nullable', 'date', 'after_or_equal:purchase_date'],
             'specs'                 => ['nullable', 'array'],
