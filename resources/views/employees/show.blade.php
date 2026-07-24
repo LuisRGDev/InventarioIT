@@ -105,64 +105,66 @@
                         </div>
                     </div>
 
-                    {{-- Equipos actualmente asignados --}}
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    @php
+                        $computers = $employee->currentAssignments->filter(fn($a) => $a->device && $a->device->category->isComputer());
+                        $smartphones = $employee->currentAssignments->filter(fn($a) => $a->device && $a->device->category->isSmartphone());
+                        $others = $employee->currentAssignments->filter(fn($a) => $a->device && !$a->device->category->isComputer() && !$a->device->category->isSmartphone());
+                    @endphp
+
+                    {{-- Equipos de Cómputo --}}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                            <h3 class="font-semibold text-gray-700">Equipos asignados actualmente</h3>
-                            <span class="text-xs font-medium text-gray-400">{{ $employee->currentAssignments->count() }} equipo(s)</span>
+                            <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                Equipos de Cómputo
+                            </h3>
+                            <span class="text-xs font-medium text-gray-400">{{ $computers->count() }} equipo(s)</span>
                         </div>
                         <div class="divide-y divide-gray-100">
-                            @forelse($employee->currentAssignments as $assignment)
-                                @php
-                                    $devBadgeMap = [
-                                        'green'  => 'bg-green-100 text-green-800',
-                                        'blue'   => 'bg-blue-100 text-blue-800',
-                                        'yellow' => 'bg-yellow-100 text-yellow-800',
-                                        'gray'   => 'bg-gray-100 text-gray-800',
-                                        'red'    => 'bg-red-100 text-red-800',
-                                    ];
-                                    $devBadge = $assignment->device ? ($devBadgeMap[$assignment->device->status->color()] ?? 'bg-gray-100 text-gray-800') : 'bg-gray-100 text-gray-800';
-                                @endphp
-                                <div class="px-6 py-4 flex items-center justify-between gap-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            @if($assignment->device)
-                                                <a href="{{ route('devices.show', $assignment->device) }}"
-                                                   class="text-sm font-medium text-gray-900 hover:text-indigo-600 transition">
-                                                    {{ $assignment->device->brand }} {{ $assignment->device->model }}
-                                                </a>
-                                                <p class="text-xs text-gray-400 font-mono mt-0.5">{{ $assignment->device->serial_number }}</p>
-                                            @else
-                                                <span class="text-sm text-gray-400 italic">Equipo eliminado</span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-3 text-right flex-shrink-0">
-                                        <div>
-                                            <p class="text-xs text-gray-400">Asignado el</p>
-                                            <p class="text-xs font-medium text-gray-700">{{ $assignment->assigned_at->format('d M Y') }}</p>
-                                        </div>
-                                        <a href="{{ route('assignments.return', $assignment->device_id) }}"
-                                           class="px-2.5 py-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition">
-                                            Retornar
-                                        </a>
-                                    </div>
-                                </div>
+                            @forelse($computers as $assignment)
+                                @include('employees.partials.assignment-row', ['assignment' => $assignment])
                             @empty
-                                <div class="px-6 py-10 text-center">
-                                    <svg class="w-10 h-10 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                    </svg>
-                                    <p class="text-sm text-gray-400">Sin equipos asignados actualmente</p>
-                                </div>
+                                <div class="px-6 py-8 text-center text-sm text-gray-400">Sin equipos de cómputo asignados</div>
                             @endforelse
                         </div>
                     </div>
+
+                    {{-- Celulares --}}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                                Celulares
+                            </h3>
+                            <span class="text-xs font-medium text-gray-400">{{ $smartphones->count() }} celular(es)</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            @forelse($smartphones as $assignment)
+                                @include('employees.partials.assignment-row', ['assignment' => $assignment])
+                            @empty
+                                <div class="px-6 py-8 text-center text-sm text-gray-400">Sin celulares asignados</div>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    {{-- Otros Periféricos --}}
+                    @if($others->isNotEmpty())
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-700">Otros / Periféricos</h3>
+                            <span class="text-xs font-medium text-gray-400">{{ $others->count() }} equipo(s)</span>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            @foreach($others as $assignment)
+                                @include('employees.partials.assignment-row', ['assignment' => $assignment])
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
 
                     {{-- Notas --}}
                     @if($employee->notes)

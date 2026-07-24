@@ -18,7 +18,13 @@
                     <p class="text-sm text-gray-500">Completa la información para registrar un nuevo equipo en el inventario.</p>
                 </div>
 
-                <form method="POST" action="{{ route('devices.store') }}" class="p-6 space-y-8">
+                <form method="POST" action="{{ route('devices.store') }}" class="p-6 space-y-8"
+                      x-data="{
+                          categoryId: '{{ old('device_category_id') }}',
+                          categories: {{ $categoriesJson }},
+                          get isComputer() { return this.categories[this.categoryId]?.isComputer ?? false; },
+                          get isSmartphone() { return this.categories[this.categoryId]?.isSmartphone ?? false; }
+                      }">
                     @csrf
 
                     {{-- Sección: Identificación --}}
@@ -32,7 +38,7 @@
                             {{-- Categoría --}}
                             <div>
                                 <x-input-label for="device_category_id" value="Categoría *"/>
-                                <select id="device_category_id" name="device_category_id"
+                                <select id="device_category_id" name="device_category_id" x-model="categoryId"
                                         class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm
                                                @error('device_category_id') border-red-400 @enderror">
                                     <option value="">Seleccionar…</option>
@@ -145,12 +151,75 @@
                         </div>
                     </div>
 
+                    <hr class="border-gray-100 mb-8">
+
+                    {{-- Especificaciones Dinámicas --}}
+                    <div x-show="isComputer || isSmartphone" style="display: none;">
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span class="inline-block w-5 h-5 bg-indigo-100 text-indigo-600 rounded text-xs font-bold text-center leading-5">3</span>
+                            Especificaciones Técnicas
+                        </h3>
+
+                        {{-- Campos de Cómputo --}}
+                        <div x-show="isComputer" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <x-input-label for="specs_cpu" value="Procesador (CPU)"/>
+                                <x-text-input id="specs_cpu" name="specs[cpu]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.cpu') }}" placeholder="Ej. Intel Core i5-1240P"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_cores" value="Núcleos"/>
+                                <x-text-input id="specs_cores" name="specs[cores]" type="number" class="mt-1 block w-full"
+                                              value="{{ old('specs.cores') }}" placeholder="Ej. 12"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_ram" value="Memoria RAM"/>
+                                <x-text-input id="specs_ram" name="specs[ram]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.ram') }}" placeholder="Ej. 16 GB DDR4"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_storage" value="Almacenamiento (Disco)"/>
+                                <x-text-input id="specs_storage" name="specs[storage]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.storage') }}" placeholder="Ej. 512 GB SSD NVMe"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_os" value="Sistema Operativo"/>
+                                <x-text-input id="specs_os" name="specs[os]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.os') }}" placeholder="Ej. Windows 11 Pro"/>
+                            </div>
+                        </div>
+
+                        {{-- Campos de Celular --}}
+                        <div x-show="isSmartphone" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <x-input-label for="specs_phone_number" value="Número de Teléfono"/>
+                                <x-text-input id="specs_phone_number" name="specs[phone_number]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.phone_number') }}" placeholder="Ej. 55 1234 5678"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_imei" value="IMEI"/>
+                                <x-text-input id="specs_imei" name="specs[imei]" type="text" class="mt-1 block w-full font-mono"
+                                              value="{{ old('specs.imei') }}" placeholder="IMEI del dispositivo"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_data_plan" value="Plan de Datos"/>
+                                <x-text-input id="specs_data_plan" name="specs[data_plan]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.data_plan') }}" placeholder="Ej. Plan Telcel Max Sin Límite"/>
+                            </div>
+                            <div>
+                                <x-input-label for="specs_os_mobile" value="Sistema Operativo"/>
+                                <x-text-input id="specs_os_mobile" name="specs[os]" type="text" class="mt-1 block w-full"
+                                              value="{{ old('specs.os') }}" placeholder="Ej. iOS 17 / Android 14"/>
+                            </div>
+                        </div>
+                    </div>
+
                     <hr class="border-gray-100">
 
                     {{-- Sección: Notas --}}
                     <div>
                         <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                            <span class="inline-block w-5 h-5 bg-indigo-100 text-indigo-600 rounded text-xs font-bold text-center leading-5">3</span>
+                            <span class="inline-block w-5 h-5 bg-indigo-100 text-indigo-600 rounded text-xs font-bold text-center leading-5" x-text="(isComputer || isSmartphone) ? '4' : '3'">3</span>
                             Notas adicionales
                         </h3>
                         <div>

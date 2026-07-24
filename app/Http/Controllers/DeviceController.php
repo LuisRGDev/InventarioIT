@@ -22,7 +22,8 @@ class DeviceController extends Controller
                 $q->where('serial_number', 'like', "%{$search}%")
                   ->orWhere('brand', 'like', "%{$search}%")
                   ->orWhere('model', 'like', "%{$search}%")
-                  ->orWhere('mac_address', 'like', "%{$search}%");
+                  ->orWhere('mac_address_ethernet', 'like', "%{$search}%")
+                  ->orWhere('mac_address_wifi', 'like', "%{$search}%");
             });
         }
 
@@ -50,8 +51,9 @@ class DeviceController extends Controller
     {
         $categories = DeviceCategory::orderBy('name')->get();
         $statuses   = DeviceStatus::cases();
+        $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        return view('devices.create', compact('categories', 'statuses'));
+        return view('devices.create', compact('categories', 'statuses', 'categoriesJson'));
     }
 
     public function store(StoreDeviceRequest $request): RedirectResponse
@@ -77,8 +79,9 @@ class DeviceController extends Controller
     {
         $categories = DeviceCategory::orderBy('name')->get();
         $statuses   = DeviceStatus::cases();
+        $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        return view('devices.edit', compact('device', 'categories', 'statuses'));
+        return view('devices.edit', compact('device', 'categories', 'statuses', 'categoriesJson'));
     }
 
     public function update(UpdateDeviceRequest $request, Device $device): RedirectResponse

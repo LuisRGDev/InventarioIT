@@ -83,6 +83,14 @@ class Device extends Model
             && $this->warranty_expires_at->diffInDays(now()) <= 30;
     }
 
+    public function getAgeAttribute(): ?int
+    {
+        if (! $this->purchase_date) {
+            return null;
+        }
+        return (int) $this->purchase_date->diffInYears(now());
+    }
+
     // ─── Scopes ───────────────────────────────────────────────
 
     public function scopeAvailable($query)

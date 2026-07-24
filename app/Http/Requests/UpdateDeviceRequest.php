@@ -29,6 +29,14 @@ class UpdateDeviceRequest extends FormRequest
             'purchase_date'        => ['nullable', 'date'],
             'warranty_expires_at'  => ['nullable', 'date', 'after_or_equal:purchase_date'],
             'specs'                => ['nullable', 'array'],
+            'specs.cpu'            => ['nullable', 'string', 'max:100'],
+            'specs.cores'          => ['nullable', 'integer', 'min:1'],
+            'specs.ram'            => ['nullable', 'string', 'max:50'],
+            'specs.storage'        => ['nullable', 'string', 'max:100'],
+            'specs.os'             => ['nullable', 'string', 'max:100'],
+            'specs.phone_number'   => ['nullable', 'string', 'max:30'],
+            'specs.imei'           => ['nullable', 'string', 'max:50'],
+            'specs.data_plan'      => ['nullable', 'string', 'max:100'],
             'notes'                => ['nullable', 'string'],
         ];
     }

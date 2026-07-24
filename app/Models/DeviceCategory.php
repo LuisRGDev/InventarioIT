@@ -29,4 +29,14 @@ class DeviceCategory extends Model
     {
         return $this->hasMany(Device::class);
     }
+
+    public function isComputer(): bool
+    {
+        return in_array($this->slug, ['laptop', 'desktop']);
+    }
+
+    public function isSmartphone(): bool
+    {
+        return $this->slug === 'smartphone';
+    }
 }
