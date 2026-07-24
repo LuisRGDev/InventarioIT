@@ -12,7 +12,7 @@ class DevicesExport implements FromCollection, WithHeadings, WithMapping, Should
 {
     public function collection()
     {
-        return Device::with('category')->get();
+        return Device::with(['category', 'currentAssignment.employee'])->get();
     }
 
     public function headings(): array
@@ -27,6 +27,11 @@ class DevicesExport implements FromCollection, WithHeadings, WithMapping, Should
             'MAC Ethernet',
             'MAC WiFi',
             'Estatus',
+            'Empleado Asignado',
+            'Correo Empleado',
+            'No. Empleado',
+            'Departamento',
+            'Puesto',
             'Fecha Compra',
             'Garantía Expira',
             'Procesador (CPU)',
@@ -53,6 +58,11 @@ class DevicesExport implements FromCollection, WithHeadings, WithMapping, Should
             $device->mac_address_ethernet,
             $device->mac_address_wifi,
             $device->status->label(),
+            $device->currentAssignment?->employee?->name ?? 'N/A',
+            $device->currentAssignment?->employee?->email ?? 'N/A',
+            $device->currentAssignment?->employee?->employee_code ?? 'N/A',
+            $device->currentAssignment?->employee?->department ?? 'N/A',
+            $device->currentAssignment?->employee?->position ?? 'N/A',
             $device->purchase_date?->format('Y-m-d'),
             $device->warranty_expires_at?->format('Y-m-d'),
             $device->specs['cpu'] ?? '',
