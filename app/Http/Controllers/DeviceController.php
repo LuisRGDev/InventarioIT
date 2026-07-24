@@ -9,6 +9,9 @@ use App\Models\Device;
 use App\Models\DeviceCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DevicesExport;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DeviceController extends Controller
 {
@@ -112,5 +115,10 @@ class DeviceController extends Controller
             ->paginate(15);
 
         return view('devices.history', compact('device', 'assignments'));
+    }
+
+    public function export(): BinaryFileResponse
+    {
+        return Excel::download(new DevicesExport, 'inventario_equipos_' . date('Y-m-d') . '.xlsx');
     }
 }

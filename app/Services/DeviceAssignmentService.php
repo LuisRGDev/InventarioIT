@@ -8,11 +8,13 @@ use App\Enums\EmployeeStatus;
 use App\Exceptions\DeviceAlreadyAssignedException;
 use App\Exceptions\DeviceNotAvailableException;
 use App\Exceptions\NoActiveAssignmentException;
+use App\Mail\InventoryNotificationMail;
 use App\Models\Device;
 use App\Models\DeviceAssignment;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class DeviceAssignmentService
 {
@@ -63,6 +65,17 @@ class DeviceAssignmentService
 
             // Actualizar estado del equipo
             $device->update(['status' => DeviceStatus::Asignado]);
+
+            $this->sendNotification(
+                'Nuevo Equipo Asignado',
+                "Se ha asignado el equipo {$device->brand} {$device->model} al empleado {$employee->name}.",
+                [
+                    'Empleado' => $employee->name,
+                    'Departamento' => $employee->department,
+                    'Equipo' => "{$device->brand} {$device->model} (SN: {$device->serial_number})",
+                    'Condición de Entrega' => $assignment->condition_on_delivery ?? 'N/A'
+                ]
+            );
 
             return $assignment->load(['device', 'employee', 'assignedBy']);
         });
@@ -159,10 +172,37 @@ class DeviceAssignmentService
             ];
             $newAssignment = $this->assign($newDevice, $employee, $assignData);
 
+            $this->sendNotification(
+                'Reemplazo de Equipo',
+                "El empleado {$employee->name} ha recibido un reemplazo de equipo.",
+                [
+                    'Empleado' => $employee->name,
+                    'Equipo Anterior' => "{$oldDevice->brand} {$oldDevice->model} (SN: {$oldDevice->serial_number})",
+                    'Nuevo Equipo' => "{$newDevice->brand} {$newDevice->model} (SN: {$newDevice->serial_number})",
+                    'Motivo' => $data['reason'] ?? 'N/A'
+                ]
+            );
+
             return [
                 'returned' => $returnedAssignment,
                 'assigned' => $newAssignment,
             ];
         });
+    }
+
+    /**
+     * Envía notificaciones por correo electrónico.
+     */
+    protected function sendNotification(string $subject, string $message, array $details): void
+    {
+        try {
+            $emailsStr = env('MAIL_TO_MANAGEMENT');
+            if ($emailsStr) {
+                $emails = array_map('trim', explode(',', $emailsStr));
+                Mail::to($emails)->queue(new InventoryNotificationMail($subject, $message, $details));
+            }
+        } catch (\Exception $e) {
+            // Log exception or handle silently
+        }
     }
 }

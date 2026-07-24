@@ -25,11 +25,13 @@ Route::view('profile', 'profile')
 Route::middleware(['auth'])->group(function () {
 
     // Empleados
+    Route::get('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
     Route::resource('employees', EmployeeController::class);
     Route::get('employees/{employee}/history', [EmployeeController::class, 'history'])
         ->name('employees.history');
 
     // Equipos
+    Route::get('/devices/export', [DeviceController::class, 'export'])->name('devices.export');
     Route::resource('devices', DeviceController::class);
     Route::get('devices/{device}/history', [DeviceController::class, 'history'])
         ->name('devices.history');

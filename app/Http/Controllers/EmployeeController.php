@@ -8,6 +8,9 @@ use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\EmployeesExport;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EmployeeController extends Controller
 {
@@ -96,5 +99,10 @@ class EmployeeController extends Controller
             ->paginate(15);
 
         return view('employees.history', compact('employee', 'assignments'));
+    }
+
+    public function export(): BinaryFileResponse
+    {
+        return Excel::download(new EmployeesExport, 'directorio_empleados_' . date('Y-m-d') . '.xlsx');
     }
 }
