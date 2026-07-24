@@ -5,15 +5,21 @@ namespace App\Imports;
 use App\Models\Device;
 use App\Models\DeviceCategory;
 use App\Enums\DeviceStatus;
+use App\Models\Employee;
+use App\Enums\EmployeeStatus;
+use App\Services\DeviceAssignmentService;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
-class DevicesImport implements ToModel, WithHeadingRow, WithValidation
+class DevicesImport implements ToCollection, WithHeadingRow, WithValidation
 {
     private $categories;
+    private $assignmentService;
 
     public function __construct()
     {
@@ -21,40 +27,65 @@ class DevicesImport implements ToModel, WithHeadingRow, WithValidation
         $this->categories = DeviceCategory::all()->keyBy(function($item) {
             return strtolower($item->name);
         });
+        $this->assignmentService = app(DeviceAssignmentService::class);
     }
 
-    public function model(array $row)
+    public function collection(Collection $rows)
     {
-        $categoryName = strtolower($row['categoria'] ?? '');
-        $categoryId = $this->categories->get($categoryName)?->id;
+        DB::transaction(function () use ($rows) {
+            foreach ($rows as $row) {
+                $categoryName = strtolower($row['categoria'] ?? '');
+                $categoryId = $this->categories->get($categoryName)?->id;
 
-        // Si no se encuentra la categoría (ej. escribieron "PC" en vez de "Desktop"), usamos 'desktop' por defecto, 
-        // o fallamos. Como está validado, debería existir.
+                $specs = [];
+                if (!empty($row['procesador_cpu'])) $specs['cpu'] = $row['procesador_cpu'];
+                if (!empty($row['nucleos'])) $specs['cores'] = $row['nucleos'];
+                if (!empty($row['ram'])) $specs['ram'] = $row['ram'];
+                if (!empty($row['almacenamiento'])) $specs['storage'] = $row['almacenamiento'];
+                if (!empty($row['sistema_operativo'])) $specs['os'] = $row['sistema_operativo'];
+                if (!empty($row['telefono'])) $specs['phone_number'] = $row['telefono'];
+                if (!empty($row['imei'])) $specs['imei'] = $row['imei'];
+                if (!empty($row['plan_de_datos'])) $specs['data_plan'] = $row['plan_de_datos'];
 
-        $specs = [];
-        if (!empty($row['procesador_cpu'])) $specs['cpu'] = $row['procesador_cpu'];
-        if (!empty($row['nucleos'])) $specs['cores'] = $row['nucleos'];
-        if (!empty($row['ram'])) $specs['ram'] = $row['ram'];
-        if (!empty($row['almacenamiento'])) $specs['storage'] = $row['almacenamiento'];
-        if (!empty($row['sistema_operativo'])) $specs['os'] = $row['sistema_operativo'];
-        if (!empty($row['telefono'])) $specs['phone_number'] = $row['telefono'];
-        if (!empty($row['imei'])) $specs['imei'] = $row['imei'];
-        if (!empty($row['plan_de_datos'])) $specs['data_plan'] = $row['plan_de_datos'];
+                $device = Device::create([
+                    'device_category_id'  => $categoryId,
+                    'brand'               => $row['marca'],
+                    'model'               => $row['modelo'],
+                    'serial_number'       => $row['numero_de_serie'],
+                    'computer_name'       => $row['hostname'] ?? null,
+                    'mac_address_ethernet'=> $row['mac_ethernet'] ?? null,
+                    'mac_address_wifi'    => $row['mac_wifi'] ?? null,
+                    'status'              => DeviceStatus::Disponible,
+                    'purchase_date'       => $this->parseDate($row['fecha_compra'] ?? null),
+                    'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null),
+                    'specs'               => count($specs) > 0 ? $specs : null,
+                    'notes'               => $row['notas'] ?? null,
+                ]);
 
-        return new Device([
-            'device_category_id'  => $categoryId,
-            'brand'               => $row['marca'],
-            'model'               => $row['modelo'],
-            'serial_number'       => $row['numero_de_serie'],
-            'computer_name'       => $row['hostname'] ?? null,
-            'mac_address_ethernet'=> $row['mac_ethernet'] ?? null,
-            'mac_address_wifi'    => $row['mac_wifi'] ?? null,
-            'status'              => DeviceStatus::Disponible, // Todos entran como disponibles
-            'purchase_date'       => $this->parseDate($row['fecha_compra'] ?? null),
-            'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null),
-            'specs'               => count($specs) > 0 ? $specs : null,
-            'notes'               => $row['notas'] ?? null,
-        ]);
+                // Si viene un correo de empleado, crearlo/buscarlo y asignarlo
+                if (!empty($row['correo_empleado'])) {
+                    $employee = Employee::firstOrCreate(
+                        ['email' => strtolower($row['correo_empleado'])],
+                        [
+                            'name'           => $row['nombre_empleado'] ?? 'Empleado Importado',
+                            'employee_code'  => $row['no_empleado'] ?? null,
+                            'department'     => $row['departamento'] ?? 'General',
+                            'position'       => $row['puesto'] ?? 'General',
+                            'status'         => EmployeeStatus::Activo,
+                        ]
+                    );
+
+                    $this->assignmentService->assign(
+                        $device,
+                        $employee,
+                        [
+                            'condition_on_delivery' => 'buen_estado',
+                            'notes' => 'Asignado automáticamente durante importación masiva.',
+                        ]
+                    );
+                }
+            }
+        });
     }
 
     public function rules(): array
