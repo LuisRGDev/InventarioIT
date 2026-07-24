@@ -37,7 +37,10 @@ new class extends Component
                         Equipos
                     </x-nav-link>
                     <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" wire:navigate>
-                        Empleados
+                        {{ __('Empleados') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
+                        {{ __('Asignaciones') }}
                     </x-nav-link>
 
                     {{-- Dropdown Asignaciones --}}
@@ -130,7 +133,10 @@ new class extends Component
                 Equipos
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" wire:navigate>
-                Empleados
+                {{ __('Empleados') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
+                {{ __('Asignaciones') }}
             </x-responsive-nav-link>
 
             <div class="border-t border-gray-100 pt-1 mt-1">

@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
 
     // ─── Operaciones de asignación (Livewire Full-Page Components) ────────────
+    Route::get('assignments', [\App\Http\Controllers\AssignmentController::class, 'index'])
+        ->name('assignments.index');
     Route::get('assignments/assign', AssignDevicePage::class)
         ->name('assignments.assign');
 

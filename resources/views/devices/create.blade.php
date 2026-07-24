@@ -216,10 +216,49 @@
 
                     <hr class="border-gray-100">
 
+                    {{-- Sección: Asignación Inmediata --}}
+                    <div x-data="{ assignTo: '{{ old('assign_to_employee_id') }}' }">
+                        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                            <span class="inline-block w-5 h-5 bg-indigo-100 text-indigo-600 rounded text-xs font-bold text-center leading-5" x-text="(isComputer || isSmartphone) ? '4' : '3'">4</span>
+                            Asignación Inmediata (Opcional)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                            <div>
+                                <x-input-label for="assign_to_employee_id" value="Asignar a Empleado"/>
+                                <select id="assign_to_employee_id" name="assign_to_employee_id" x-model="assignTo"
+                                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                    <option value="">No asignar por ahora</option>
+                                    @foreach($employees as $emp)
+                                        <option value="{{ $emp->id }}" {{ old('assign_to_employee_id') == $emp->id ? 'selected' : '' }}>
+                                            {{ $emp->name }} ({{ $emp->department }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            <div x-show="assignTo !== ''">
+                                <x-input-label for="condition_on_delivery" value="Condición de Entrega *"/>
+                                <select id="condition_on_delivery" name="condition_on_delivery"
+                                        class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm
+                                               @error('condition_on_delivery') border-red-400 @enderror">
+                                    <option value="">Seleccionar…</option>
+                                    @foreach($conditions as $cond)
+                                        <option value="{{ $cond->value }}" {{ old('condition_on_delivery') == $cond->value ? 'selected' : '' }}>
+                                            {{ $cond->label() }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('condition_on_delivery')" class="mt-1"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
                     {{-- Sección: Notas --}}
                     <div>
                         <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-                            <span class="inline-block w-5 h-5 bg-indigo-100 text-indigo-600 rounded text-xs font-bold text-center leading-5" x-text="(isComputer || isSmartphone) ? '4' : '3'">3</span>
+                            <span class="inline-block w-5 h-5 bg-indigo-100 text-indigo-600 rounded text-xs font-bold text-center leading-5" x-text="(isComputer || isSmartphone) ? '5' : '4'">5</span>
                             Notas adicionales
                         </h3>
                         <div>

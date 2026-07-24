@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DeviceStatus;
+use App\Enums\ConditionStatus;
 use App\Http\Requests\StoreDeviceRequest;
 use App\Http\Requests\UpdateDeviceRequest;
 use App\Models\Device;
 use App\Models\DeviceCategory;
+use App\Models\Employee;
+use App\Services\DeviceAssignmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
@@ -54,14 +57,26 @@ class DeviceController extends Controller
     {
         $categories = DeviceCategory::orderBy('name')->get();
         $statuses   = DeviceStatus::cases();
+        $conditions = ConditionStatus::cases();
+        $employees  = Employee::active()->orderBy('name')->get();
         $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        return view('devices.create', compact('categories', 'statuses', 'categoriesJson'));
+        return view('devices.create', compact('categories', 'statuses', 'conditions', 'employees', 'categoriesJson'));
     }
 
-    public function store(StoreDeviceRequest $request): RedirectResponse
+    public function store(StoreDeviceRequest $request, DeviceAssignmentService $assignmentService): RedirectResponse
     {
-        Device::create($request->validated());
+        $device = Device::create($request->validated());
+
+        if ($request->filled('assign_to_employee_id')) {
+            $employee = Employee::findOrFail($request->input('assign_to_employee_id'));
+            $assignmentService->assign($device, $employee, [
+                'condition_on_delivery' => $request->input('condition_on_delivery')
+            ]);
+            
+            return redirect()->route('devices.show', $device)
+                ->with('success', 'Equipo registrado y asignado correctamente a ' . $employee->name);
+        }
 
         return redirect()->route('devices.index')
             ->with('success', 'Equipo registrado correctamente.');
