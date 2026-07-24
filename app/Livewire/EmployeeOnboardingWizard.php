@@ -39,7 +39,7 @@ class EmployeeOnboardingWizard extends Component
     public function availableComputers()
     {
         return Device::available()
-            ->whereHas('category', fn($q) => $q->whereIn('slug', ['laptop', 'desktop']))
+            ->whereHas('category', fn($q) => $q->whereIn('slug', ['portatil', 'desktop']))
             ->when($this->computerSearch, fn($q) => $q->where(fn($w) =>
                 $w->where('serial_number', 'like', "%{$this->computerSearch}%")
                   ->orWhere('brand', 'like', "%{$this->computerSearch}%")
