@@ -32,7 +32,7 @@ class DeviceCategory extends Model
 
     public function isComputer(): bool
     {
-        return in_array($this->slug, ['laptop', 'desktop']);
+        return in_array($this->slug, ['portatil', 'desktop']);
     }
 
     public function isSmartphone(): bool
