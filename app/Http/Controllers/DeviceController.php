@@ -14,10 +14,29 @@ class DeviceController extends Controller
 {
     public function index(): View
     {
-        $devices = Device::with('category')
-            ->withCount('assignments')
-            ->orderByDesc('created_at')
-            ->paginate(20);
+        $query = Device::with('category')->withCount('assignments');
+
+        // Filtro por texto (serial, marca, modelo)
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('serial_number', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%")
+                  ->orWhere('model', 'like', "%{$search}%")
+                  ->orWhere('mac_address', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtro por categoría
+        if ($category = request('category')) {
+            $query->where('device_category_id', $category);
+        }
+
+        // Filtro por estatus
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
+        $devices = $query->orderByDesc('created_at')->paginate(20);
 
         $statsByStatus = Device::selectRaw('status, count(*) as total')
             ->groupBy('status')
@@ -25,6 +44,7 @@ class DeviceController extends Controller
 
         return view('devices.index', compact('devices', 'statsByStatus'));
     }
+
 
     public function create(): View
     {

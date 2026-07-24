@@ -13,9 +13,28 @@ class EmployeeController extends Controller
 {
     public function index(): View
     {
-        $employees = Employee::withCount('currentAssignments')
-            ->orderBy('name')
-            ->paginate(20);
+        $query = Employee::withCount('currentAssignments');
+
+        // Filtro por texto
+        if ($search = request('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('employee_code', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtro por departamento
+        if ($department = request('department')) {
+            $query->where('department', 'like', "%{$department}%");
+        }
+
+        // Filtro por estatus
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
+        $employees = $query->orderBy('name')->paginate(20);
 
         return view('employees.index', compact('employees'));
     }
@@ -36,7 +55,9 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee): View
     {
-        $employee->load('currentAssignments.device.category');
+        $employee->load([
+            'currentAssignments.device.category',
+        ]);
         return view('employees.show', compact('employee'));
     }
 

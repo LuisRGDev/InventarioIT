@@ -15,7 +15,8 @@ class Device extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'device_category_id', 'serial_number', 'mac_address',
+        'device_category_id', 'serial_number', 'computer_name',
+        'mac_address_ethernet', 'mac_address_wifi',
         'brand', 'model', 'status', 'purchase_date',
         'warranty_expires_at', 'specs', 'notes',
     ];
