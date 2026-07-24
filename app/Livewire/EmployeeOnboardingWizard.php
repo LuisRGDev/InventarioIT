@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Enums\EmployeeStatus;
-use App\Enums\ConditionStatus;
+use App\Enums\DeviceCondition;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Services\DeviceAssignmentService;
@@ -66,7 +66,7 @@ class EmployeeOnboardingWizard extends Component
     #[Computed]
     public function conditions(): array
     {
-        return ConditionStatus::cases();
+        return DeviceCondition::cases();
     }
 
     public function selectComputer(int $id)

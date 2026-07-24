@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\DeviceStatus;
-use App\Enums\ConditionStatus;
+use App\Enums\DeviceCondition;
 use App\Http\Requests\StoreDeviceRequest;
 use App\Http\Requests\UpdateDeviceRequest;
 use App\Models\Device;
@@ -57,7 +57,7 @@ class DeviceController extends Controller
     {
         $categories = DeviceCategory::orderBy('name')->get();
         $statuses   = DeviceStatus::cases();
-        $conditions = ConditionStatus::cases();
+        $conditions = DeviceCondition::cases();
         $employees  = Employee::active()->orderBy('name')->get();
         $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
