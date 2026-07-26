@@ -1,19 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Equipos de Cómputo
+            <h2 class="font-bold text-xl text-middleby-900 leading-tight tracking-tight flex items-center gap-2.5">
+                <span class="w-2 h-6 bg-gradient-to-b from-amber-500 to-middleby-700 rounded-full inline-block shadow-sm"></span>
+                Equipos de Cómputo e Infraestructura
             </h2>
             <div class="flex flex-wrap gap-3" x-data="{ showImportModal: false }">
-                <button type="button" @click="showImportModal = true" class="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 text-sm font-medium rounded-lg hover:bg-emerald-50 transition shadow-sm inline-flex items-center gap-2">
+                <button type="button" @click="showImportModal = true" class="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 text-sm font-semibold rounded-xl hover:bg-emerald-50 transition shadow-xs inline-flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Importar
                 </button>
-                <a href="{{ route('devices.export') }}" class="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition shadow-sm inline-flex items-center gap-2">
+                <a href="{{ route('devices.export') }}" class="px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-xl hover:bg-emerald-700 transition shadow-sm hover:shadow-md inline-flex items-center gap-2 active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Exportar
                 </a>
-                <a href="{{ route('devices.create') }}" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition shadow-sm inline-flex items-center gap-2">
+                <a href="{{ route('devices.create') }}" class="px-4 py-2 bg-gradient-to-r from-middleby-800 to-middleby-700 text-white text-sm font-bold rounded-xl hover:from-middleby-700 hover:to-middleby-600 transition shadow-sm hover:shadow-md inline-flex items-center gap-2 active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -102,17 +103,17 @@
                     @php
                         $count = $statsByStatus[$statusItem->value] ?? 0;
                         $colorMap = [
-                            'green'  => 'bg-green-50 border-green-200 text-green-700',
-                            'blue'   => 'bg-blue-50 border-blue-200 text-blue-700',
-                            'yellow' => 'bg-yellow-50 border-yellow-200 text-yellow-700',
-                            'gray'   => 'bg-gray-50 border-gray-200 text-gray-700',
-                            'red'    => 'bg-red-50 border-red-200 text-red-700',
+                            'green'  => 'bg-emerald-50/80 border-emerald-200 text-emerald-800',
+                            'blue'   => 'bg-middleby-50/80 border-middleby-200 text-middleby-800',
+                            'yellow' => 'bg-amber-50/80 border-amber-200 text-amber-800',
+                            'gray'   => 'bg-slate-50/80 border-slate-200 text-slate-800',
+                            'red'    => 'bg-red-50/80 border-red-200 text-red-800',
                         ];
-                        $colorClass = $colorMap[$statusItem->color()] ?? 'bg-gray-50 border-gray-200 text-gray-700';
+                        $colorClass = $colorMap[$statusItem->color()] ?? 'bg-slate-50 border-slate-200 text-slate-800';
                     @endphp
-                    <div class="border rounded-lg p-4 text-center {{ $colorClass }}">
-                        <p class="text-2xl font-bold">{{ $count }}</p>
-                        <p class="text-xs font-medium mt-1">{{ $statusItem->label() }}</p>
+                    <div class="border rounded-2xl p-4 text-center shadow-xs card-hover {{ $colorClass }}">
+                        <p class="text-3xl font-extrabold tracking-tight">{{ $count }}</p>
+                        <p class="text-xs font-bold uppercase tracking-wider mt-1.5 opacity-90">{{ $statusItem->label() }}</p>
                     </div>
                 @endforeach
             </div>
@@ -150,7 +151,7 @@
                     </div>
                     <div class="flex gap-2">
                         <button type="submit"
-                                class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
+                                class="px-5 py-2 bg-middleby-800 text-white text-sm font-semibold rounded-xl hover:bg-middleby-700 transition shadow-sm">
                             Filtrar
                         </button>
                         @if(request()->hasAny(['search','category','status']))

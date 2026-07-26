@@ -16,14 +16,14 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs sticky top-0 z-50">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" wire:navigate>
+                    <a href="{{ route('dashboard') }}" wire:navigate class="transition-transform hover:scale-[1.02] duration-200">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
@@ -46,34 +46,28 @@ new class extends Component
                     {{-- Dropdown Asignaciones --}}
                     <div class="relative flex items-center" x-data="{ openAssign: false }" @click.outside="openAssign = false">
                         <button @click="openAssign = !openAssign"
-                                class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none"
-                                :class="openAssign ? 'border-indigo-400 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'">
-                            Asignaciones
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none"
+                                :class="openAssign ? 'bg-middleby-50 text-middleby-800 font-semibold' : 'text-slate-600 hover:text-middleby-700 hover:bg-slate-50'">
+                            Acciones Rápidas
+                            <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': openAssign }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
-                        <div x-show="openAssign" x-transition
-                             class="absolute left-0 top-full mt-1 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                        <div x-show="openAssign" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute left-0 top-full mt-1.5 w-56 bg-white rounded-xl shadow-premium border border-slate-100 py-1.5 z-50">
                             <a href="{{ route('assignments.assign') }}" wire:navigate
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                </svg>
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-middleby-50 hover:text-middleby-800 transition">
+                                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-middleby-100 text-middleby-700 font-bold text-xs">+</span>
                                 Asignar equipo
                             </a>
                             <a href="{{ route('assignments.return') }}" wire:navigate
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
-                                </svg>
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition">
+                                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-100 text-amber-700 font-bold text-xs">↩</span>
                                 Retornar equipo
                             </a>
                             <a href="{{ route('assignments.replace') }}" wire:navigate
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition">
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
-                                </svg>
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition">
+                                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-bold text-xs">⇄</span>
                                 Reemplazar equipo
                             </a>
                         </div>

@@ -73,7 +73,7 @@ class DeviceAssignmentService
                     'Empleado' => $employee->name,
                     'Departamento' => $employee->department,
                     'Equipo' => "{$device->brand} {$device->model} (SN: {$device->serial_number})",
-                    'Condición de Entrega' => $assignment->condition_on_delivery ?? 'N/A'
+                    'Condición de Entrega' => $assignment->condition_on_delivery instanceof \App\Enums\DeviceCondition ? $assignment->condition_on_delivery->label() : ($assignment->condition_on_delivery ?? 'N/A')
                 ]
             );
 

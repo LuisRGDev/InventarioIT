@@ -74,12 +74,8 @@
                                         'red'   => 'bg-red-100 text-red-800',
                                         'gray'  => 'bg-gray-100 text-gray-800',
                                     ];
-                                    $deliveryCond = $assignment->condition_on_delivery
-                                        ? \App\Enums\DeviceCondition::tryFrom($assignment->condition_on_delivery)
-                                        : null;
-                                    $returnCond = $assignment->condition_on_return
-                                        ? \App\Enums\DeviceCondition::tryFrom($assignment->condition_on_return)
-                                        : null;
+                                    $deliveryCond = $assignment->condition_on_delivery;
+                                    $returnCond = $assignment->condition_on_return;
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4">
