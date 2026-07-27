@@ -86,22 +86,22 @@ class ReplaceDevicePage extends Component
         return DeviceCondition::cases();
     }
 
-    public function selectEmployee(int $id): void
+    public function selectEmployee(?int $id = null): void
     {
-        $this->employeeId     = $id;
+        $this->employeeId     = $id ? (int) $id : null;
         $this->employeeSearch = '';
         $this->oldDeviceId    = null;
         $this->newDeviceId    = null;
     }
 
-    public function selectOldDevice(int $id): void
+    public function selectOldDevice(?int $id = null): void
     {
-        $this->oldDeviceId = $id;
+        $this->oldDeviceId = $id ? (int) $id : null;
     }
 
-    public function selectNewDevice(int $id): void
+    public function selectNewDevice(?int $id = null): void
     {
-        $this->newDeviceId  = $id;
+        $this->newDeviceId  = $id ? (int) $id : null;
         $this->deviceSearch = '';
     }
 
@@ -139,7 +139,7 @@ class ReplaceDevicePage extends Component
             $this->errorMessage = $e->getMessage();
             $this->showConfirm  = false;
         } catch (\Exception $e) {
-            $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
+            $this->errorMessage = 'Ocurrió un error: ' . $e->getMessage();
             $this->showConfirm  = false;
         }
     }

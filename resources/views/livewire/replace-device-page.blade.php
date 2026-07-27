@@ -77,15 +77,15 @@
                             <label class="block text-sm font-medium text-gray-700 mb-3">Selecciona el equipo que va a entregar:</label>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 @foreach($this->selectedEmployee->currentAssignments as $assignment)
-                                    <label class="relative flex p-4 cursor-pointer rounded-xl border bg-white shadow-sm hover:border-indigo-400 hover:ring-1 hover:ring-indigo-400 transition-all {{ $oldDeviceId === $assignment->device_id ? 'border-indigo-600 ring-2 ring-indigo-600 bg-indigo-50/50' : 'border-gray-200' }}">
-                                        <input type="radio" wire:model="oldDeviceId" value="{{ $assignment->device_id }}" class="sr-only">
+                                    <label class="relative flex p-4 cursor-pointer rounded-xl border bg-white shadow-sm hover:border-indigo-400 hover:ring-1 hover:ring-indigo-400 transition-all {{ $oldDeviceId == $assignment->device_id ? 'border-indigo-600 ring-2 ring-indigo-600 bg-indigo-50/50' : 'border-gray-200' }}">
+                                        <input type="radio" wire:model.live="oldDeviceId" value="{{ $assignment->device_id }}" class="sr-only">
                                         <div class="flex-1">
                                             <div class="flex justify-between items-start">
                                                 <div>
                                                     <span class="block text-sm font-bold text-gray-900">{{ $assignment->device->brand }} {{ $assignment->device->model }}</span>
                                                     <span class="block text-xs text-gray-500 mt-0.5">SN: {{ $assignment->device->serial_number }}</span>
                                                 </div>
-                                                @if($oldDeviceId === $assignment->device_id)
+                                                @if($oldDeviceId == $assignment->device_id)
                                                     <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                                                 @endif
                                             </div>
@@ -216,8 +216,22 @@
                             <div class="mt-4 bg-gray-50 p-4 rounded-lg text-sm text-gray-600">
                                 <p class="font-medium text-gray-900 border-b border-gray-200 pb-2 mb-2">Resumen de la operación:</p>
                                 <p><strong>Empleado:</strong> {{ $this->selectedEmployee?->name }}</p>
-                                <p class="mt-2 text-red-600"><strong>Devuelve:</strong> Equipo ID #{{ $oldDeviceId }}</p>
-                                <p class="mt-1 text-emerald-600"><strong>Recibe:</strong> Equipo ID #{{ $newDeviceId }}</p>
+                                <p class="mt-2 text-red-600">
+                                    <strong>Devuelve:</strong> 
+                                    @if($oldDeviceId && ($oldDev = $this->selectedEmployee?->currentAssignments->firstWhere('device_id', (int) $oldDeviceId)?->device))
+                                        {{ $oldDev->brand }} {{ $oldDev->model }} (SN: {{ $oldDev->serial_number }})
+                                    @else
+                                        Equipo ID #{{ $oldDeviceId }}
+                                    @endif
+                                </p>
+                                <p class="mt-1 text-emerald-600">
+                                    <strong>Recibe:</strong> 
+                                    @if($this->selectedNewDevice)
+                                        {{ $this->selectedNewDevice->brand }} {{ $this->selectedNewDevice->model }} (SN: {{ $this->selectedNewDevice->serial_number }})
+                                    @else
+                                        Equipo ID #{{ $newDeviceId }}
+                                    @endif
+                                </p>
                             </div>
                         </div>
                     </div>

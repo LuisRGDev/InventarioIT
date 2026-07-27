@@ -196,7 +196,7 @@ class DeviceAssignmentService
     protected function sendNotification(string $subject, string $message, array $details): void
     {
         try {
-            $emailsStr = env('MAIL_TO_MANAGEMENT');
+            $emailsStr = config('mail.to_management');
             if ($emailsStr) {
                 $emails = array_map('trim', explode(',', $emailsStr));
                 Mail::to($emails)->queue(new InventoryNotificationMail($subject, $message, $details));
