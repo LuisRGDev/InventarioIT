@@ -8,6 +8,7 @@ use App\Http\Requests\StoreDeviceRequest;
 use App\Http\Requests\UpdateDeviceRequest;
 use App\Models\Device;
 use App\Models\DeviceCategory;
+use App\Models\DeviceModel;
 use App\Models\Employee;
 use App\Services\DeviceAssignmentService;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +16,10 @@ use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DevicesExport;
 use App\Exports\DevicesTemplateExport;
+use App\Exports\GeneralInventoryExport;
+use App\Exports\GeneralInventoryTemplateExport;
 use App\Imports\DevicesImport;
+use App\Imports\GeneralInventoryImport;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Http\Request;
 
@@ -64,7 +68,21 @@ class DeviceController extends Controller
         $employees  = Employee::active()->orderBy('name')->get();
         $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        return view('devices.create', compact('categories', 'statuses', 'conditions', 'employees', 'categoriesJson'));
+        $models = DeviceModel::orderBy('brand')->orderBy('model')->orderBy('variant')->get();
+        $modelsJson = $models->map(fn($m) => [
+            'id' => $m->id,
+            'category_id' => $m->device_category_id,
+            'brand' => $m->brand,
+            'model' => $m->model,
+            'variant' => $m->variant,
+            'display_name' => $m->display_name,
+            'cpu' => $m->cpu ?? '',
+            'ram' => $m->ram ?? '',
+            'storage' => $m->storage ?? '',
+            'os' => $m->os ?? '',
+        ])->keyBy('id')->toJson();
+
+        return view('devices.create', compact('categories', 'statuses', 'conditions', 'employees', 'categoriesJson', 'models', 'modelsJson'));
     }
 
     public function store(StoreDeviceRequest $request, DeviceAssignmentService $assignmentService): RedirectResponse
@@ -102,7 +120,21 @@ class DeviceController extends Controller
         $statuses   = DeviceStatus::cases();
         $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        return view('devices.edit', compact('device', 'categories', 'statuses', 'categoriesJson'));
+        $models = DeviceModel::orderBy('brand')->orderBy('model')->orderBy('variant')->get();
+        $modelsJson = $models->map(fn($m) => [
+            'id' => $m->id,
+            'category_id' => $m->device_category_id,
+            'brand' => $m->brand,
+            'model' => $m->model,
+            'variant' => $m->variant,
+            'display_name' => $m->display_name,
+            'cpu' => $m->cpu ?? '',
+            'ram' => $m->ram ?? '',
+            'storage' => $m->storage ?? '',
+            'os' => $m->os ?? '',
+        ])->keyBy('id')->toJson();
+
+        return view('devices.edit', compact('device', 'categories', 'statuses', 'categoriesJson', 'models', 'modelsJson'));
     }
 
     public function update(UpdateDeviceRequest $request, Device $device): RedirectResponse
@@ -140,6 +172,11 @@ class DeviceController extends Controller
         return Excel::download(new DevicesExport, 'inventario_equipos_' . date('Y-m-d') . '.xlsx');
     }
 
+    public function exportGeneral(): BinaryFileResponse
+    {
+        return Excel::download(new GeneralInventoryExport, 'inventario_global_completo_' . date('Y-m-d') . '.xlsx');
+    }
+
     public function downloadTemplate(): BinaryFileResponse
     {
         return Excel::download(new DevicesTemplateExport, 'plantilla_importacion_equipos.xlsx');
@@ -171,6 +208,40 @@ class DeviceController extends Controller
             return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
         } catch (\Exception $e) {
             return back()->with('error', 'Ocurrió un error inesperado al importar el archivo: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadGeneralTemplate(): BinaryFileResponse
+    {
+        return Excel::download(new GeneralInventoryTemplateExport, 'plantilla_general_inventario.xlsx');
+    }
+
+    public function importGeneral(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Debes seleccionar un archivo para importar.',
+            'file.mimes'    => 'El archivo debe tener formato Excel (.xlsx, .xls o .csv).',
+            'file.max'      => 'El archivo supera el límite de 5MB.'
+        ]);
+
+        try {
+            Excel::import(new GeneralInventoryImport, $request->file('file'));
+
+            return redirect()->route('dashboard')
+                ->with('success', '¡Importación general y actualización masiva completadas con éxito!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            foreach ($failures as $failure) {
+                $row = $failure->row();
+                $errors = implode(', ', $failure->errors());
+                $errorMessages[] = "Fila {$row}: {$errors}";
+            }
+            return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Ocurrió un error al procesar el archivo: ' . $e->getMessage());
         }
     }
 }

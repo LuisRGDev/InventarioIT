@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\DeviceCategoryController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DeviceModelController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\MaintenanceController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\ReplaceDevicePage;
 use App\Livewire\ReturnDevicePage;
@@ -24,6 +26,11 @@ Route::view('profile', 'profile')
 // ─── Rutas autenticadas ───────────────────────────────────────────────────────
 Route::middleware(['auth'])->group(function () {
 
+    // Dashboard Export e Import
+    Route::get('/dashboard/export', [DeviceController::class, 'exportGeneral'])->name('dashboard.export');
+    Route::get('/dashboard/import-template', [DeviceController::class, 'downloadGeneralTemplate'])->name('dashboard.import.template');
+    Route::post('/dashboard/import', [DeviceController::class, 'importGeneral'])->name('dashboard.import');
+
     // Empleados
     Route::get('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
     Route::resource('employees', EmployeeController::class);
@@ -38,9 +45,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('devices/{device}/history', [DeviceController::class, 'history'])
         ->name('devices.history');
 
-    // Categorías (solo gestión, sin show individual)
+    // Mantenimientos de Equipos
+    Route::get('maintenances/export', [MaintenanceController::class, 'export'])->name('maintenances.export');
+    Route::post('maintenances/{maintenance}/complete', [MaintenanceController::class, 'complete'])->name('maintenances.complete');
+    Route::post('maintenances/{maintenance}/cancel', [MaintenanceController::class, 'cancel'])->name('maintenances.cancel');
+    Route::resource('maintenances', MaintenanceController::class)->only(['index', 'create', 'store', 'show']);
+
+    // Categorías y Estándares / Modelos de Hardware
     Route::resource('device-categories', DeviceCategoryController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('device-models', DeviceModelController::class);
 
     // ─── Operaciones de asignación (Livewire Full-Page Components) ────────────
     Route::get('assignments', [\App\Http\Controllers\AssignmentController::class, 'index'])

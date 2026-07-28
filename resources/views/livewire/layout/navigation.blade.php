@@ -42,6 +42,12 @@ new class extends Component
                     <x-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
                         {{ __('Asignaciones') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('maintenances.index')" :active="request()->routeIs('maintenances.*')" wire:navigate>
+                        {{ __('Mantenimientos') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('device-models.index')" :active="request()->routeIs('device-models.*')" wire:navigate>
+                        {{ __('Modelos IT') }}
+                    </x-nav-link>
 
                     {{-- Dropdown Asignaciones --}}
                     <div class="relative flex items-center" x-data="{ openAssign: false }" @click.outside="openAssign = false">
@@ -131,6 +137,12 @@ new class extends Component
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
                 {{ __('Asignaciones') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('maintenances.index')" :active="request()->routeIs('maintenances.*')" wire:navigate>
+                {{ __('Mantenimientos') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('device-models.index')" :active="request()->routeIs('device-models.*')" wire:navigate>
+                {{ __('Modelos IT') }}
             </x-responsive-nav-link>
 
             <div class="border-t border-gray-100 pt-1 mt-1">

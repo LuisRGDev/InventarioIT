@@ -15,6 +15,13 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <a href="{{ route('maintenances.create', ['device_id' => $device->id]) }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-sm rounded-xl shadow-sm transition active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Mantenimiento
+                </a>
                 <a href="{{ route('devices.edit', $device) }}"
                    class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,6 +204,55 @@
                         </div>
                     @endif
 
+                    {{-- Bitácora y Taller de Mantenimientos --}}
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                                <span>🛠️ Bitácora de Mantenimientos e Intervenciones</span>
+                                <span class="px-2 py-0.5 text-xs bg-slate-100 text-slate-700 rounded-full font-bold">{{ $device->maintenances->count() }}</span>
+                            </h3>
+                            <a href="{{ route('maintenances.create', ['device_id' => $device->id]) }}"
+                               class="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-xs font-bold transition inline-flex items-center gap-1">
+                                <span>+ Abrir Orden</span>
+                            </a>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            @forelse($device->maintenances as $m)
+                                <div class="p-5 hover:bg-slate-50/50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2.5 py-0.5 text-[11px] font-bold rounded border {{ $m->type->badgeClasses() }}">
+                                                {{ $m->type->label() }}
+                                            </span>
+                                            <span class="px-2.5 py-0.5 text-[11px] font-bold rounded border {{ $m->status->badgeClasses() }}">
+                                                {{ $m->status->label() }}
+                                            </span>
+                                        </div>
+                                        <p class="text-sm font-extrabold text-slate-800 mt-1.5">{{ $m->title }}</p>
+                                        <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">{{ $m->description ?? 'Sin notas iniciales' }}</p>
+                                        @if($m->resolution_notes)
+                                            <p class="text-xs text-emerald-800 font-medium mt-1 bg-emerald-50 p-2 rounded-lg border border-emerald-200/70">
+                                                <strong>Solución aplicable:</strong> {{ $m->resolution_notes }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                    <div class="sm:text-right flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 flex-shrink-0">
+                                        <span class="text-xs font-semibold text-slate-500">
+                                            @if($m->started_at) {{ $m->started_at->format('d/M/Y') }} @else {{ $m->created_at->format('d/M/Y') }} @endif
+                                        </span>
+                                        <a href="{{ route('maintenances.show', $m) }}" class="text-xs font-bold text-middleby-700 hover:text-middleby-900 underline">
+                                            Ver bitácora &rarr;
+                                        </a>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="p-6 text-center text-gray-400 text-sm italic">
+                                    No hay registros de mantenimiento o taller en la bitácora de este dispositivo.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+
                 </div>
 
                 {{-- Columna lateral --}}
@@ -279,6 +335,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 Ver historial completo
+                            </a>
+                            <a href="{{ route('maintenances.create', ['device_id' => $device->id]) }}"
+                               class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition group">
+                                <svg class="w-4 h-4 text-gray-400 group-hover:text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                Registrar mantenimiento
                             </a>
                             @unless($device->currentAssignment)
                                 <hr class="my-1 border-gray-100">

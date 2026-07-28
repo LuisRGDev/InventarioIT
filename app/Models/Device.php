@@ -15,7 +15,7 @@ class Device extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'device_category_id', 'serial_number', 'computer_name',
+        'device_category_id', 'device_model_id', 'serial_number', 'computer_name',
         'mac_address_ethernet', 'mac_address_wifi',
         'brand', 'model', 'status', 'purchase_date',
         'warranty_expires_at', 'specs', 'notes',
@@ -35,6 +35,11 @@ class Device extends Model
         return $this->belongsTo(DeviceCategory::class, 'device_category_id');
     }
 
+    public function deviceModel(): BelongsTo
+    {
+        return $this->belongsTo(DeviceModel::class, 'device_model_id');
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(DeviceAssignment::class);
@@ -43,6 +48,26 @@ class Device extends Model
     public function currentAssignment(): HasOne
     {
         return $this->hasOne(DeviceAssignment::class)->whereNull('returned_at')->latest('assigned_at');
+    }
+
+    public function maintenances(): HasMany
+    {
+        return $this->hasMany(DeviceMaintenance::class)->latest('started_at');
+    }
+
+    public function activeMaintenance(): HasOne
+    {
+        return $this->hasOne(DeviceMaintenance::class)
+            ->where('status', \App\Enums\MaintenanceStatus::EnProceso)
+            ->latest('started_at');
+    }
+
+    public function lastPreventiveMaintenance(): HasOne
+    {
+        return $this->hasOne(DeviceMaintenance::class)
+            ->where('type', \App\Enums\MaintenanceType::Preventivo)
+            ->where('status', \App\Enums\MaintenanceStatus::Completado)
+            ->latest('completed_at');
     }
 
     public function employees(): BelongsToMany

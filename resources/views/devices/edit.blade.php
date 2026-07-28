@@ -37,8 +37,32 @@
                       x-data="{
                           categoryId: '{{ old('device_category_id', $device->device_category_id) }}',
                           categories: {{ $categoriesJson }},
+                          models: {{ $modelsJson ?? '{}' }},
+                          selectedModelId: '{{ old('device_model_id', $device->device_model_id ?? '') }}',
+                          brand: '{{ old('brand', $device->brand) }}',
+                          model: '{{ old('model', $device->model) }}',
+                          cpu: '{{ old('specs.cpu', $device->specs['cpu'] ?? '') }}',
+                          ram: '{{ old('specs.ram', $device->specs['ram'] ?? '') }}',
+                          storage: '{{ old('specs.storage', $device->specs['storage'] ?? '') }}',
+                          os: '{{ old('specs.os', $device->specs['os'] ?? '') }}',
+
                           get isComputer() { return this.categories[this.categoryId]?.isComputer ?? false; },
-                          get isSmartphone() { return this.categories[this.categoryId]?.isSmartphone ?? false; }
+                          get isSmartphone() { return this.categories[this.categoryId]?.isSmartphone ?? false; },
+                          get filteredModels() {
+                              return Object.values(this.models).filter(m => !this.categoryId || m.category_id == this.categoryId);
+                          },
+                          selectModel(id) {
+                              if (!id || !this.models[id]) {
+                                  return;
+                              }
+                              let m = this.models[id];
+                              this.brand = m.brand;
+                              this.model = m.model;
+                              if (m.cpu) this.cpu = m.cpu;
+                              if (m.ram) this.ram = m.ram;
+                              if (m.storage) this.storage = m.storage;
+                              if (m.os) this.os = m.os;
+                          }
                       }">
                     @csrf
                     @method('PUT')
@@ -85,10 +109,33 @@
                                 <x-input-error :messages="$errors->get('status')" class="mt-1"/>
                             </div>
 
+                            {{-- Selector Inteligente de Estándar / SKU --}}
+                            <div class="sm:col-span-2 bg-gradient-to-br from-indigo-50/80 via-slate-50 to-amber-50/60 p-5 rounded-2xl border-2 border-indigo-100 shadow-xs my-2">
+                                <label for="device_model_id" class="block text-xs font-black uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
+                                    <span>⚡ Estándar de Hardware / Plantilla Corporativa (SKU)</span>
+                                </label>
+                                <p class="text-xs text-indigo-800/90 mt-1 font-medium mb-2.5">
+                                    Selecciona una configuración para <b>autocompletar y sellar</b> la Marca, Modelo y Especificaciones exactas del catálogo sin errores ortográficos:
+                                </p>
+                                <select id="device_model_id" name="device_model_id" x-model="selectedModelId" @change="selectModel($event.target.value)"
+                                        class="block w-full border-2 border-indigo-200 bg-white rounded-xl shadow-xs focus:ring-indigo-500 focus:border-indigo-500 text-sm font-black text-slate-800 p-2.5 transition">
+                                    <option value="">-- Entrada Libre Manual / Sin Plantilla Predefinida --</option>
+                                    <template x-for="m in filteredModels" :key="m.id">
+                                        <option :value="m.id" x-text="m.display_name" :selected="m.id == selectedModelId"></option>
+                                    </template>
+                                </select>
+                                <div x-show="selectedModelId != ''" x-transition class="mt-2 text-xs font-extrabold text-emerald-700 flex items-center gap-1">
+                                    <span>✓ Estándar corporativo aplicado. Puedes personalizar manualmente la RAM o disco abajo si este equipo físico es una excepción o tuvo upgrade.</span>
+                                </div>
+                            </div>
+
                             {{-- Marca --}}
                             <div>
                                 <x-input-label for="brand" value="Marca *"/>
-                                <x-text-input id="brand" name="brand" type="text" class="mt-1 block w-full"
+                                <x-text-input id="brand" name="brand" type="text" class="mt-1 block w-full transition"
+                                              x-model="brand"
+                                              x-bind:readonly="selectedModelId != ''"
+                                              x-bind:class="selectedModelId != '' ? 'bg-slate-100 text-slate-600 border-slate-300 font-bold shadow-none cursor-not-allowed' : ''"
                                               value="{{ old('brand', $device->brand) }}"
                                               :class="$errors->has('brand') ? 'border-red-400' : ''"/>
                                 <x-input-error :messages="$errors->get('brand')" class="mt-1"/>
@@ -97,7 +144,10 @@
                             {{-- Modelo --}}
                             <div>
                                 <x-input-label for="model" value="Modelo *"/>
-                                <x-text-input id="model" name="model" type="text" class="mt-1 block w-full"
+                                <x-text-input id="model" name="model" type="text" class="mt-1 block w-full transition"
+                                              x-model="model"
+                                              x-bind:readonly="selectedModelId != ''"
+                                              x-bind:class="selectedModelId != '' ? 'bg-slate-100 text-slate-600 border-slate-300 font-bold shadow-none cursor-not-allowed' : ''"
                                               value="{{ old('model', $device->model) }}"
                                               :class="$errors->has('model') ? 'border-red-400' : ''"/>
                                 <x-input-error :messages="$errors->get('model')" class="mt-1"/>
@@ -184,7 +234,8 @@
                         <div x-show="isComputer" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                             <div>
                                 <x-input-label for="specs_cpu" value="Procesador (CPU)"/>
-                                <x-text-input id="specs_cpu" name="specs[cpu]" type="text" class="mt-1 block w-full"
+                                <x-text-input id="specs_cpu" name="specs[cpu]" type="text" class="mt-1 block w-full font-medium"
+                                              x-model="cpu"
                                               value="{{ old('specs.cpu', $device->specs['cpu'] ?? '') }}" placeholder="Ej. Intel Core i5-1240P"/>
                             </div>
                             <div>
@@ -194,17 +245,20 @@
                             </div>
                             <div>
                                 <x-input-label for="specs_ram" value="Memoria RAM"/>
-                                <x-text-input id="specs_ram" name="specs[ram]" type="text" class="mt-1 block w-full"
+                                <x-text-input id="specs_ram" name="specs[ram]" type="text" class="mt-1 block w-full font-medium"
+                                              x-model="ram"
                                               value="{{ old('specs.ram', $device->specs['ram'] ?? '') }}" placeholder="Ej. 16 GB DDR4"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_storage" value="Almacenamiento (Disco)"/>
-                                <x-text-input id="specs_storage" name="specs[storage]" type="text" class="mt-1 block w-full"
+                                <x-text-input id="specs_storage" name="specs[storage]" type="text" class="mt-1 block w-full font-medium"
+                                              x-model="storage"
                                               value="{{ old('specs.storage', $device->specs['storage'] ?? '') }}" placeholder="Ej. 512 GB SSD NVMe"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_os" value="Sistema Operativo"/>
-                                <x-text-input id="specs_os" name="specs[os]" type="text" class="mt-1 block w-full"
+                                <x-text-input id="specs_os" name="specs[os]" type="text" class="mt-1 block w-full font-medium"
+                                              x-model="os"
                                               value="{{ old('specs.os', $device->specs['os'] ?? '') }}" placeholder="Ej. Windows 11 Pro"/>
                             </div>
                         </div>
