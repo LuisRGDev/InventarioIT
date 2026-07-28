@@ -31,7 +31,7 @@ new class extends Component
                 <!-- Navigation Links -->
                 <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                        Dashboard
+                        Inicio
                     </x-nav-link>
                     <x-nav-link :href="route('devices.index')" :active="request()->routeIs('devices.*')" wire:navigate>
                         Equipos
