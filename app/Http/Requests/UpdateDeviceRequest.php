@@ -35,9 +35,9 @@ class UpdateDeviceRequest extends FormRequest
             'specs.ram'            => ['nullable', 'string', 'max:50'],
             'specs.storage'        => ['nullable', 'string', 'max:100'],
             'specs.os'             => ['nullable', 'string', 'max:100'],
-            'specs.phone_number'   => ['nullable', 'string', 'max:30'],
-            'specs.imei'           => ['nullable', 'string', 'max:50'],
-            'specs.data_plan'      => ['nullable', 'string', 'max:100'],
+            'phone_number'         => ['nullable', 'string', 'max:30'],
+            'imei'                 => ['nullable', 'string', 'max:50'],
+            'data_plan'            => ['nullable', 'string', 'max:100'],
             'notes'                => ['nullable', 'string'],
         ];
     }

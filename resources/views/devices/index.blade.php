@@ -203,6 +203,16 @@
                                                 <span class="text-gray-300">WiFi</span> {{ $device->mac_address_wifi }}
                                             </div>
                                         @endif
+                                        @if($device->phone_number)
+                                            <div class="text-xs text-gray-400 mt-0.5 font-mono">
+                                                <span class="text-gray-300">Tel</span> {{ $device->phone_number }}
+                                            </div>
+                                        @endif
+                                        @if($device->imei)
+                                            <div class="text-xs text-gray-400 mt-0.5 font-mono">
+                                                <span class="text-gray-300">IMEI</span> {{ $device->imei }}
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-600">
                                         {{ $device->category?->name ?? '—' }}

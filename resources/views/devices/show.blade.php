@@ -101,6 +101,20 @@
                                 <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">MAC WiFi (WLAN)</dt>
                                 <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->mac_address_wifi ?? '—' }}</dd>
                             </div>
+                            @if($device->phone_number || $device->imei || $device->data_plan)
+                            <div>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Número de Celular</dt>
+                                <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->phone_number ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">IMEI</dt>
+                                <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->imei ?? '—' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Plan de Datos</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ $device->data_plan ?? '—' }}</dd>
+                            </div>
+                            @endif
                             <div>
                                 <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha de compra</dt>
                                 <dd class="mt-1 text-sm text-gray-900">

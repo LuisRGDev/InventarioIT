@@ -246,19 +246,19 @@
                         {{-- Campos de Celular --}}
                         <div x-show="isSmartphone" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                             <div>
-                                <x-input-label for="specs_phone_number" value="Número de Teléfono"/>
-                                <x-text-input id="specs_phone_number" name="specs[phone_number]" type="text" class="mt-1 block w-full"
-                                              value="{{ old('specs.phone_number') }}" placeholder="Ej. 55 1234 5678"/>
+                                <x-input-label for="phone_number" value="Número de Teléfono"/>
+                                <x-text-input id="phone_number" name="phone_number" type="text" class="mt-1 block w-full"
+                                              value="{{ old('phone_number') }}" placeholder="Ej. 55 1234 5678"/>
                             </div>
                             <div>
-                                <x-input-label for="specs_imei" value="IMEI"/>
-                                <x-text-input id="specs_imei" name="specs[imei]" type="text" class="mt-1 block w-full font-mono"
-                                              value="{{ old('specs.imei') }}" placeholder="IMEI del dispositivo"/>
+                                <x-input-label for="imei" value="IMEI"/>
+                                <x-text-input id="imei" name="imei" type="text" class="mt-1 block w-full font-mono"
+                                              value="{{ old('imei') }}" placeholder="IMEI del dispositivo"/>
                             </div>
                             <div>
-                                <x-input-label for="specs_data_plan" value="Plan de Datos"/>
-                                <x-text-input id="specs_data_plan" name="specs[data_plan]" type="text" class="mt-1 block w-full"
-                                              value="{{ old('specs.data_plan') }}" placeholder="Ej. Plan Telcel Max Sin Límite"/>
+                                <x-input-label for="data_plan" value="Plan de Datos"/>
+                                <x-text-input id="data_plan" name="data_plan" type="text" class="mt-1 block w-full"
+                                              value="{{ old('data_plan') }}" placeholder="Ej. Plan Telcel Max Sin Límite"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_os_mobile" value="Sistema Operativo"/>
