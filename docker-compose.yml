@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # 1. Contenedor de PHP (La aplicación)
+  app:
+    build:
+      context: . # Usa el Dockerfile de esta misma carpeta
+      dockerfile: Dockerfile
+    container_name: itam_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www # Súper importante: Conecta tu código local con el contenedor en tiempo real
+    networks:
+      - itam_network
+
+  # 2. Contenedor del Servidor Web (Nginx)
+  web:
+    image: nginx:alpine
+    container_name: itam_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80" # Podrás ver tu app en http://localhost:8000
+    volumes:
+      - ./:/var/www # Nginx también necesita acceso a los archivos
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d # Aquí le daremos sus reglas (lo haremos en la Tarea 2)
+    depends_on:
+      - app # Nginx espera a que la app esté lista
+    networks:
+      - itam_network
+
+  # 3. Contenedor de Base de Datos (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: itam_mysql
+    restart: unless-stopped
+    environment:
+      # Tomará los datos de tu archivo .env de Laravel. Si no están, usará los de por defecto.
+      MYSQL_DATABASE: ${DB_DATABASE:-itam_db}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-itam_user}
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - "3316:3306"
+    volumes:
+      - itam_db_data:/var/lib/mysql # Guarda los datos permanentemente aunque apagues la PC
+    networks:
+      - itam_network
+
+# Definimos las redes y volúmenes globales para que los contenedores se comuniquen entre sí
+networks:
+  itam_network:
+    driver: bridge
+
+volumes:
+  itam_db_data:
