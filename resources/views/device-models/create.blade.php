@@ -29,7 +29,15 @@
                     </div>
                 </div>
 
-                <form action="{{ route('device-models.store') }}" method="POST" class="p-6 sm:p-8 space-y-8">
+                <form action="{{ route('device-models.store') }}" method="POST" class="p-6 sm:p-8 space-y-8"
+                      x-data="{ 
+                          categoryId: '{{ old('device_category_id') }}',
+                          categories: {{ $categories->map(fn($c) => ['id' => $c->id, 'slug' => $c->slug])->toJson() }},
+                          get isSmartphone() {
+                              const cat = this.categories.find(c => c.id == this.categoryId);
+                              return cat && cat.slug === 'smartphone';
+                          }
+                      }">
                     @csrf
 
                     @if ($errors->any())
@@ -56,7 +64,7 @@
                                 <label for="device_category_id" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     Categoría del Dispositivo *
                                 </label>
-                                <select id="device_category_id" name="device_category_id" required class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition">
+                                <select id="device_category_id" name="device_category_id" x-model="categoryId" required class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition">
                                     <option value="">-- Selecciona la categoría --</option>
                                     @foreach ($categories as $cat)
                                         <option value="{{ $cat->id }}" {{ old('device_category_id') == $cat->id ? 'selected' : '' }}>
@@ -107,7 +115,7 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             {{-- CPU --}}
-                            <div>
+                            <div x-show="!isSmartphone" x-transition>
                                 <label for="cpu" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     Procesador (CPU)
                                 </label>
@@ -127,7 +135,7 @@
                             {{-- Almacenamiento --}}
                             <div>
                                 <label for="storage" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                                    Almacenamiento (Disco)
+                                    <span x-text="isSmartphone ? 'Almacenamiento (Capacidad)' : 'Almacenamiento (Disco)'">Almacenamiento (Disco)</span>
                                 </label>
                                 <input type="text" id="storage" name="storage" value="{{ old('storage') }}" placeholder="Ej. 512 GB SSD NVMe M.2, 1 TB SSD..."
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
@@ -136,7 +144,7 @@
                             {{-- Sistema Operativo --}}
                             <div>
                                 <label for="os" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                                    Sistema Operativo por Defecto
+                                    <span x-text="isSmartphone ? 'Sistema Operativo Móvil' : 'Sistema Operativo por Defecto'">Sistema Operativo por Defecto</span>
                                 </label>
                                 <input type="text" id="os" name="os" value="{{ old('os') }}" placeholder="Ej. Windows 11 Pro 64-bit, macOS Sonoma, iOS 17..."
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
