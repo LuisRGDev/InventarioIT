@@ -18,47 +18,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MaintenanceController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
-        $statusFilter = $request->get('status', 'all');
-        $typeFilter   = $request->get('type', 'all');
-        $search       = $request->get('search');
-
-        $query = DeviceMaintenance::with(['device', 'device.category', 'user'])->latest('started_at');
-
-        if ($statusFilter !== 'all' && $statusFilter !== '') {
-            $query->where('status', $statusFilter);
-        }
-
-        if ($typeFilter !== 'all' && $typeFilter !== '') {
-            $query->where('type', $typeFilter);
-        }
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('resolution_notes', 'like', "%{$search}%")
-                  ->orWhereHas('device', function ($dq) use ($search) {
-                      $dq->where('serial_number', 'like', "%{$search}%")
-                         ->orWhere('computer_name', 'like', "%{$search}%")
-                         ->orWhere('brand', 'like', "%{$search}%")
-                         ->orWhere('model', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        $maintenances = $query->paginate(15)->withQueryString();
-
-        // Estadísticas rápidas para las tarjetas superiores
-        $stats = [
-            'in_progress' => DeviceMaintenance::where('status', MaintenanceStatus::EnProceso)->count(),
-            'scheduled'   => DeviceMaintenance::where('status', MaintenanceStatus::Programado)->count(),
-            'completed'   => DeviceMaintenance::where('status', MaintenanceStatus::Completado)->count(),
-            'preventives' => DeviceMaintenance::where('type', MaintenanceType::Preventivo)->count(),
-        ];
-
-        return view('maintenances.index', compact('maintenances', 'stats', 'statusFilter', 'typeFilter', 'search'));
+        return view('maintenances.index');
     }
 
     public function create(Request $request): View
