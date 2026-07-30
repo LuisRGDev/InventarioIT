@@ -19,6 +19,7 @@ class StoreDeviceRequest extends FormRequest
             'device_category_id'  => ['required', 'exists:device_categories,id'],
             'device_model_id'     => ['nullable', 'exists:device_models,id'],
             'serial_number'       => ['required', 'string', 'max:100', 'unique:devices,serial_number'],
+            'service_tag'         => ['nullable', 'string', 'max:100'],
             'computer_name'       => ['nullable', 'string', 'max:100'],
             'mac_address_ethernet' => ['nullable', 'string', 'max:17', 'unique:devices,mac_address_ethernet'],
             'mac_address_wifi'    => ['nullable', 'string', 'max:17', 'unique:devices,mac_address_wifi'],

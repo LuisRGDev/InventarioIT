@@ -162,6 +162,15 @@
                                 <x-input-error :messages="$errors->get('serial_number')" class="mt-1"/>
                             </div>
 
+                            {{-- Etiqueta de Servicio --}}
+                            <div>
+                                <x-input-label for="service_tag" value="Etiqueta de Servicio (Service Tag)"/>
+                                <x-text-input id="service_tag" name="service_tag" type="text" class="mt-1 block w-full font-mono"
+                                              value="{{ old('service_tag', $device->service_tag) }}" placeholder="Ej. ST-123456"
+                                              :class="$errors->has('service_tag') ? 'border-red-400' : ''"/>
+                                <x-input-error :messages="$errors->get('service_tag')" class="mt-1"/>
+                            </div>
+
                             {{-- Nombre de la PC --}}
                             <div>
                                 <x-input-label for="computer_name" value="Nombre de la PC / Hostname"/>

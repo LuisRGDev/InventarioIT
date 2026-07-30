@@ -21,6 +21,7 @@ class UpdateDeviceRequest extends FormRequest
             'device_category_id'   => ['required', 'exists:device_categories,id'],
             'device_model_id'      => ['nullable', 'exists:device_models,id'],
             'serial_number'        => ['required', 'string', 'max:100', Rule::unique('devices', 'serial_number')->ignore($deviceId)],
+            'service_tag'          => ['nullable', 'string', 'max:100'],
             'computer_name'        => ['nullable', 'string', 'max:100'],
             'mac_address_ethernet' => ['nullable', 'string', 'max:17', Rule::unique('devices', 'mac_address_ethernet')->ignore($deviceId)],
             'mac_address_wifi'     => ['nullable', 'string', 'max:17', Rule::unique('devices', 'mac_address_wifi')->ignore($deviceId)],

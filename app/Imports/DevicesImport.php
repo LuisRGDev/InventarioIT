@@ -57,6 +57,7 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
                     'brand'               => $row['marca'],
                     'model'               => $row['modelo'],
                     'serial_number'       => $row['numero_de_serie'],
+                    'service_tag'         => $row['etiqueta_de_servicio'] ?? null,
                     'computer_name'       => $row['hostname'] ?? null,
                     'mac_address_ethernet'=> $row['mac_ethernet'] ?? null,
                     'mac_address_wifi'    => $row['mac_wifi'] ?? null,

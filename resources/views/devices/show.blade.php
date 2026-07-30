@@ -90,6 +90,10 @@
                                 <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->serial_number }}</dd>
                             </div>
                             <div>
+                                <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Etiqueta de Servicio</dt>
+                                <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->service_tag ?? '—' }}</dd>
+                            </div>
+                            <div>
                                 <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre de PC (Hostname)</dt>
                                 <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->computer_name ?? '—' }}</dd>
                             </div>
