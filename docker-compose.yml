@@ -1,57 +1,100 @@
-version: '3.8'
-
 services:
-  # 1. Contenedor de PHP (La aplicación)
+
+  # ==========================================================
+  # Laravel / PHP-FPM
+  # ==========================================================
   app:
     build:
-      context: . # Usa el Dockerfile de esta misma carpeta
+      context: .
       dockerfile: Dockerfile
-    container_name: itam_app
+
+    container_name: inventarioit_app
+
     restart: unless-stopped
+
     working_dir: /var/www
-    volumes:
-      - ./:/var/www # Súper importante: Conecta tu código local con el contenedor en tiempo real
-    networks:
-      - itam_network
 
-  # 2. Contenedor del Servidor Web (Nginx)
-  web:
-    image: nginx:alpine
-    container_name: itam_nginx
-    restart: unless-stopped
-    ports:
-      - "8000:80" # Podrás ver tu app en http://localhost:8000
     volumes:
-      - ./:/var/www # Nginx también necesita acceso a los archivos
-      - ./docker/nginx/conf.d:/etc/nginx/conf.d # Aquí le daremos sus reglas (lo haremos en la Tarea 2)
+      - ./:/var/www
+
+    networks:
+      - inventarioit_net
+
     depends_on:
-      - app # Nginx espera a que la app esté lista
-    networks:
-      - itam_network
+      db:
+        condition: service_healthy
 
-  # 3. Contenedor de Base de Datos (MySQL)
-  db:
-    image: mysql:8.0
-    container_name: itam_mysql
+  # ==========================================================
+  # Nginx
+  # ==========================================================
+  nginx:
+    image: nginx:stable-alpine
+
+    container_name: inventarioit_nginx
+
     restart: unless-stopped
+
+    ports:
+      - "8001:80"
+
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+    networks:
+      - inventarioit_net
+
+    depends_on:
+      - app
+
+  # ==========================================================
+  # MariaDB
+  # ==========================================================
+  db:
+    image: mariadb:11
+
+    container_name: inventarioit_db
+
+    restart: unless-stopped
+
     environment:
-      # Tomará los datos de tu archivo .env de Laravel. Si no están, usará los de por defecto.
-      MYSQL_DATABASE: ${DB_DATABASE:-itam_db}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_USER: ${DB_USERNAME:-itam_user}
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: itam_system
+      MYSQL_USER: itam_user
+      MYSQL_PASSWORD: itam_password
+      MYSQL_ROOT_PASSWORD: root_password
+
     ports:
       - "3316:3306"
-    volumes:
-      - itam_db_data:/var/lib/mysql # Guarda los datos permanentemente aunque apagues la PC
-    networks:
-      - itam_network
 
-# Definimos las redes y volúmenes globales para que los contenedores se comuniquen entre sí
+    volumes:
+      - inventarioit_db_data:/var/lib/mysql
+
+    networks:
+      - inventarioit_net
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+# ============================================================
+# Red
+# ============================================================
 networks:
-  itam_network:
+  inventarioit_net:
     driver: bridge
 
+
+# ============================================================
+# Volúmenes persistentes
+# ============================================================
 volumes:
-  itam_db_data:
+  inventarioit_db_data:
