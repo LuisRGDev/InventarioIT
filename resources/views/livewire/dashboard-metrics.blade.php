@@ -73,7 +73,7 @@
             <div class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-middleby-600 inline-block"></span>
-                    <h3 class="font-bold text-slate-800">├Ültimas Asignaciones Activas</h3>
+                    <h3 class="font-bold text-slate-800">Ultimas Asignaciones Activas</h3>
                 </div>
                 <a href="{{ route('assignments.index') }}" class="text-xs font-bold uppercase tracking-wider text-middleby-700 hover:text-middleby-900 transition-colors bg-middleby-50 px-3 py-1 rounded-lg border border-middleby-100">Ver todas &rarr;</a>
             </div>
@@ -117,7 +117,7 @@
                 <div class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
-                        <h3 class="font-bold text-slate-800">Garant├¡as por Vencer</h3>
+                        <h3 class="font-bold text-slate-800">Garantias por Vencer</h3>
                     </div>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200">
                         &lt; 30 d├¡as
@@ -146,7 +146,7 @@
                             <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3 text-emerald-600">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
-                            <p class="text-slate-500 font-medium text-sm">Todas las garant├¡as est├ín al corriente.</p>
+                            <p class="text-slate-500 font-medium text-sm">Todas las garantias estan al corriente.</p>
                         </div>
                     @endforelse
                 </div>
@@ -155,11 +155,11 @@
 
     </div>
 
-    {{-- Secci├│n de Mantenimientos Activos / En Taller --}}
+    {{-- Sección de Mantenimientos Activos / En Taller --}}
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-900 to-slate-800 text-white flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <span class="text-2xl">­ƒøá´©Å</span>
+                <!-- <span class="text-2xl">­ƒøá´©Å</span> -->
                 <div>
                     <h3 class="font-bold text-base">Equipos Actualmente en Taller y Mantenimiento Activo</h3>
                     <p class="text-xs text-slate-300 font-normal">Supervisa intervenciones en curso, reparaciones correctivas y mantenimientos programados.</p>
@@ -200,7 +200,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                     <p class="text-slate-700 font-bold text-sm">No hay equipos abiertos en taller o con mantenimientos pendientes.</p>
-                    <p class="text-xs text-slate-400 mt-0.5">Puedes registrar una nueva rutina t├®cnica o reparaci├│n programada en cualquier momento.</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Puedes registrar una nueva rutina técnica o reparación programada en cualquier momento.</p>
                 </div>
             @endforelse
         </div>
