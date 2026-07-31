@@ -39,6 +39,7 @@ class UpdateDeviceRequest extends FormRequest
             'phone_number'         => ['nullable', 'string', 'max:30'],
             'imei'                 => ['nullable', 'string', 'max:50'],
             'data_plan'            => ['nullable', 'string', 'max:100'],
+            'plan_cost'            => ['nullable', 'numeric', 'min:0'],
             'notes'                => ['nullable', 'string'],
         ];
     }

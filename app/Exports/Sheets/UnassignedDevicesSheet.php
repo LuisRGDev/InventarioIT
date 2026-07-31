@@ -38,6 +38,7 @@ class UnassignedDevicesSheet implements FromCollection, WithHeadings, WithMappin
             'Teléfono / Número',
             'IMEI',
             'Plan de Datos',
+            'Costo de Plan',
             'Notas / Ubicación en Almacén'
         ];
     }
@@ -61,9 +62,10 @@ class UnassignedDevicesSheet implements FromCollection, WithHeadings, WithMappin
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->specs['phone_number'] ?? '',
-            $device->specs['imei'] ?? '',
-            $device->specs['data_plan'] ?? '',
+            $device->phone_number ?? '',
+            $device->imei ?? '',
+            $device->data_plan ?? '',
+            $device->plan_cost ?? '',
             $device->notes ?? '',
         ];
     }

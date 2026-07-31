@@ -290,6 +290,11 @@
                                               value="{{ old('data_plan', $device->data_plan) }}" placeholder="Ej. Plan Telcel Max Sin Límite"/>
                             </div>
                             <div>
+                                <x-input-label for="plan_cost" value="Costo del Plan"/>
+                                <x-text-input id="plan_cost" name="plan_cost" type="number" step="0.01" class="mt-1 block w-full"
+                                              value="{{ old('plan_cost', $device->plan_cost) }}" placeholder="Ej. 499.00"/>
+                            </div>
+                            <div>
                                 <x-input-label for="specs_os_mobile" value="Sistema Operativo"/>
                                 <x-text-input id="specs_os_mobile" name="specs[os]" type="text" class="mt-1 block w-full"
                                               value="{{ old('specs.os', $device->specs['os'] ?? '') }}" placeholder="Ej. iOS 17 / Android 14"/>

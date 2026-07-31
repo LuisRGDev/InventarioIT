@@ -48,6 +48,9 @@ new class extends Component
                     <x-nav-link :href="route('device-models.index')" :active="request()->routeIs('device-models.*')" wire:navigate>
                         {{ __('Modelos IT') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('job-positions.index')" :active="request()->routeIs('job-positions.*')" wire:navigate>
+                        {{ __('Puestos') }}
+                    </x-nav-link>
 
                     {{-- Dropdown Asignaciones --}}
                     <div class="relative flex items-center" x-data="{ openAssign: false }" @click.outside="openAssign = false">
@@ -143,6 +146,9 @@ new class extends Component
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('device-models.index')" :active="request()->routeIs('device-models.*')" wire:navigate>
                 {{ __('Modelos IT') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('job-positions.index')" :active="request()->routeIs('job-positions.*')" wire:navigate>
+                {{ __('Puestos') }}
             </x-responsive-nav-link>
 
             <div class="border-t border-gray-100 pt-1 mt-1">

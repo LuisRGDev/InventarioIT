@@ -3,7 +3,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h2 class="font-bold text-xl text-middleby-900 leading-tight tracking-tight flex items-center gap-2.5">
                 <span class="w-2 h-6 bg-gradient-to-b from-amber-500 to-middleby-700 rounded-full inline-block shadow-sm"></span>
-                {{ __('Panel de Control · Inventario IT') }}
+                {{ __('Panel de Control') }}
             </h2>
             <div class="flex flex-wrap items-center gap-3" x-data>
                 <button type="button" @click.stop="$dispatch('open-general-import-modal')" class="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50 text-sm font-bold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 inline-flex items-center gap-2 active:scale-95 group">

@@ -20,8 +20,7 @@ class EmployeeOnboardingWizard extends Component
     public string $employee_code = '';
     public string $domain_account = '';
     public string $phone = '';
-    public string $department = '';
-    public string $position = '';
+    public ?int $job_position_id = null;
     public string $notes = '';
     public ?int $employeeId = null;
 
@@ -69,6 +68,12 @@ class EmployeeOnboardingWizard extends Component
         return DeviceCondition::cases();
     }
 
+    #[Computed]
+    public function jobPositions()
+    {
+        return \App\Models\JobPosition::orderBy('direction')->orderBy('area')->orderBy('name')->get();
+    }
+
     public function selectComputer(int $id)
     {
         $this->computer_id = $id;
@@ -99,10 +104,13 @@ class EmployeeOnboardingWizard extends Component
             'employee_code' => 'nullable|string|max:50|unique:employees,employee_code',
             'domain_account' => 'nullable|string|max:100|unique:employees,domain_account',
             'phone' => 'nullable|string|max:30',
-            'department' => 'required|string|max:100',
-            'position' => 'required|string|max:100',
+            'job_position_id' => 'required|exists:job_positions,id',
             'notes' => 'nullable|string',
         ]);
+
+        $jobPosition = \App\Models\JobPosition::findOrFail($this->job_position_id);
+        $validated['department'] = $jobPosition->area;
+        $validated['position'] = $jobPosition->name;
 
         $validated['status'] = EmployeeStatus::Activo->value;
 

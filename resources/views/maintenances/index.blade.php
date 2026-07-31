@@ -3,7 +3,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <h2 class="font-bold text-xl text-middleby-900 leading-tight tracking-tight flex items-center gap-2.5">
                 <span class="w-2 h-6 bg-gradient-to-b from-amber-500 to-middleby-700 rounded-full inline-block shadow-sm"></span>
-                {{ __('Control y Bitácora de Mantenimientos IT') }}
+                {{ __('Control y Bitácora de Mantenimientos') }}
             </h2>
             <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('maintenances.export') }}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm hover:shadow-md transition inline-flex items-center gap-2 active:scale-95">

@@ -3,9 +3,8 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use App\Exports\Sheets\AssignedDevicesSheet;
+use App\Exports\Sheets\GlobalEmployeesInventorySheet;
 use App\Exports\Sheets\UnassignedDevicesSheet;
-use App\Exports\Sheets\EmployeesSheet;
 
 class GeneralInventoryExport implements WithMultipleSheets
 {
@@ -17,9 +16,8 @@ class GeneralInventoryExport implements WithMultipleSheets
     public function sheets(): array
     {
         return [
-            new AssignedDevicesSheet(),
+            new GlobalEmployeesInventorySheet(),
             new UnassignedDevicesSheet(),
-            new EmployeesSheet(),
         ];
     }
 }

@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <h2 class="font-bold text-xl text-middleby-900 leading-tight tracking-tight flex items-center gap-2.5">
                 <span class="w-2 h-6 bg-gradient-to-b from-amber-500 to-middleby-700 rounded-full inline-block shadow-sm"></span>
-                Equipos de Cómputo e Infraestructura
+                Equipos de Cómputo
             </h2>
             <div class="flex flex-wrap gap-3" x-data>
                 <button type="button" @click.stop="$dispatch('open-devices-import-modal')" class="px-4 py-2 bg-white text-emerald-700 border border-emerald-200 text-sm font-semibold rounded-xl hover:bg-emerald-50 transition shadow-xs inline-flex items-center gap-2">

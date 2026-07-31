@@ -25,19 +25,19 @@
 
                         <div>
                             <x-input-label for="email" value="Correo Electrónico *"/>
-                            <x-text-input wire:model="email" id="email" type="email" class="mt-1 block w-full" placeholder="juan@empresa.com"/>
+                            <x-text-input wire:model="email" id="email" type="email" class="mt-1 block w-full" placeholder="larosales@middleby.com"/>
                             <x-input-error :messages="$errors->get('email')" class="mt-1"/>
                         </div>
 
                         <div>
-                            <x-input-label for="phone" value="Teléfono Personal"/>
+                            <x-input-label for="phone" value="Numero de Telefono"/>
                             <x-text-input wire:model="phone" id="phone" type="text" class="mt-1 block w-full"/>
                             <x-input-error :messages="$errors->get('phone')" class="mt-1"/>
                         </div>
 
                         <div>
                             <x-input-label for="employee_code" value="Número de Empleado (Nomina)"/>
-                            <x-text-input wire:model="employee_code" id="employee_code" type="text" class="mt-1 block w-full font-mono"/>
+                            <x-text-input wire:model="employee_code" id="employee_code" type="text" class="mt-1 block w-full font-mono" placeholder="000"/>
                             <x-input-error :messages="$errors->get('employee_code')" class="mt-1"/>
                         </div>
 
@@ -47,16 +47,15 @@
                             <x-input-error :messages="$errors->get('domain_account')" class="mt-1"/>
                         </div>
 
-                        <div>
-                            <x-input-label for="department" value="Departamento *"/>
-                            <x-text-input wire:model="department" id="department" type="text" class="mt-1 block w-full" placeholder="Ej. TI, Recursos Humanos"/>
-                            <x-input-error :messages="$errors->get('department')" class="mt-1"/>
-                        </div>
-
-                        <div>
-                            <x-input-label for="position" value="Puesto *"/>
-                            <x-text-input wire:model="position" id="position" type="text" class="mt-1 block w-full" placeholder="Ej. Desarrollador Sr."/>
-                            <x-input-error :messages="$errors->get('position')" class="mt-1"/>
+                        <div class="sm:col-span-2">
+                            <x-input-label for="job_position_id" value="Puesto, Área y Dirección *"/>
+                            <select wire:model="job_position_id" id="job_position_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Selecciona un puesto del catálogo...</option>
+                                @foreach($this->jobPositions as $jp)
+                                    <option value="{{ $jp->id }}">{{ $jp->display_name }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('job_position_id')" class="mt-1"/>
                         </div>
                     </div>
 

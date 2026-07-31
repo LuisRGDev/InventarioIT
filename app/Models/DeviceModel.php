@@ -17,6 +17,7 @@ class DeviceModel extends Model
         'model',
         'variant',
         'cpu',
+        'cores',
         'ram',
         'storage',
         'os',

@@ -24,7 +24,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-black">Editando Plantilla Corporativa #{{ $deviceModel->id }}</h3>
-                            <p class="text-xs sm:text-sm text-slate-300 mt-1 font-medium">Las modificaciones que hagas aquí mantendrán organizados los filtros y búsquedas futuras para este estándar o SKU.</p>
+                            <p class="text-xs sm:text-sm text-slate-300 mt-1 font-medium">Las modificaciones que hagas aquí mantendrán organizados los filtros y búsquedas futuras para este estándar.</p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                         {{-- Variante / Edición --}}
                         <div class="mt-5 bg-amber-50/60 p-5 rounded-2xl border border-amber-200/80">
                             <label for="variant" class="block text-xs font-black text-amber-900 uppercase tracking-wider mb-1">
-                                Variante, Edición o Sub-Configuración (SKU)
+                                Variante, Edición o Sub-Configuración
                             </label>
                             <p class="text-xs text-amber-800 mb-3 font-medium">
                                 💡 Útil cuando el mismo modelo físico se vende con distintas piezas de procesador, RAM o almacenamiento.
@@ -121,6 +121,15 @@
                                     Procesador (CPU)
                                 </label>
                                 <input type="text" id="cpu" name="cpu" value="{{ old('cpu', $deviceModel->cpu) }}" placeholder="Ej. Intel Core i5-1235U 1.3GHz, Apple M3 Pro..."
+                                       class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
+                            </div>
+
+                            {{-- Núcleos (Cores) --}}
+                            <div x-show="!isSmartphone" x-transition>
+                                <label for="cores" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                                    Núcleos (Cores)
+                                </label>
+                                <input type="text" id="cores" name="cores" value="{{ old('cores', $deviceModel->cores) }}" placeholder="Ej. 10 Núcleos, Octa-core..."
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
                             </div>
 

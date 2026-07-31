@@ -23,6 +23,11 @@ class Employee extends Model
 
     // ─── Relaciones ───────────────────────────────────────────
 
+    public function jobPosition(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(JobPosition::class);
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(DeviceAssignment::class);

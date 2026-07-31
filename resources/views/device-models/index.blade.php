@@ -6,14 +6,14 @@
                     <span class="w-2.5 h-7 bg-gradient-to-b from-middleby-600 to-amber-500 rounded-full inline-block shadow-sm"></span>
                     {{ __('Catálogo de Modelos y Estándares de Hardware') }}
                 </h2>
-                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Configura las plantillas oficiales, SKUs y especificaciones corporativas para evitar errores al registrar equipos.</p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Configura las plantillas oficiales y especificaciones corporativas para evitar errores al registrar equipos.</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('device-models.create') }}" class="px-5 py-2.5 bg-gradient-to-r from-middleby-800 to-middleby-700 hover:from-middleby-700 hover:to-middleby-600 text-white text-sm font-black rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center gap-2 active:scale-95 group">
                     <div class="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center text-white group-hover:rotate-90 transition-transform duration-200">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                     </div>
-                    <span>Registrar Nuevo Estándar / SKU</span>
+                    <span>Registrar Nuevo Estándar</span>
                 </a>
             </div>
         </div>
@@ -44,7 +44,7 @@
             <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
                 <form method="GET" action="{{ route('device-models.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
                     <div class="sm:col-span-6">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Buscar por Marca, Modelo o SKU</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Buscar por Marca o Modelo</label>
                         <div class="relative">
                             <input type="text" name="search" value="{{ request('search') }}" placeholder="Ej. HP, ProBook 440, Core i7, iPhone..." 
                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition"/>
@@ -99,7 +99,7 @@
                                 <tr class="bg-slate-50/80 border-b border-slate-100 text-xs font-extrabold uppercase text-slate-500 tracking-wider">
                                     <th class="py-4 px-6">Categoría</th>
                                     <th class="py-4 px-6">Marca y Modelo</th>
-                                    <th class="py-4 px-6">Variante / Configuración (SKU)</th>
+                                    <th class="py-4 px-6">Variante / Configuración</th>
                                     <th class="py-4 px-6">Especificaciones por Defecto</th>
                                     <th class="py-4 px-6 text-center">Equipos en Inventario</th>
                                     <th class="py-4 px-6 text-right">Acciones</th>

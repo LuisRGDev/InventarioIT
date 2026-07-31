@@ -4,6 +4,7 @@ use App\Http\Controllers\DeviceCategoryController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DeviceModelController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\MaintenanceController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\ReplaceDevicePage;
@@ -51,10 +52,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('maintenances/{maintenance}/cancel', [MaintenanceController::class, 'cancel'])->name('maintenances.cancel');
     Route::resource('maintenances', MaintenanceController::class)->only(['index', 'create', 'store', 'show']);
 
-    // Categorías y Estándares / Modelos de Hardware
+    // Categorías y Estándares / Modelos de Hardware / Puestos
     Route::resource('device-categories', DeviceCategoryController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('device-models', DeviceModelController::class);
+    Route::resource('job-positions', JobPositionController::class);
 
     // ─── Operaciones de asignación (Livewire Full-Page Components) ────────────
     Route::get('assignments', [\App\Http\Controllers\AssignmentController::class, 'index'])
