@@ -68,11 +68,15 @@
                                             @endif
                                             <div>
                                                 <div class="font-medium text-gray-900">
+                                                    @if($assignment->device)
                                                     <a href="{{ route('devices.show', $assignment->device) }}" class="hover:text-indigo-600 hover:underline">
                                                         {{ $assignment->device->brand }} {{ $assignment->device->model }}
                                                     </a>
+                                                    @else
+                                                    <span class="text-gray-400 italic">Equipo eliminado</span>
+                                                    @endif
                                                 </div>
-                                                <div class="text-xs text-gray-500 font-mono mt-0.5">SN: {{ $assignment->device->serial_number }}</div>
+                                                <div class="text-xs text-gray-500 font-mono mt-0.5">SN: {{ $assignment->device?->serial_number ?? 'N/A' }}</div>
                                             </div>
                                         </div>
                                     </td>

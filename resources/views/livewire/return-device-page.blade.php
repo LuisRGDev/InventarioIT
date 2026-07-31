@@ -78,8 +78,8 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-gray-900">{{ $this->device->currentAssignment->employee->name }}</p>
-                                    <p class="text-sm text-gray-500">{{ $this->device->currentAssignment->employee->department }} - {{ $this->device->currentAssignment->employee->position }}</p>
+                                    <p class="text-sm font-medium text-gray-900">{{ $this->device->currentAssignment->employee?->name ?? 'N/A' }}</p>
+                                    <p class="text-sm text-gray-500">{{ $this->device->currentAssignment->employee?->department ?? '' }} {{ $this->device->currentAssignment->employee?->position ? '- '.$this->device->currentAssignment->employee->position : '' }}</p>
                                     <p class="text-xs text-gray-400 mt-1">Asignado el: {{ $this->device->currentAssignment->assigned_at->format('d/m/Y') }}</p>
                                 </div>
                             </div>
@@ -185,7 +185,7 @@
                                 @if($this->device)
                                     <ul class="mt-3 list-disc pl-5 space-y-1">
                                         <li><strong>Equipo:</strong> {{ $this->device->serial_number }}</li>
-                                        <li><strong>Empleado:</strong> {{ $this->device->currentAssignment?->employee->name }}</li>
+                                        <li><strong>Empleado:</strong> {{ $this->device->currentAssignment?->employee?->name ?? 'N/A' }}</li>
                                         <li><strong>Nuevo Estatus:</strong> {{ ucfirst($newStatus) }}</li>
                                     </ul>
                                 @endif

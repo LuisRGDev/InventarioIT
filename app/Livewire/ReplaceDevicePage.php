@@ -36,6 +36,14 @@ class ReplaceDevicePage extends Component
     public ?string $successMessage = null;
     public ?string $errorMessage   = null;
 
+
+    public function mount(?int $employeeId = null): void
+    {
+        if ($employeeId) {
+            $this->employeeId = $employeeId;
+        }
+    }
+
     #[Computed]
     public function employees()
     {
