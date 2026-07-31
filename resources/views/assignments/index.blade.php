@@ -1,4 +1,4 @@
-<x-app-layout>
+﻿<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-bold text-xl text-middleby-900 leading-tight tracking-tight flex items-center gap-2.5">
@@ -10,7 +10,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
-                    Nueva Asignación
+                    Nueva Asignaci├│n
                 </a>
             </div>
         </div>
@@ -26,7 +26,7 @@
                         <select name="status" onchange="this.form.submit()" class="border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 min-w-[200px]">
                             <option value="">Todas las asignaciones</option>
                             <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Solo Activas</option>
-                            <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Históricas (Retornadas)</option>
+                            <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Hist├│ricas (Retornadas)</option>
                         </select>
                     </form>
                 </div>
@@ -37,7 +37,7 @@
                             <tr>
                                 <th scope="col" class="px-6 py-4 font-semibold">Equipo</th>
                                 <th scope="col" class="px-6 py-4 font-semibold">Empleado</th>
-                                <th scope="col" class="px-6 py-4 font-semibold">Asignación</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Asignaci├│n</th>
                                 <th scope="col" class="px-6 py-4 font-semibold">Retorno</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">Estado</th>
                             </tr>
@@ -78,11 +78,15 @@
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="font-medium text-gray-900">
+                                            @if($assignment->employee)
                                             <a href="{{ route('employees.show', $assignment->employee) }}" class="hover:text-indigo-600 hover:underline">
                                                 {{ $assignment->employee->name }}
                                             </a>
+                                            @else
+                                                <div class="text-sm text-gray-500">Empleado eliminado</div>
+                                            @endif
                                         </div>
-                                        <div class="text-xs text-gray-500 mt-0.5">{{ $assignment->employee->department }}</div>
+                                        <div class="text-xs text-gray-500 mt-0.5">{{ $assignment->employee?->department ?? "" }}</div>
                                     </td>
                                     <td class="px-6 py-4">
                                         <div class="text-gray-900">{{ $assignment->assigned_at->format('d M Y') }}</div>
@@ -132,3 +136,5 @@
         </div>
     </div>
 </x-app-layout>
+
+
