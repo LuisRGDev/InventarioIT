@@ -59,6 +59,8 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
                 if (!empty($row['imei'])) $specs['imei'] = (string) $row['imei'];
                 if (!empty($row['plan_de_datos'])) $specs['data_plan'] = (string) $row['plan_de_datos'];
 
+                $planCost = !empty($row['costo_de_plan']) ? (float) $row['costo_de_plan'] : null;
+
                 $existingDevice = Device::where('serial_number', $serialNumber)->first();
                 if (!$categoryId && $existingDevice) {
                     $categoryId = $existingDevice->device_category_id;
@@ -87,6 +89,7 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
                     'purchase_date'        => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
                     'warranty_expires_at'  => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
                     'specs'                => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),
+                    'plan_cost'            => $planCost ?? $existingDevice?->plan_cost,
                     'notes'                => !empty($row['notas_ubicacion_en_almacen']) && $row['notas_ubicacion_en_almacen'] !== 'N/A' ? (string) $row['notas_ubicacion_en_almacen'] : (!empty($row['notas']) ? (string) $row['notas'] : ($existingDevice?->notes ?? null)),
                 ];
 

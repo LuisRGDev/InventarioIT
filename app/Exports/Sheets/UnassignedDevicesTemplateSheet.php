@@ -32,6 +32,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
                 '',
                 '',
                 '',
+                '',
                 'Monitor 4K en almacén listo para asignación'
             ],
             [
@@ -49,6 +50,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
                 '',
                 '',
                 '256MB',
+                '',
                 '',
                 '',
                 '',
@@ -73,6 +75,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
                 '16GB',
                 '256GB SSD',
                 'Windows 11 Pro',
+                '',
                 '',
                 '',
                 '',
@@ -103,6 +106,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
             'Teléfono / Número',
             'IMEI',
             'Plan de Datos',
+            'Costo de Plan',
             'Notas / Ubicación en Almacén'
         ];
     }
