@@ -56,6 +56,30 @@ class Employee extends Model
         return $this->devices()->wherePivotNull('returned_at');
     }
 
+    public function phoneLineAssignments(): HasMany
+    {
+        return $this->hasMany(PhoneLineAssignment::class);
+    }
+
+    public function currentPhoneLineAssignments(): HasMany
+    {
+        return $this->hasMany(PhoneLineAssignment::class)->whereNull('returned_at');
+    }
+
+    public function phoneLines(): BelongsToMany
+    {
+        return $this->belongsToMany(PhoneLine::class, 'phone_line_assignments')
+            ->using(PhoneLineAssignment::class)
+            ->withPivot(['id', 'assigned_at', 'returned_at', 'notes'])
+            ->withTimestamps()
+            ->orderByPivot('assigned_at', 'desc');
+    }
+
+    public function currentPhoneLines(): BelongsToMany
+    {
+        return $this->phoneLines()->wherePivotNull('returned_at');
+    }
+
     // ─── Scopes ───────────────────────────────────────────────
 
     public function scopeActive($query)

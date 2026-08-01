@@ -48,9 +48,7 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
                 if (!empty($row['ram'])) $specs['ram'] = $row['ram'];
                 if (!empty($row['almacenamiento'])) $specs['storage'] = $row['almacenamiento'];
                 if (!empty($row['sistema_operativo'])) $specs['os'] = $row['sistema_operativo'];
-                if (!empty($row['telefono'])) $specs['phone_number'] = $row['telefono'];
-                if (!empty($row['imei'])) $specs['imei'] = $row['imei'];
-                if (!empty($row['plan_de_datos'])) $specs['data_plan'] = $row['plan_de_datos'];
+                if (!empty($row['imei'])) $imei = $row['imei'];
 
                 $device = Device::create([
                     'device_category_id'  => $categoryId,
@@ -59,8 +57,11 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
                     'serial_number'       => $row['numero_de_serie'],
                     'service_tag'         => $row['etiqueta_de_servicio'] ?? null,
                     'computer_name'       => $row['hostname'] ?? null,
+                    'bitlocker_identifier'=> $row['identificador_de_bl'] ?? null,
+                    'bitlocker_key'       => $row['clave_de_bl'] ?? null,
                     'mac_address_ethernet'=> $row['mac_ethernet'] ?? null,
                     'mac_address_wifi'    => $row['mac_wifi'] ?? null,
+                    'imei'                => $imei ?? null,
                     'status'              => DeviceStatus::Disponible,
                     'purchase_date'       => $this->parseDate($row['fecha_compra'] ?? null),
                     'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null),

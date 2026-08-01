@@ -32,8 +32,8 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 '16GB',
                 '512GB SSD',
                 'Windows 11 Pro',
-                '',
-                '',
+                '70F73ABC',
+                '483120-123456',
                 '',
                 'Equipo nuevo para gerencia'
             ],
@@ -58,9 +58,9 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 '',
                 '128GB',
                 'iOS 17',
-                '5512345678',
+                '',
+                '',
                 '987654321012345',
-                'Plan Telcel Max 1000',
                 'Celular de ventas'
             ]
         ];
@@ -89,9 +89,9 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
             'RAM',
             'Almacenamiento',
             'Sistema Operativo',
-            'Teléfono',
+            'Identificador de BL',
+            'Clave de BL',
             'IMEI',
-            'Plan de Datos',
             'Notas'
         ];
     }

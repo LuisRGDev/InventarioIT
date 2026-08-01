@@ -16,7 +16,8 @@ class Device extends Model
 
     protected $fillable = [
         'device_category_id', 'device_model_id', 'serial_number', 'service_tag', 'computer_name',
-        'mac_address_ethernet', 'mac_address_wifi', 'imei', 'phone_number', 'data_plan', 'plan_cost',
+        'bitlocker_identifier', 'bitlocker_key',
+        'mac_address_ethernet', 'mac_address_wifi', 'imei',
         'brand', 'model', 'status', 'purchase_date',
         'warranty_expires_at', 'specs', 'notes',
     ];

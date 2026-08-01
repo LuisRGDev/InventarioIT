@@ -40,9 +40,7 @@ class AssignedDevicesSheet implements FromCollection, WithHeadings, WithMapping,
             'RAM',
             'Almacenamiento',
             'Sistema Operativo',
-            'Teléfono',
             'IMEI',
-            'Plan de Datos',
             'Notas del Equipo'
         ];
     }
@@ -73,9 +71,7 @@ class AssignedDevicesSheet implements FromCollection, WithHeadings, WithMapping,
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->specs['phone_number'] ?? '',
-            $device->specs['imei'] ?? '',
-            $device->specs['data_plan'] ?? '',
+            $device->imei ?? '',
             $device->notes ?? '',
         ];
     }

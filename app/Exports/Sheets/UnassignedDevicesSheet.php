@@ -35,10 +35,9 @@ class UnassignedDevicesSheet implements FromCollection, WithHeadings, WithMappin
             'RAM',
             'Almacenamiento',
             'Sistema Operativo',
-            'Teléfono / Número',
+            'Identificador de BL',
+            'Clave de BL',
             'IMEI',
-            'Plan de Datos',
-            'Costo de Plan',
             'Notas / Ubicación en Almacén'
         ];
     }
@@ -62,10 +61,9 @@ class UnassignedDevicesSheet implements FromCollection, WithHeadings, WithMappin
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->phone_number ?? '',
+            $device->bitlocker_identifier,
+            $device->bitlocker_key,
             $device->imei ?? '',
-            $device->data_plan ?? '',
-            $device->plan_cost ?? '',
             $device->notes ?? '',
         ];
     }

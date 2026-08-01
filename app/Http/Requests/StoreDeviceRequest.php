@@ -21,6 +21,8 @@ class StoreDeviceRequest extends FormRequest
             'serial_number'       => ['required', 'string', 'max:100', 'unique:devices,serial_number'],
             'service_tag'         => ['nullable', 'string', 'max:100'],
             'computer_name'       => ['nullable', 'string', 'max:100'],
+            'bitlocker_identifier' => ['nullable', 'string', 'max:255'],
+            'bitlocker_key'       => ['nullable', 'string'],
             'mac_address_ethernet' => ['nullable', 'string', 'max:17', 'unique:devices,mac_address_ethernet'],
             'mac_address_wifi'    => ['nullable', 'string', 'max:17', 'unique:devices,mac_address_wifi'],
             'brand'               => ['required', 'string', 'max:100'],
@@ -42,10 +44,7 @@ class StoreDeviceRequest extends FormRequest
             'specs.ram'             => ['nullable', 'string', 'max:50'],
             'specs.storage'         => ['nullable', 'string', 'max:100'],
             'specs.os'              => ['nullable', 'string', 'max:100'],
-            'phone_number'          => ['nullable', 'string', 'max:30'],
             'imei'                  => ['nullable', 'string', 'max:50'],
-            'data_plan'             => ['nullable', 'string', 'max:100'],
-            'plan_cost'             => ['nullable', 'numeric', 'min:0'],
             'notes'                 => ['nullable', 'string'],
         ];
     }
