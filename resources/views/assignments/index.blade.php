@@ -40,6 +40,7 @@
                                 <th scope="col" class="px-6 py-4 font-semibold">Asignaci├│n</th>
                                 <th scope="col" class="px-6 py-4 font-semibold">Retorno</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">Estado</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -116,10 +117,16 @@
                                             </span>
                                         @endif
                                     </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <a href="{{ route('assignments.carta-responsiva', $assignment->id) }}" class="text-indigo-600 hover:text-indigo-900 transition flex items-center justify-end gap-1 text-sm font-medium" title="Descargar Carta Responsiva">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                            Carta
+                                        </a>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                         <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                         </svg>

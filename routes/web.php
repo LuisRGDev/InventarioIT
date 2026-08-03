@@ -69,6 +69,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('assignments/replace/{employeeId?}', ReplaceDevicePage::class)
         ->name('assignments.replace');
+
+    Route::get('assignments/{assignment}/carta-responsiva', [\App\Http\Controllers\AssignmentController::class, 'downloadCartaResponsiva'])
+        ->name('assignments.carta-responsiva');
 });
 
 require __DIR__ . '/auth.php';

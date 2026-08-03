@@ -24,4 +24,16 @@ class AssignmentController extends Controller
 
         return view('assignments.index', compact('assignments'));
     }
+
+    public function downloadCartaResponsiva(DeviceAssignment $assignment, \App\Services\ResponsiveLetterService $service)
+    {
+        $filePath = $service->generate($assignment);
+        
+        $employeeName = str_replace(' ', '_', $assignment->employee->name);
+        $date = $assignment->assigned_at->format('Y-m-d');
+        $fileName = "Carta_Responsiva_{$employeeName}_{$date}.docx";
+        
+        return response()->download($filePath, $fileName)
+            ->deleteFileAfterSend(true);
+    }
 }

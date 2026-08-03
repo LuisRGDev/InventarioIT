@@ -29,6 +29,7 @@ class AssignDevicePage extends Component
     public bool  $showConfirm = false;
     public ?string $successMessage = null;
     public ?string $errorMessage   = null;
+    public ?int $lastAssignmentId  = null;
 
     #[Computed]
     public function employees()
@@ -132,11 +133,12 @@ class AssignDevicePage extends Component
             $device   = Device::findOrFail($this->selectedDeviceId);
             $employee = Employee::findOrFail($this->selectedEmployeeId);
 
-            $service->assign($device, $employee, [
+            $assignment = $service->assign($device, $employee, [
                 'condition_on_delivery' => $this->conditionOnDelivery,
                 'notes'                 => $this->notes,
             ]);
 
+            $this->lastAssignmentId = $assignment->id;
             $this->successMessage = "Equipo [{$device->brand} {$device->model}] asignado a [{$employee->name}] correctamente.";
             $this->reset(['selectedEmployeeId', 'selectedDeviceId', 'conditionOnDelivery', 'notes', 'showConfirm']);
             $this->errorMessage = null;

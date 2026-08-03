@@ -17,6 +17,13 @@
                         <div>
                             <h3 class="text-sm font-medium text-green-800">¡Éxito!</h3>
                             <p class="text-sm text-green-700 mt-1">{{ $successMessage }}</p>
+                            
+                            @if ($lastAssignmentId)
+                                <a href="{{ route('assignments.carta-responsiva', $lastAssignmentId) }}" class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition shadow-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                    Descargar Carta Responsiva
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @endif
