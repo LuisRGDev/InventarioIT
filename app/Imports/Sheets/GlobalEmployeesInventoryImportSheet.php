@@ -88,6 +88,8 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                         'mac_address_ethernet' => !empty($row['mac_ethernet']) ? (string) $row['mac_ethernet'] : ($existingComputer?->mac_address_ethernet ?? null),
                         'mac_address_wifi'     => !empty($row['mac_wifi']) ? (string) $row['mac_wifi'] : ($existingComputer?->mac_address_wifi ?? null),
                         'service_tag'          => !empty($row['tag_service']) ? (string) $row['tag_service'] : ($existingComputer?->service_tag ?? null),
+                        'bitlocker_identifier' => !empty($row['identificador_de_bl']) ? (string) $row['identificador_de_bl'] : ($existingComputer?->bitlocker_identifier ?? null),
+                        'bitlocker_key'        => !empty($row['clave_de_bl']) ? (string) $row['clave_de_bl'] : ($existingComputer?->bitlocker_key ?? null),
                         'purchase_date'        => $this->parseDate($row['fecha_de_compra'] ?? null) ?? $existingComputer?->purchase_date,
                         'warranty_expires_at'  => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingComputer?->warranty_expires_at,
                     ];
@@ -127,8 +129,6 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                         'device_category_id' => $smartphoneCategoryId,
                         'brand'              => (string) ($row['marca_de_celular'] ?? $existingMobile?->brand ?? 'Genérico'),
                         'model'              => (string) ($row[$modeloMobileKey] ?? $existingMobile?->model ?? 'Genérico'),
-                        'data_plan'          => (string) ($row['tipo_de_plan'] ?? $existingMobile?->data_plan ?? null),
-                        'plan_cost'          => !empty($row['costo_de_plan']) ? (float) $row['costo_de_plan'] : ($existingMobile?->plan_cost ?? null),
                     ];
 
                     $mobileSpecs = $existingMobile?->specs ?? [];
@@ -149,6 +149,41 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                     }
 
                     $this->assignDeviceToEmployee($existingMobile, $employee);
+                }
+
+                // 4. Línea Telefónica
+                $phoneNumber = trim((string) ($row['numero_de_telefono'] ?? ''));
+                if (!empty($phoneNumber) && $phoneNumber !== 'N/A') {
+                    $existingLine = \App\Models\PhoneLine::where('number', $phoneNumber)->first();
+
+                    $lineData = [
+                        'number' => $phoneNumber,
+                        'data_plan' => (string) ($row['tipo_de_plan'] ?? $existingLine?->data_plan ?? null),
+                        'plan_cost' => !empty($row['costo_de_plan']) ? (float) $row['costo_de_plan'] : ($existingLine?->plan_cost ?? null),
+                        'notes' => $notes,
+                    ];
+
+                    if (!$existingLine) {
+                        $lineData['status'] = \App\Enums\PhoneLineStatus::Asignada;
+                        $existingLine = \App\Models\PhoneLine::create($lineData);
+                    } else {
+                        $lineData['status'] = \App\Enums\PhoneLineStatus::Asignada;
+                        $existingLine->update($lineData);
+                    }
+
+                    // Asignar línea telefónica al empleado si no está asignada ya
+                    $currentLineAssignment = $existingLine->currentAssignment;
+                    if (!$currentLineAssignment || $currentLineAssignment->employee_id !== $employee->id) {
+                        if ($currentLineAssignment) {
+                            $currentLineAssignment->update(['returned_at' => now()]);
+                        }
+                        \App\Models\PhoneLineAssignment::create([
+                            'phone_line_id' => $existingLine->id,
+                            'employee_id' => $employee->id,
+                            'assigned_at' => now(),
+                            'notes' => 'Asignado/Actualizado durante importación masiva del Dashboard.',
+                        ]);
+                    }
                 }
             }
         });

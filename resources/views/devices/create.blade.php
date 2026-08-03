@@ -145,27 +145,30 @@
                             </div>
 
                             {{-- Etiqueta de Servicio --}}
-                            <div>
+                            <div x-show="!isSmartphone">
                                 <x-input-label for="service_tag" value="Etiqueta de Servicio (Service Tag)"/>
                                 <x-text-input id="service_tag" name="service_tag" type="text" class="mt-1 block w-full font-mono"
+                                              x-bind:disabled="isSmartphone"
                                               value="{{ old('service_tag') }}" placeholder="Ej. ST-123456"
                                               :class="$errors->has('service_tag') ? 'border-red-400' : ''"/>
                                 <x-input-error :messages="$errors->get('service_tag')" class="mt-1"/>
                             </div>
 
                             {{-- Nombre de la PC --}}
-                            <div>
+                            <div x-show="!isSmartphone">
                                 <x-input-label for="computer_name" value="Nombre de la PC / Hostname"/>
                                 <x-text-input id="computer_name" name="computer_name" type="text" class="mt-1 block w-full font-mono"
+                                              x-bind:disabled="isSmartphone"
                                               value="{{ old('computer_name') }}" placeholder="PC-ITAM-001"
                                               :class="$errors->has('computer_name') ? 'border-red-400' : ''"/>
                                 <x-input-error :messages="$errors->get('computer_name')" class="mt-1"/>
                             </div>
 
                             {{-- MAC Ethernet --}}
-                            <div>
+                            <div x-show="!isSmartphone">
                                 <x-input-label for="mac_address_ethernet" value="MAC Ethernet"/>
                                 <x-text-input id="mac_address_ethernet" name="mac_address_ethernet" type="text" class="mt-1 block w-full font-mono"
+                                              x-bind:disabled="isSmartphone"
                                               value="{{ old('mac_address_ethernet') }}" placeholder="AA:BB:CC:DD:EE:FF"
                                               :class="$errors->has('mac_address_ethernet') ? 'border-red-400' : ''"/>
                                 <p class="mt-1 text-xs text-gray-400">Interfaz de red cableada (LAN)</p>
@@ -180,6 +183,26 @@
                                               :class="$errors->has('mac_address_wifi') ? 'border-red-400' : ''"/>
                                 <p class="mt-1 text-xs text-gray-400">Interfaz inalámbrica (WLAN)</p>
                                 <x-input-error :messages="$errors->get('mac_address_wifi')" class="mt-1"/>
+                            </div>
+
+                            {{-- Identificador de BL --}}
+                            <div x-show="isComputer" style="display: none;">
+                                <x-input-label for="bitlocker_identifier" value="Identificador de BL (Opcional)"/>
+                                <x-text-input id="bitlocker_identifier" name="bitlocker_identifier" type="text" class="mt-1 block w-full font-mono"
+                                              x-bind:disabled="!isComputer"
+                                              value="{{ old('bitlocker_identifier') }}" placeholder="Ej. 70F73ABC..."
+                                              :class="$errors->has('bitlocker_identifier') ? 'border-red-400' : ''"/>
+                                <x-input-error :messages="$errors->get('bitlocker_identifier')" class="mt-1"/>
+                            </div>
+
+                            {{-- Clave de BL --}}
+                            <div x-show="isComputer" style="display: none;">
+                                <x-input-label for="bitlocker_key" value="Clave de BL (Opcional)"/>
+                                <x-text-input id="bitlocker_key" name="bitlocker_key" type="text" class="mt-1 block w-full font-mono"
+                                              x-bind:disabled="!isComputer"
+                                              value="{{ old('bitlocker_key') }}" placeholder="Ej. 483120-..."
+                                              :class="$errors->has('bitlocker_key') ? 'border-red-400' : ''"/>
+                                <x-input-error :messages="$errors->get('bitlocker_key')" class="mt-1"/>
                             </div>
                         </div>
                     </div>
@@ -224,59 +247,48 @@
                             <div>
                                 <x-input-label for="specs_cpu" value="Procesador (CPU)"/>
                                 <x-text-input id="specs_cpu" name="specs[cpu]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="cpu"
+                                              x-model="cpu" x-bind:disabled="!isComputer"
                                               value="{{ old('specs.cpu') }}" placeholder="Ej. Intel Core i5-1240P"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_cores" value="Núcleos"/>
                                 <x-text-input id="specs_cores" name="specs[cores]" type="number" class="mt-1 block w-full"
+                                              x-bind:disabled="!isComputer"
                                               value="{{ old('specs.cores') }}" placeholder="Ej. 12"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_ram" value="Memoria RAM"/>
                                 <x-text-input id="specs_ram" name="specs[ram]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="ram"
+                                              x-model="ram" x-bind:disabled="!isComputer"
                                               value="{{ old('specs.ram') }}" placeholder="Ej. 16 GB DDR4"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_storage" value="Almacenamiento (Disco)"/>
                                 <x-text-input id="specs_storage" name="specs[storage]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="storage"
+                                              x-model="storage" x-bind:disabled="!isComputer"
                                               value="{{ old('specs.storage') }}" placeholder="Ej. 512 GB SSD NVMe"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_os" value="Sistema Operativo"/>
                                 <x-text-input id="specs_os" name="specs[os]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="os"
+                                              x-model="os" x-bind:disabled="!isComputer"
                                               value="{{ old('specs.os') }}" placeholder="Ej. Windows 11 Pro"/>
                             </div>
                         </div>
 
-                        {{-- Campos de Celular --}}
+                        {{-- Campos de Celular (Reducidos, la línea se maneja en su propio módulo) --}}
                         <div x-show="isSmartphone" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-                            <div>
-                                <x-input-label for="phone_number" value="Número de Teléfono"/>
-                                <x-text-input id="phone_number" name="phone_number" type="text" class="mt-1 block w-full"
-                                              value="{{ old('phone_number') }}" placeholder="Ej. 55 1234 5678"/>
-                            </div>
                             <div>
                                 <x-input-label for="imei" value="IMEI"/>
                                 <x-text-input id="imei" name="imei" type="text" class="mt-1 block w-full font-mono"
+                                              x-bind:disabled="!isSmartphone"
                                               value="{{ old('imei') }}" placeholder="IMEI del dispositivo"/>
-                            </div>
-                            <div>
-                                <x-input-label for="data_plan" value="Plan de Datos"/>
-                                <x-text-input id="data_plan" name="data_plan" type="text" class="mt-1 block w-full"
-                                              value="{{ old('data_plan') }}" placeholder="Ej. Plan Telcel Max Sin Límite"/>
-                            </div>
-                            <div>
-                                <x-input-label for="plan_cost" value="Costo del Plan"/>
-                                <x-text-input id="plan_cost" name="plan_cost" type="number" step="0.01" class="mt-1 block w-full"
-                                              value="{{ old('plan_cost') }}" placeholder="Ej. 499.00"/>
+                                <x-input-error :messages="$errors->get('imei')" class="mt-1"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_os_mobile" value="Sistema Operativo"/>
                                 <x-text-input id="specs_os_mobile" name="specs[os]" type="text" class="mt-1 block w-full"
+                                              x-bind:disabled="!isSmartphone"
                                               value="{{ old('specs.os') }}" placeholder="Ej. iOS 17 / Android 14"/>
                             </div>
                         </div>

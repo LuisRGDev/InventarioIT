@@ -55,11 +55,7 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
                 if (!empty($row['ram'])) $specs['ram'] = (string) $row['ram'];
                 if (!empty($row['almacenamiento'])) $specs['storage'] = (string) $row['almacenamiento'];
                 if (!empty($row['sistema_operativo']) || !empty($row['os'])) $specs['os'] = (string) ($row['sistema_operativo'] ?? $row['os']);
-                if (!empty($row['telefono_numero']) || !empty($row['telefono'])) $specs['phone_number'] = (string) ($row['telefono_numero'] ?? $row['telefono']);
-                if (!empty($row['imei'])) $specs['imei'] = (string) $row['imei'];
-                if (!empty($row['plan_de_datos'])) $specs['data_plan'] = (string) $row['plan_de_datos'];
-
-                $planCost = !empty($row['costo_de_plan']) ? (float) $row['costo_de_plan'] : null;
+                if (!empty($row['imei'])) $imei = (string) $row['imei'];
 
                 $existingDevice = Device::where('serial_number', $serialNumber)->first();
                 if (!$categoryId && $existingDevice) {
@@ -85,11 +81,13 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
                     'computer_name'        => !empty($row['hostname_identificador']) && $row['hostname_identificador'] !== 'N/A' ? (string) $row['hostname_identificador'] : (!empty($row['hostname']) ? (string) $row['hostname'] : ($existingDevice?->computer_name ?? null)),
                     'mac_address_ethernet' => !empty($row['mac_ethernet']) && $row['mac_ethernet'] !== 'N/A' ? (string) $row['mac_ethernet'] : ($existingDevice?->mac_address_ethernet ?? null),
                     'mac_address_wifi'     => !empty($row['mac_wifi']) && $row['mac_wifi'] !== 'N/A' ? (string) $row['mac_wifi'] : ($existingDevice?->mac_address_wifi ?? null),
+                    'bitlocker_identifier' => !empty($row['identificador_de_bl']) && $row['identificador_de_bl'] !== 'N/A' ? (string) $row['identificador_de_bl'] : ($existingDevice?->bitlocker_identifier ?? null),
+                    'bitlocker_key'        => !empty($row['clave_de_bl']) && $row['clave_de_bl'] !== 'N/A' ? (string) $row['clave_de_bl'] : ($existingDevice?->bitlocker_key ?? null),
                     'status'               => $targetStatus,
                     'purchase_date'        => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
                     'warranty_expires_at'  => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
                     'specs'                => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),
-                    'plan_cost'            => $planCost ?? $existingDevice?->plan_cost,
+                    'imei'                 => $imei ?? ($existingDevice?->imei ?? null),
                     'notes'                => !empty($row['notas_ubicacion_en_almacen']) && $row['notas_ubicacion_en_almacen'] !== 'N/A' ? (string) $row['notas_ubicacion_en_almacen'] : (!empty($row['notas']) ? (string) $row['notas'] : ($existingDevice?->notes ?? null)),
                 ];
 

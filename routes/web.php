@@ -6,6 +6,7 @@ use App\Http\Controllers\DeviceModelController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\PhoneLineController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\ReplaceDevicePage;
 use App\Livewire\ReturnDevicePage;
@@ -45,6 +46,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('devices', DeviceController::class);
     Route::get('devices/{device}/history', [DeviceController::class, 'history'])
         ->name('devices.history');
+
+    // Líneas Telefónicas
+    Route::resource('phone-lines', PhoneLineController::class);
+    Route::get('phone-lines/{phone_line}/history', [PhoneLineController::class, 'history'])
+        ->name('phone-lines.history');
 
     // Mantenimientos de Equipos
     Route::get('maintenances/export', [MaintenanceController::class, 'export'])->name('maintenances.export');

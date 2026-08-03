@@ -40,9 +40,9 @@ class DevicesExport implements FromCollection, WithHeadings, WithMapping, Should
             'RAM',
             'Almacenamiento',
             'Sistema Operativo',
-            'Teléfono',
+            'Identificador de BL',
+            'Clave de BL',
             'IMEI',
-            'Plan de Datos',
             'Notas'
         ];
     }
@@ -72,9 +72,9 @@ class DevicesExport implements FromCollection, WithHeadings, WithMapping, Should
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->specs['phone_number'] ?? '',
-            $device->specs['imei'] ?? '',
-            $device->specs['data_plan'] ?? '',
+            $device->bitlocker_identifier,
+            $device->bitlocker_key,
+            $device->imei,
             $device->notes,
         ];
     }

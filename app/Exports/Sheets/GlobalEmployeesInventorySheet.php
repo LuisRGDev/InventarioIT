@@ -13,7 +13,7 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
 {
     public function collection()
     {
-        return Employee::with(['currentAssignments.device.category'])->get();
+        return Employee::with(['currentAssignments.device.category', 'currentPhoneLines'])->get();
     }
 
     public function headings(): array
@@ -40,10 +40,13 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             'Tag Service',
             'Fecha de compra',
             'garantia Expira',
+            'Identificador de BL',
+            'Clave de BL',
             'Marca de Celular',
             'Modelo',
             'IMEI',
             'Sistema operativo',
+            'Número de Teléfono',
             'Tipo de plan',
             'Costo de plan',
             'Notas',
@@ -54,6 +57,7 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
     {
         $computer = null;
         $smartphone = null;
+        $phoneLine = $employee->currentPhoneLines->first();
 
         foreach ($employee->currentAssignments as $assignment) {
             $device = $assignment->device;
@@ -90,14 +94,17 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             $computer->service_tag ?? '',
             $computer ? ($computer->purchase_date ? $computer->purchase_date->format('Y-m-d') : '') : '',
             $computer ? ($computer->warranty_expires_at ? $computer->warranty_expires_at->format('Y-m-d') : '') : '',
+            $computer->bitlocker_identifier ?? '',
+            $computer->bitlocker_key ?? '',
             
             // Mobile fields
             $smartphone->brand ?? '',
             $smartphone->model ?? '',
             $smartphone->imei ?? '',
             $smartphone->specs['os'] ?? '',
-            $smartphone->data_plan ?? '',
-            $smartphone->plan_cost ?? '',
+            $phoneLine->number ?? '',
+            $phoneLine->data_plan ?? '',
+            $phoneLine->plan_cost ?? '',
             
             // Notes
             trim(implode(' | ', array_filter([

@@ -42,6 +42,9 @@ new class extends Component
                     <x-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
                         {{ __('Asignaciones') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('phone-lines.index')" :active="request()->routeIs('phone-lines.*')" wire:navigate>
+                        {{ __('Líneas Telefónicas') }}
+                    </x-nav-link>
                     <x-nav-link :href="route('maintenances.index')" :active="request()->routeIs('maintenances.*')" wire:navigate>
                         {{ __('Mantenimientos') }}
                     </x-nav-link>
@@ -140,6 +143,9 @@ new class extends Component
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
                 {{ __('Asignaciones') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('phone-lines.index')" :active="request()->routeIs('phone-lines.*')" wire:navigate>
+                {{ __('Líneas Telefónicas') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('maintenances.index')" :active="request()->routeIs('maintenances.*')" wire:navigate>
                 {{ __('Mantenimientos') }}
