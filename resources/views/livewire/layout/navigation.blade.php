@@ -77,7 +77,7 @@ new class extends Component
                                 <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-middleby-100 text-middleby-700 font-bold text-xs">+</span>
                                 Asignar equipo
                             </a>
-                            <a href="{{ route('assignments.return') }}" wire:navigate
+                            <a href="{{ route('assignments.index') }}" wire:navigate
                                class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition">
                                 <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-100 text-amber-700 font-bold text-xs">↩</span>
                                 Retornar equipo
@@ -171,7 +171,7 @@ new class extends Component
                 <x-responsive-nav-link :href="route('assignments.assign')" wire:navigate>
                     Asignar equipo
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('assignments.return')" wire:navigate>
+                <x-responsive-nav-link :href="route('assignments.index')" wire:navigate>
                     Retornar equipo
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('assignments.replace')" wire:navigate>
