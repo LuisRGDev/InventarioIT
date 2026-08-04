@@ -41,7 +41,7 @@ class DeviceAssignment extends Model
 
     public function device(): BelongsTo
     {
-    return $this->belongsTo(Device::class)->withTrashed();
+    return $this->belongsTo(Device::class);
     }
 
     public function employee(): BelongsTo

@@ -129,7 +129,46 @@
                                 <x-input-error :messages="$errors->get('position')" class="mt-1"/>
                             </div>
                         </div>
+                        <div>
+                        <x-input-label for="assign_phone_line_id" value="Línea Telefónica Móvil Actual"/>
+                        <select id="assign_phone_line_id" name="assign_phone_line_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="">-- Ninguna --</option>
+                            
+                            @if($currentPhoneLine)
+                                <option value="{{ $currentPhoneLine->id }}" selected>
+                                    {{ $currentPhoneLine->number }} - {{ $currentPhoneLine->provider }} (Actual)
+                                </option>
+                            @endif
+
+                            @foreach($availablePhoneLines as $line)
+                                <option value="{{ $line->id }}">
+                                    {{ $line->number }} - {{ $line->provider }} (Disponible)
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('assign_phone_line_id')" class="mt-1"/>
                     </div>
+
+                    <div>
+                        <x-input-label for="assign_office_extension_id" value="Extensión de Oficina Actual"/>
+                        <select id="assign_office_extension_id" name="assign_office_extension_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <option value="">-- Ninguna --</option>
+                            
+                            @if($currentExtension)
+                                <option value="{{ $currentExtension->id }}" selected>
+                                    Ext. {{ $currentExtension->extension_number }} {{ $currentExtension->direct_number ? '('.$currentExtension->direct_number.')' : '' }} (Actual)
+                                </option>
+                            @endif
+
+                            @foreach($availableExtensions as $ext)
+                                <option value="{{ $ext->id }}">
+                                    Ext. {{ $ext->extension_number }} {{ $ext->direct_number ? '('.$ext->direct_number.')' : '' }} (Disponible)
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('assign_office_extension_id')" class="mt-1"/>
+                    </div>
+                </div>
 
                     <hr class="border-gray-100">
 

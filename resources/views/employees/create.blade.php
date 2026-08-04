@@ -18,6 +18,8 @@
                     <p class="text-sm text-gray-500">Sigue los pasos para registrar y asignar equipos al nuevo empleado.</p>
                 </div>
 
+
+
                 <div class="p-0">
                     @livewire('employee-onboarding-wizard')
                 </div>

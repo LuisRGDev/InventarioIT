@@ -6,10 +6,16 @@
                 Historial de Asignaciones
             </h2>
             <div class="flex gap-3">
-                <a href="{{ route('assignments.assign') }}" class="px-4 py-2 bg-gradient-to-r from-middleby-800 to-middleby-700 text-white text-sm font-bold rounded-xl hover:from-middleby-700 hover:to-middleby-600 transition shadow-sm hover:shadow-md inline-flex items-center gap-2 active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
+                <a href="{{ route('assignments.assign-extension') }}" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white text-sm font-bold rounded-xl hover:from-emerald-700 hover:to-emerald-600 transition shadow-sm hover:shadow-md inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Asignar Extensión
+                </a>
+                <a href="{{ route('assignments.assign-phone-line') }}" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white text-sm font-bold rounded-xl hover:from-purple-700 hover:to-purple-600 transition shadow-sm hover:shadow-md inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Asignar Línea
+                </a>
+                <a href="{{ route('assignments.assign') }}" class="px-4 py-2 bg-gradient-to-r from-middleby-800 to-middleby-700 text-white text-sm font-bold rounded-xl hover:from-middleby-700 hover:to-middleby-600 transition shadow-sm hover:shadow-md inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     Nueva Asignación
                 </a>
             </div>

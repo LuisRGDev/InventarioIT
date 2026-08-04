@@ -122,10 +122,11 @@ class DeviceController extends Controller
             return back()->with('error', 'No se puede eliminar un equipo con una asignación activa.');
         }
 
+        $device->assignments()->delete();
         $device->delete();
 
         return redirect()->route('devices.index')
-            ->with('success', 'Equipo eliminado correctamente.');
+            ->with('success', 'Equipo eliminado permanentemente.');
     }
 
     public function history(Device $device): View

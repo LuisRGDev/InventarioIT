@@ -23,6 +23,8 @@ class EmployeeOnboardingWizard extends Component
     public ?int $job_position_id = null;
     public string $notes = '';
     public ?int $employeeId = null;
+    public ?int $assign_phone_line_id = null;
+    public ?int $assign_office_extension_id = null;
 
     // ─── Cómputo (Paso 2) ───────────────────────────────────────────────
     public ?int $computer_id = null;
@@ -74,6 +76,18 @@ class EmployeeOnboardingWizard extends Component
         return \App\Models\JobPosition::orderBy('direction')->orderBy('area')->orderBy('name')->get();
     }
 
+    #[Computed]
+    public function availablePhoneLines()
+    {
+        return \App\Models\PhoneLine::where('status', \App\Enums\PhoneLineStatus::Disponible->value)->get();
+    }
+
+    #[Computed]
+    public function availableExtensions()
+    {
+        return \App\Models\OfficeExtension::where('status', \App\Enums\ExtensionStatus::Disponible->value)->get();
+    }
+
     public function selectComputer(int $id)
     {
         $this->computer_id = $id;
@@ -106,6 +120,8 @@ class EmployeeOnboardingWizard extends Component
             'phone' => 'nullable|string|max:30',
             'job_position_id' => 'required|exists:job_positions,id',
             'notes' => 'nullable|string',
+            'assign_phone_line_id' => 'nullable|exists:phone_lines,id',
+            'assign_office_extension_id' => 'nullable|exists:office_extensions,id',
         ]);
 
         $jobPosition = \App\Models\JobPosition::findOrFail($this->job_position_id);
@@ -114,8 +130,25 @@ class EmployeeOnboardingWizard extends Component
 
         $validated['status'] = EmployeeStatus::Activo->value;
 
+        // Quitar campos que no van en el modelo
+        $assignPhoneLineId = $validated['assign_phone_line_id'] ?? null;
+        $assignExtensionId = $validated['assign_office_extension_id'] ?? null;
+        unset($validated['assign_phone_line_id'], $validated['assign_office_extension_id']);
+
         $employee = Employee::create($validated);
         $this->employeeId = $employee->id;
+
+        if ($assignPhoneLineId) {
+            $phoneService = app(\App\Services\PhoneLineAssignmentService::class);
+            $phoneLine = \App\Models\PhoneLine::findOrFail($assignPhoneLineId);
+            $phoneService->assign($phoneLine, $employee);
+        }
+
+        if ($assignExtensionId) {
+            $extensionService = app(\App\Services\ExtensionAssignmentService::class);
+            $extension = \App\Models\OfficeExtension::findOrFail($assignExtensionId);
+            $extensionService->assign($extension, $employee);
+        }
         
         $this->step = 2;
     }

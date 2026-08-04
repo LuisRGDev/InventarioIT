@@ -6,6 +6,8 @@ use App\Http\Requests\StorePhoneLineRequest;
 use App\Http\Requests\UpdatePhoneLineRequest;
 use App\Models\PhoneLine;
 use Illuminate\Http\Request;
+use App\Exports\PhoneLinesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PhoneLineController extends Controller
 {
@@ -108,5 +110,13 @@ class PhoneLineController extends Controller
         $assignments = $phoneLine->assignments()->with('employee')->orderBy('assigned_at', 'desc')->get();
 
         return view('phone-lines.history', compact('phoneLine', 'assignments'));
+    }
+
+    /**
+     * Export the phone lines to an Excel file.
+     */
+    public function export()
+    {
+        return Excel::download(new PhoneLinesExport, 'directorio_lineas_telefonicas_' . now()->format('Y-m-d') . '.xlsx');
     }
 }

@@ -6,11 +6,9 @@ use App\Enums\EmployeeStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
-    use SoftDeletes;
 
     protected $fillable = [
         'employee_code', 'domain_account', 'name', 'email', 'phone',
@@ -78,6 +76,30 @@ class Employee extends Model
     public function currentPhoneLines(): BelongsToMany
     {
         return $this->phoneLines()->wherePivotNull('returned_at');
+    }
+
+    public function officeExtensionAssignments(): HasMany
+    {
+        return $this->hasMany(OfficeExtensionAssignment::class);
+    }
+
+    public function currentOfficeExtensionAssignments(): HasMany
+    {
+        return $this->hasMany(OfficeExtensionAssignment::class)->whereNull('returned_at');
+    }
+
+    public function officeExtensions(): BelongsToMany
+    {
+        return $this->belongsToMany(OfficeExtension::class, 'office_extension_assignments')
+            ->using(OfficeExtensionAssignment::class)
+            ->withPivot(['id', 'assigned_at', 'returned_at', 'notes'])
+            ->withTimestamps()
+            ->orderByPivot('assigned_at', 'desc');
+    }
+
+    public function currentOfficeExtensions(): BelongsToMany
+    {
+        return $this->officeExtensions()->wherePivotNull('returned_at');
     }
 
     // ─── Scopes ───────────────────────────────────────────────

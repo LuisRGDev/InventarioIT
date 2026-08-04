@@ -48,9 +48,18 @@ Route::middleware(['auth'])->group(function () {
         ->name('devices.history');
 
     // Líneas Telefónicas
+    Route::get('phone-lines/export', function () {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PhoneLinesExport, 'lineas_telefonicas.xlsx');
+    })->name('phone-lines.export');
     Route::resource('phone-lines', PhoneLineController::class);
     Route::get('phone-lines/{phone_line}/history', [PhoneLineController::class, 'history'])
         ->name('phone-lines.history');
+
+    // Extensiones
+    Route::get('office-extensions/export', function () {
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\OfficeExtensionsExport, 'extensiones_telefonicas.xlsx');
+    })->name('office-extensions.export');
+    Route::resource('office-extensions', \App\Http\Controllers\OfficeExtensionController::class);
 
     // Mantenimientos de Equipos
     Route::get('maintenances/export', [MaintenanceController::class, 'export'])->name('maintenances.export');
@@ -65,15 +74,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('job-positions', JobPositionController::class);
 
     // ─── Operaciones de asignación (Livewire Full-Page Components) ────────────
-    Route::get('assignments', [\App\Http\Controllers\AssignmentController::class, 'index'])
-        ->name('assignments.index');
-    Route::get('assignments/assign', AssignDevicePage::class)
-        ->name('assignments.assign');
-
-    Route::get('assignments/return/{deviceId?}', ReturnDevicePage::class)
-        ->name('assignments.return');
-
-    Route::get('assignments/replace/{employeeId?}', ReplaceDevicePage::class)
+    // Historial y Asignaciones
+    Route::get('assignments', [AssignmentController::class, 'index'])->name('assignments.index');
+    Route::get('assignments/assign', AssignDevicePage::class)->name('assignments.assign');
+    Route::get('assignments/assign-phone-line', AssignPhoneLinePage::class)->name('assignments.assign-phone-line');
+    Route::get('assignments/assign-extension', \App\Livewire\AssignExtensionPage::class)->name('assignments.assign-extension');
+    Route::post('assignments/{assignment}/return', [AssignmentController::class, 'returnDevice'])->name('assignments.return');
+    Route::get('devices/{device}/history', [DeviceController::class, 'history'])
         ->name('assignments.replace');
 
     Route::get('assignments/{assignment}/carta-responsiva', [\App\Http\Controllers\AssignmentController::class, 'downloadCartaResponsiva'])

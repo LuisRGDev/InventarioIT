@@ -9,46 +9,54 @@ use PhpOffice\PhpWord\IOFactory;
 
 class ResponsiveLetterService
 {
-    public function generate(DeviceAssignment ): string
+    public function generate(DeviceAssignment $assignment): string
     {
-        ->loadMissing(['device', 'employee', 'assignedBy']);
+        $assignment->loadMissing(['device', 'employee', 'assignedBy']);
 
-         = storage_path('app/temp');
-        if (!is_dir()) {
-            mkdir(, 0755, true);
+        $tempPath = storage_path('app/temp');
+        if (!is_dir($tempPath)) {
+            mkdir($tempPath, 0755, true);
         }
 
-         = new PhpWord();
-         = ->addSection();
-        ->addText('CARTA RESPONSIVA', ['bold' => true, 'size' => 16], ['alignment' => 'center']);
-        ->addTextBreak(1);
+        $phpWord = new PhpWord();
+        $section = $phpWord->addSection();
+        $section->addText('CARTA RESPONSIVA', ['bold' => true, 'size' => 16], ['alignment' => 'center']);
+        $section->addTextBreak(1);
 
         Carbon::setLocale('es');
-         = ->assigned_at->translatedFormat('d \d\e F \d\e Y');
-        ->addText('Fecha: ' . );
+        $dateText = $assignment->assigned_at->translatedFormat('d \d\e F \d\e Y');
+        $section->addText('Fecha: ' . $dateText);
 
-         = ->device;
-         = ->brand . ' ' . ->model;
+        $device = $assignment->device;
+        $equipoText = $device->brand . ' ' . $device->model;
 
-        if (->imei) {
-             .= ', IMEI: ' . ->imei;
+        if ($device->imei) {
+            $equipoText .= ', IMEI: ' . $device->imei;
         } else {
-             .= ', SN: ' . ->serial_number;
+            $equipoText .= ', SN: ' . $device->serial_number;
         }
 
-        ->addText('Equipo: ' . );
-        ->addText('Teléfono: ' . (->phone_number ?: 'N/A'));
-        ->addText('Empleado: ' . ->employee->name);
-        ->addText('Entregó: ' . (->assignedBy ? ->assignedBy->name : 'N/A'));
-        ->addTextBreak(2);
-        ->addText('Recibí de conformidad el equipo anterior.');
+        $section->addText('Equipo: ' . $equipoText);
+        
+        $phoneLine = $assignment->employee->currentPhoneLines()->first();
+        $phoneNumber = $phoneLine ? $phoneLine->number : 'N/A';
+        $section->addText('TelÃ©fono: ' . $phoneNumber);
+        
+        $extension = $assignment->employee->currentOfficeExtensions()->first();
+        $extensionText = $extension ? 'Ext. ' . $extension->extension_number . ($extension->direct_number ? ' (' . $extension->direct_number . ')' : '') : 'N/A';
+        $section->addText('ExtensiÃ³n: ' . $extensionText);
+        
+        $section->addText('Empleado: ' . $assignment->employee->name);
+        $section->addText('EntregÃ³: ' . ($assignment->assignedBy ? $assignment->assignedBy->name : 'N/A'));
+        $section->addTextBreak(2);
+        $section->addText('RecibÃ­ de conformidad el equipo anterior.');
 
-         = 'carta_responsiva_' . ->id . '_' . time() . '.docx';
-         =  . '/' . ;
+        $fileName = 'carta_responsiva_' . $assignment->id . '_' . time() . '.docx';
+        $filePath = $tempPath . '/' . $fileName;
 
-         = IOFactory::createWriter(, 'Word2007');
-        ->save();
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save($filePath);
 
-        return ;
+        return $filePath;
     }
 }

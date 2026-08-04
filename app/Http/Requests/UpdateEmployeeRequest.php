@@ -27,6 +27,7 @@ class UpdateEmployeeRequest extends FormRequest
             'position'      => ['required', 'string', 'max:100'],
             'status'        => ['required', Rule::enum(EmployeeStatus::class)],
             'notes'         => ['nullable', 'string'],
+            'assign_phone_line_id' => ['nullable', 'exists:phone_lines,id'],
         ];
     }
 }

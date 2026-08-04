@@ -57,6 +57,34 @@
                             </select>
                             <x-input-error :messages="$errors->get('job_position_id')" class="mt-1"/>
                         </div>
+
+                        <div class="md:col-span-2 pt-4 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <x-input-label for="assign_phone_line_id" value="Línea Telefónica Móvil (Opcional)"/>
+                                <select wire:model="assign_phone_line_id" id="assign_phone_line_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                    <option value="">-- Ninguna --</option>
+                                    @foreach($this->availablePhoneLines as $line)
+                                        <option value="{{ $line->id }}">
+                                            {{ $line->number }} - {{ $line->provider }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('assign_phone_line_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <x-input-label for="assign_office_extension_id" value="Extensión de Oficina (Opcional)"/>
+                                <select wire:model="assign_office_extension_id" id="assign_office_extension_id" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                                    <option value="">-- Ninguna --</option>
+                                    @foreach($this->availableExtensions as $ext)
+                                        <option value="{{ $ext->id }}">
+                                            Ext. {{ $ext->extension_number }} {{ $ext->direct_number ? '('.$ext->direct_number.')' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('assign_office_extension_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex justify-end pt-4">

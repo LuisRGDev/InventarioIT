@@ -12,7 +12,7 @@ class EmployeesExport implements FromCollection, WithHeadings, WithMapping, Shou
 {
     public function collection()
     {
-        return Employee::all();
+        return Employee::active()->get();
     }
 
     public function headings(): array

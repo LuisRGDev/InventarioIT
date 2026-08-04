@@ -11,6 +11,12 @@ use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\EmployeesExport;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use App\Models\PhoneLine;
+use App\Enums\PhoneLineStatus;
+use App\Services\PhoneLineAssignmentService;
+use App\Models\OfficeExtension;
+use App\Enums\ExtensionStatus;
+use App\Services\ExtensionAssignmentService;
 
 class EmployeeController extends Controller
 {
@@ -22,12 +28,24 @@ class EmployeeController extends Controller
     public function create(): View
     {
         $statuses = EmployeeStatus::cases();
-        return view('employees.create', compact('statuses'));
+        $availablePhoneLines = PhoneLine::where('status', PhoneLineStatus::Disponible->value)->get();
+        $availableExtensions = OfficeExtension::where('status', ExtensionStatus::Disponible->value)->get();
+        return view('employees.create', compact('statuses', 'availablePhoneLines', 'availableExtensions'));
     }
 
-    public function store(StoreEmployeeRequest $request): RedirectResponse
+    public function store(StoreEmployeeRequest $request, PhoneLineAssignmentService $phoneService, ExtensionAssignmentService $extensionService): RedirectResponse
     {
-        Employee::create($request->validated());
+        $employee = Employee::create($request->validated());
+
+        if ($request->filled('assign_phone_line_id')) {
+            $phoneLine = PhoneLine::findOrFail($request->input('assign_phone_line_id'));
+            $phoneService->assign($phoneLine, $employee);
+        }
+
+        if ($request->filled('assign_office_extension_id')) {
+            $extension = OfficeExtension::findOrFail($request->input('assign_office_extension_id'));
+            $extensionService->assign($extension, $employee);
+        }
 
         return redirect()->route('employees.index')
             ->with('success', 'Empleado creado correctamente.');
@@ -44,12 +62,56 @@ class EmployeeController extends Controller
     public function edit(Employee $employee): View
     {
         $statuses = EmployeeStatus::cases();
-        return view('employees.edit', compact('employee', 'statuses'));
+        $availablePhoneLines = PhoneLine::where('status', PhoneLineStatus::Disponible->value)->get();
+        $currentPhoneLine = $employee->currentPhoneLines()->first();
+        
+        $availableExtensions = OfficeExtension::where('status', ExtensionStatus::Disponible->value)->get();
+        $currentExtension = $employee->currentOfficeExtensions()->first();
+
+        return view('employees.edit', compact('employee', 'statuses', 'availablePhoneLines', 'currentPhoneLine', 'availableExtensions', 'currentExtension'));
     }
 
-    public function update(UpdateEmployeeRequest $request, Employee $employee): RedirectResponse
+    public function update(UpdateEmployeeRequest $request, Employee $employee, PhoneLineAssignmentService $phoneService, ExtensionAssignmentService $extensionService): RedirectResponse
     {
         $employee->update($request->validated());
+
+        if ($request->has('assign_phone_line_id')) {
+            $newPhoneLineId = $request->input('assign_phone_line_id');
+            $currentPhoneLineAssignment = $employee->currentPhoneLineAssignments()->first();
+
+            // Si se seleccionó una línea nueva y diferente a la actual
+            if ($newPhoneLineId && (!$currentPhoneLineAssignment || $currentPhoneLineAssignment->phone_line_id != $newPhoneLineId)) {
+                // Retornar la actual si existe
+                if ($currentPhoneLineAssignment) {
+                    $phoneService->returnLine($currentPhoneLineAssignment, ['notes' => 'Cambio de línea telefónica por edición de empleado.']);
+                }
+                
+                // Asignar la nueva
+                $phoneLine = PhoneLine::findOrFail($newPhoneLineId);
+                $phoneService->assign($phoneLine, $employee);
+            }
+            // Si se deseleccionó la línea (se pasó vacío) y tenía una
+            elseif (!$newPhoneLineId && $currentPhoneLineAssignment) {
+                $phoneService->returnLine($currentPhoneLineAssignment, ['notes' => 'Línea telefónica removida por edición de empleado.']);
+            }
+        }
+
+        if ($request->has('assign_office_extension_id')) {
+            $newExtensionId = $request->input('assign_office_extension_id');
+            $currentExtensionAssignment = $employee->currentOfficeExtensionAssignments()->first();
+
+            if ($newExtensionId && (!$currentExtensionAssignment || $currentExtensionAssignment->office_extension_id != $newExtensionId)) {
+                if ($currentExtensionAssignment) {
+                    $extensionService->returnExtension($currentExtensionAssignment, ['notes' => 'Cambio de extensión por edición de empleado.']);
+                }
+                
+                $extension = OfficeExtension::findOrFail($newExtensionId);
+                $extensionService->assign($extension, $employee);
+            }
+            elseif (!$newExtensionId && $currentExtensionAssignment) {
+                $extensionService->returnExtension($currentExtensionAssignment, ['notes' => 'Extensión removida por edición de empleado.']);
+            }
+        }
 
         return redirect()->route('employees.show', $employee)
             ->with('success', 'Empleado actualizado correctamente.');
@@ -57,15 +119,18 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee): RedirectResponse
     {
-        // Verificar que no tenga asignaciones activas antes de eliminar (soft delete)
-        if ($employee->currentAssignments()->exists()) {
-            return back()->with('error', 'No se puede eliminar un empleado con equipos asignados actualmente.');
+        // Verificar que no tenga asignaciones activas antes de eliminar
+        if ($employee->currentAssignments()->exists() || $employee->currentPhoneLineAssignments()->exists() || $employee->currentOfficeExtensionAssignments()->exists()) {
+            return back()->with('error', 'No se puede eliminar un empleado con equipos o líneas/extensiones asignadas actualmente.');
         }
 
+        $employee->assignments()->delete();
+        $employee->phoneLineAssignments()->delete();
+        $employee->officeExtensionAssignments()->delete();
         $employee->delete();
 
         return redirect()->route('employees.index')
-            ->with('success', 'Empleado eliminado correctamente.');
+            ->with('success', 'Empleado eliminado permanentemente.');
     }
 
     public function history(Employee $employee): View
