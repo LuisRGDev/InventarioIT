@@ -8,6 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\PhoneLineController;
+use App\Http\Controllers\AssignmentController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\AssignPhoneLinePage;
 use App\Livewire\ReplaceDevicePage;
@@ -81,10 +82,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('assignments/assign', AssignDevicePage::class)->name('assignments.assign');
     Route::get('assignments/assign-phone-line', AssignPhoneLinePage::class)->name('assignments.assign-phone-line');
     Route::get('assignments/assign-extension', \App\Livewire\AssignExtensionPage::class)->name('assignments.assign-extension');
-    Route::get('assignments/replace/{employeeId?}', ReplaceDevicePage::class)->name('assignments.replace');
-    Route::post('assignments/{assignment}/return', [AssignmentController::class, 'returnDevice'])->name('assignments.return');
-    Route::get('devices/{device}/history', [DeviceController::class, 'history'])
-        ->name('devices.history');
+    Route::get('assignments/return/{device?}', \App\Livewire\ReturnDevicePage::class)->name('assignments.return');
+    Route::get('assignments/replace/{employee?}', \App\Livewire\ReplaceDevicePage::class)->name('assignments.replace');
 
     Route::get('assignments/{assignment}/carta-responsiva', [\App\Http\Controllers\AssignmentController::class, 'downloadCartaResponsiva'])
         ->name('assignments.carta-responsiva');

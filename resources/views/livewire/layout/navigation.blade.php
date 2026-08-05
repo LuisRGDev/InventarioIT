@@ -16,190 +16,188 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs sticky top-0 z-50">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" wire:navigate class="transition-transform hover:scale-[1.02] duration-200">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+<nav x-data="{ openMobileMenu: false }" 
+     @open-mobile-menu.window="openMobileMenu = true"
+     class="flex shrink-0">
+     
+    <!-- Overlay for mobile -->
+    <div x-show="openMobileMenu" 
+         @click="openMobileMenu = false"
+         x-transition.opacity
+         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 sm:hidden"></div>
+
+    <!-- Sidebar Container -->
+    <div :class="openMobileMenu ? 'translate-x-0' : '-translate-x-full'"
+         class="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-middleby-800 to-middleby-950 text-slate-200 border-r border-middleby-950 shadow-[4px_0_15px_-3px_rgba(0,0,0,0.5)] z-50 flex flex-col transition-transform duration-300 ease-in-out sm:relative sm:translate-x-0 overflow-hidden">
+        
+        <!-- Subtle Inner Highlight (Skeuomorphism) -->
+        <div class="absolute inset-0 pointer-events-none shadow-[inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_3px_rgba(0,0,0,0.6)]"></div>
+
+        <!-- Logo Area -->
+        <div class="relative shrink-0 flex items-center justify-between h-20 px-6 border-b border-middleby-950 shadow-[0_2px_4px_rgba(0,0,0,0.2)] bg-middleby-800">
+            <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-3 transition-transform hover:scale-[1.02] duration-200">
+                <div class="bg-white p-1.5 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                    <x-application-logo class="block h-8 w-auto fill-current text-middleby-800" />
+                </div>
+            </a>
+            
+            <button @click="openMobileMenu = false" class="sm:hidden p-2 text-slate-400 hover:text-white rounded-md shadow-[inset_0_1px_2px_rgba(255,255,255,0.1)] bg-middleby-900/50">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- Scrollable Navigation Links -->
+        <div class="relative flex-1 overflow-y-auto px-4 py-6 space-y-1 custom-scrollbar">
+            
+            <!-- Reusable CSS Classes for Nav Links -->
+            @php
+                $navItemClasses = "group flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-sm transition-all duration-200 relative overflow-hidden ";
+                
+                $activeClasses = "text-white bg-middleby-900 shadow-[inset_0_3px_6px_rgba(0,0,0,0.4),inset_0_-1px_1px_rgba(255,255,255,0.05)] border-l-4 border-amber-500";
+                
+                $inactiveClasses = "text-slate-300 hover:text-white border-l-4 border-transparent hover:border-slate-500 hover:bg-middleby-700/50 hover:shadow-[0_2px_4px_rgba(0,0,0,0.2)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_1px_2px_rgba(0,0,0,0.2)] bg-middleby-800/40";
+            @endphp
+
+            <a href="{{ route('dashboard') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('dashboard') ? $activeClasses : $inactiveClasses }}">
+                <span class="w-5 h-5 flex items-center justify-center opacity-80">🏠</span>
+                Inicio
+            </a>
+
+            <div class="pt-4 pb-1">
+                <p class="px-3 text-xs font-bold text-middleby-300 uppercase tracking-wider mb-2 drop-shadow-md">Gestión</p>
+                <div class="space-y-1">
+                    <a href="{{ route('devices.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('devices.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">💻</span>
+                        Equipos
+                    </a>
+                    
+                    <a href="{{ route('employees.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('employees.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">👥</span>
+                        Empleados
+                    </a>
+                    
+                    <a href="{{ route('assignments.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('assignments.*') && !request()->routeIs('assignments.assign') && !request()->routeIs('assignments.return') && !request()->routeIs('assignments.replace') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">📋</span>
+                        Asignaciones
                     </a>
                 </div>
+            </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                        Inicio
-                    </x-nav-link>
-                    <x-nav-link :href="route('devices.index')" :active="request()->routeIs('devices.*')" wire:navigate>
-                        Equipos
-                    </x-nav-link>
-                    <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" wire:navigate>
-                        {{ __('Empleados') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
-                        {{ __('Asignaciones') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('phone-lines.index')" :active="request()->routeIs('phone-lines.*')" wire:navigate>
-                        Líneas Telefónicas
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('office-extensions.index')" :active="request()->routeIs('office-extensions.*')" wire:navigate>
-                        Extensiones
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('maintenances.index')" :active="request()->routeIs('maintenances.*')" wire:navigate>
-                        {{ __('Mantenimientos') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('device-models.index')" :active="request()->routeIs('device-models.*')" wire:navigate>
-                        {{ __('Modelos IT') }}
-                    </x-nav-link>
-                    <x-nav-link :href="route('job-positions.index')" :active="request()->routeIs('job-positions.*')" wire:navigate>
-                        {{ __('Puestos') }}
-                    </x-nav-link>
-
-                    {{-- Dropdown Asignaciones --}}
-                    <div class="relative flex items-center" x-data="{ openAssign: false }" @click.outside="openAssign = false">
-                        <button @click="openAssign = !openAssign"
-                                class="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none"
-                                :class="openAssign ? 'bg-middleby-50 text-middleby-800 font-semibold' : 'text-slate-600 hover:text-middleby-700 hover:bg-slate-50'">
-                            Acciones Rápidas
-                            <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="{ 'rotate-180': openAssign }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div x-show="openAssign" x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
-                             class="absolute left-0 top-full mt-1.5 w-56 bg-white rounded-xl shadow-premium border border-slate-100 py-1.5 z-50">
-                            <a href="{{ route('assignments.assign') }}" wire:navigate
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-middleby-50 hover:text-middleby-800 transition">
-                                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-middleby-100 text-middleby-700 font-bold text-xs">+</span>
-                                Asignar equipo
-                            </a>
-                            <a href="{{ route('assignments.index') }}" wire:navigate
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition">
-                                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-amber-100 text-amber-700 font-bold text-xs">↩</span>
-                                Retornar equipo
-                            </a>
-                            <a href="{{ route('assignments.replace') }}" wire:navigate
-                               class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition">
-                                <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-bold text-xs">⇄</span>
-                                Reemplazar equipo
-                            </a>
-                        </div>
+            <!-- Acciones Rápidas Dropdown -->
+            <div x-data="{ openAssign: {{ request()->routeIs('assignments.assign', 'assignments.return', 'assignments.replace') ? 'true' : 'false' }} }" class="space-y-1 mb-2">
+                <button @click="openAssign = !openAssign" 
+                        class="{{ $navItemClasses }} w-full justify-between {{ request()->routeIs('assignments.assign', 'assignments.return', 'assignments.replace') ? 'text-white bg-middleby-900/50' : $inactiveClasses }}">
+                    <div class="flex items-center gap-3">
+                        <span class="w-5 h-5 flex items-center justify-center text-amber-400">⚡</span>
+                        <span>Acciones Rápidas</span>
                     </div>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180 text-amber-400': openAssign }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                
+                <div x-show="openAssign" 
+                     x-collapse 
+                     class="pl-11 pr-3 py-1 space-y-1">
+                     
+                    @php
+                        $subItemClasses = "flex items-center gap-2 px-3 py-2 rounded-md text-xs font-medium transition-all shadow-[inset_0_1px_1px_rgba(255,255,255,0.05),0_1px_2px_rgba(0,0,0,0.1)] ";
+                    @endphp
+                     
+                    <a href="{{ route('assignments.assign') }}" wire:navigate
+                       class="{{ $subItemClasses }} {{ request()->routeIs('assignments.assign') ? 'bg-middleby-600 text-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]' : 'bg-middleby-800/80 text-slate-300 hover:text-white hover:bg-middleby-700' }}">
+                        <span class="text-blue-300 font-bold text-sm">+</span>
+                        Asignar equipo
+                    </a>
+                    
+                    <a href="{{ route('assignments.return') }}" wire:navigate
+                       class="{{ $subItemClasses }} {{ request()->routeIs('assignments.return') ? 'bg-amber-700 text-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]' : 'bg-middleby-800/80 text-slate-300 hover:text-amber-400 hover:bg-middleby-700' }}">
+                        <span class="text-amber-500 font-bold text-sm">↩</span>
+                        Retornar equipo
+                    </a>
+                    
+                    <a href="{{ route('assignments.replace') }}" wire:navigate
+                       class="{{ $subItemClasses }} {{ request()->routeIs('assignments.replace') ? 'bg-purple-700 text-white shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]' : 'bg-middleby-800/80 text-slate-300 hover:text-purple-400 hover:bg-middleby-700' }}">
+                        <span class="text-purple-400 font-bold text-sm">⇄</span>
+                        Reemplazar equipo
+                    </a>
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile')" wire:navigate>
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <button wire:click="logout" class="w-full text-start">
-                            <x-dropdown-link>
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </button>
-                    </x-slot>
-                </x-dropdown>
+            <div class="pt-4 pb-1">
+                <p class="px-3 text-xs font-bold text-middleby-300 uppercase tracking-wider mb-2 drop-shadow-md">Telefonía</p>
+                <div class="space-y-1">
+                    <a href="{{ route('phone-lines.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('phone-lines.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">📱</span>
+                        Líneas Telefónicas
+                    </a>
+                    
+                    <a href="{{ route('office-extensions.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('office-extensions.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">☎️</span>
+                        Extensiones
+                    </a>
+                </div>
             </div>
 
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+            <div class="pt-4 pb-1">
+                <p class="px-3 text-xs font-bold text-middleby-300 uppercase tracking-wider mb-2 drop-shadow-md">Configuración</p>
+                <div class="space-y-1">
+                    <a href="{{ route('maintenances.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('maintenances.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">🔧</span>
+                        Mantenimientos
+                    </a>
+                    
+                    <a href="{{ route('device-models.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('device-models.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">🏷️</span>
+                        Modelos IT
+                    </a>
+                    
+                    <a href="{{ route('job-positions.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('job-positions.*') ? $activeClasses : $inactiveClasses }}">
+                        <span class="w-5 h-5 flex items-center justify-center opacity-80">💼</span>
+                        Puestos
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- User Profile Footer -->
+        <div class="relative shrink-0 p-4 bg-middleby-950 border-t border-middleby-900 shadow-[inset_0_4px_6px_-2px_rgba(0,0,0,0.5)]">
+            <div x-data="{ openProfile: false }" class="relative">
+                <button @click="openProfile = !openProfile" 
+                        class="flex items-center gap-3 w-full p-2 rounded-lg hover:bg-middleby-800 transition-colors shadow-[0_2px_4px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.05)] border border-middleby-800/50 bg-middleby-900 text-left">
+                    <div class="w-9 h-9 rounded-md bg-gradient-to-br from-middleby-600 to-middleby-800 flex items-center justify-center text-white font-bold shadow-[inset_0_1px_2px_rgba(255,255,255,0.2)] border border-middleby-500">
+                        {{ substr(auth()->user()->name, 0, 1) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white truncate" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></p>
+                        <p class="text-xs text-middleby-300 truncate">{{ auth()->user()->email }}</p>
+                    </div>
+                    <svg class="w-4 h-4 text-middleby-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
                 </button>
+
+                <!-- Profile Dropdown Menu -->
+                <div x-show="openProfile" 
+                     @click.outside="openProfile = false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 translate-y-2"
+                     class="absolute bottom-full left-0 w-full mb-2 bg-middleby-800 rounded-xl shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] border border-middleby-700 py-1 overflow-hidden z-50">
+                    
+                    <a href="{{ route('profile') }}" wire:navigate class="block px-4 py-2.5 text-sm text-slate-200 hover:bg-middleby-700 hover:text-white transition-colors">
+                        👤 Mi Perfil
+                    </a>
+                    <div class="border-t border-middleby-900/50 my-1"></div>
+                    <button wire:click="logout" class="w-full text-left px-4 py-2.5 text-sm text-amber-400 hover:bg-middleby-700 hover:text-amber-300 transition-colors font-medium">
+                        🚪 Cerrar Sesión
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
-    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
-                Dashboard
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('devices.index')" :active="request()->routeIs('devices.*')" wire:navigate>
-                Equipos
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')" wire:navigate>
-                {{ __('Empleados') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('assignments.index')" :active="request()->routeIs('assignments.*')" wire:navigate>
-                {{ __('Asignaciones') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('maintenances.index')" :active="request()->routeIs('maintenances.*')" wire:navigate>
-                {{ __('Mantenimientos') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('device-models.index')" :active="request()->routeIs('device-models.*')" wire:navigate>
-                {{ __('Modelos IT') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('job-positions.index')" :active="request()->routeIs('job-positions.*')" wire:navigate>
-                {{ __('Puestos') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('phone-lines.index')" :active="request()->routeIs('phone-lines.*')" wire:navigate>
-                Líneas Telefónicas
-            </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('office-extensions.index')" :active="request()->routeIs('office-extensions.*')" wire:navigate>
-                Extensiones
-            </x-responsive-nav-link>
-
-            <div class="border-t border-gray-100 pt-1 mt-1">
-                <p class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Asignaciones</p>
-                <x-responsive-nav-link :href="route('assignments.assign')" wire:navigate>
-                    Asignar equipo
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('assignments.index')" wire:navigate>
-                    Retornar equipo
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('assignments.replace')" wire:navigate>
-                    Reemplazar equipo
-                </x-responsive-nav-link>
-            </div>
-        </div>
-
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-                <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile')" wire:navigate>
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <button wire:click="logout" class="w-full text-start">
-                    <x-responsive-nav-link>
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </button>
-            </div>
-        </div>
-    </div>
 </nav>
