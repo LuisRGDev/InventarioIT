@@ -18,7 +18,7 @@ new class extends Component
 
 <nav x-data="{ openMobileMenu: false }" 
      @open-mobile-menu.window="openMobileMenu = true"
-     class="flex shrink-0">
+     class="flex shrink-0 w-0 sm:w-72 transition-all duration-300">
      
     <!-- Overlay for mobile -->
     <div x-show="openMobileMenu" 
@@ -28,7 +28,7 @@ new class extends Component
 
     <!-- Sidebar Container -->
     <div :class="openMobileMenu ? 'translate-x-0' : '-translate-x-full'"
-         class="fixed inset-y-0 left-0 w-72 bg-gradient-to-b from-middleby-800 to-middleby-950 text-slate-200 border-r border-middleby-950 shadow-[4px_0_15px_-3px_rgba(0,0,0,0.5)] z-50 flex flex-col transition-transform duration-300 ease-in-out sm:relative sm:translate-x-0 overflow-hidden">
+         class="fixed inset-y-0 left-0 w-72 bg-slate-900 bg-gradient-to-b from-middleby-800 to-middleby-950 text-slate-200 border-r border-middleby-950 shadow-[4px_0_15px_-3px_rgba(0,0,0,0.5)] z-50 flex flex-col transition-transform duration-300 ease-in-out sm:relative sm:translate-x-0 overflow-hidden">
         
         <!-- Subtle Inner Highlight (Skeuomorphism) -->
         <div class="absolute inset-0 pointer-events-none shadow-[inset_1px_1px_2px_rgba(255,255,255,0.1),inset_-1px_-1px_3px_rgba(0,0,0,0.6)]"></div>
