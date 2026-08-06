@@ -8,7 +8,6 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\PhoneLineController;
-use App\Http\Controllers\AssignmentController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\AssignPhoneLinePage;
 use App\Livewire\ReplaceDevicePage;

@@ -149,7 +149,7 @@ new class extends Component
                     
                     <a href="{{ route('device-models.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('device-models.*') ? $activeClasses : $inactiveClasses }}">
                         <span class="w-5 h-5 flex items-center justify-center opacity-80">🏷️</span>
-                        Modelos IT
+                        Catalogo de Modelos
                     </a>
                     
                     <a href="{{ route('job-positions.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('job-positions.*') ? $activeClasses : $inactiveClasses }}">
