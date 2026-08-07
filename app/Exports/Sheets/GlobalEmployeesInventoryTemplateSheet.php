@@ -13,6 +13,7 @@ class GlobalEmployeesInventoryTemplateSheet implements WithHeadings, WithTitle
             'Numero de empleado',
             'Empleado',
             'Correo',
+            'Direccion',
             'Departamento',
             'Puesto',
             'Usuario de dominio',
@@ -40,6 +41,8 @@ class GlobalEmployeesInventoryTemplateSheet implements WithHeadings, WithTitle
             'Número de Teléfono',
             'Tipo de plan',
             'Costo de plan',
+            'Direccion de Extension',
+            'Numero de Extension',
             'Notas',
         ];
     }

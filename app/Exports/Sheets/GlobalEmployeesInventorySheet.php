@@ -22,6 +22,7 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             'Numero de empleado',
             'Empleado',
             'Correo',
+            'Direccion',
             'Departamento',
             'Puesto',
             'Usuario de dominio',
@@ -49,6 +50,8 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             'Número de Teléfono',
             'Tipo de plan',
             'Costo de plan',
+            'Direccion de Extension',
+            'Numero de Extension',
             'Notas',
         ];
     }
@@ -58,6 +61,7 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
         $computer = null;
         $smartphone = null;
         $phoneLine = $employee->currentPhoneLines->first();
+        $extension = $employee->currentOfficeExtensions->first();
 
         foreach ($employee->currentAssignments as $assignment) {
             $device = $assignment->device;
@@ -74,6 +78,7 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             $employee->employee_code ?? '',
             $employee->name ?? '',
             $employee->email ?? '',
+            $employee->jobPosition->direction ?? '',
             $employee->department ?? '',
             $employee->position ?? '',
             $employee->domain_account ?? '',
@@ -105,6 +110,10 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             $phoneLine->number ?? '',
             $phoneLine->data_plan ?? '',
             $phoneLine->plan_cost ?? '',
+            
+            // Extension fields
+            $extension->direction ?? '',
+            $extension->number ?? '',
             
             // Notes
             trim(implode(' | ', array_filter([

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\JobPosition;
+use App\Imports\JobPositionsImport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class JobPositionController extends Controller
 {
@@ -89,5 +92,52 @@ class JobPositionController extends Controller
 
         return redirect()->route('job-positions.index')
             ->with('success', 'El puesto ha sido eliminado.');
+    }
+
+    public function downloadTemplate(): StreamedResponse
+    {
+        $headers = ['direccion', 'area', 'puesto', 'notas'];
+
+        $callback = function () use ($headers) {
+            $file = fopen('php://output', 'w');
+            
+            // BOM to force UTF-8 in Excel
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            
+            fputcsv($file, $headers);
+            // Example row
+            fputcsv($file, ['Finanzas', 'Contabilidad', 'Analista Contable', 'Ejemplo de puesto']);
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="plantilla_puestos.csv"',
+        ]);
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ], [
+            'file.required' => 'Debe seleccionar un archivo para importar.',
+            'file.mimes'    => 'El archivo debe ser un Excel o CSV válido.',
+        ]);
+
+        try {
+            Excel::import(new JobPositionsImport, $request->file('file'));
+            return redirect()->route('job-positions.index')->with('success', 'Puestos importados correctamente.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $messages = [];
+            foreach ($failures as $failure) {
+                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+            return redirect()->route('job-positions.index')->with('error', 'Error de validación:<br>' . implode('<br>', $messages));
+        } catch (\Exception $e) {
+            return redirect()->route('job-positions.index')->with('error', 'Ocurrió un error al importar el archivo: ' . $e->getMessage());
+        }
     }
 }

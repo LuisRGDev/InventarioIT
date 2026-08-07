@@ -61,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('office-extensions/export', function () {
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\OfficeExtensionsExport, 'extensiones_telefonicas.xlsx');
     })->name('office-extensions.export');
+    Route::get('office-extensions/import-template', [\App\Http\Controllers\OfficeExtensionController::class, 'downloadTemplate'])->name('office-extensions.import.template');
+    Route::post('office-extensions/import', [\App\Http\Controllers\OfficeExtensionController::class, 'import'])->name('office-extensions.import');
     Route::resource('office-extensions', \App\Http\Controllers\OfficeExtensionController::class);
 
     // Mantenimientos de Equipos
@@ -73,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('device-categories', DeviceCategoryController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('device-models', DeviceModelController::class);
+    Route::get('job-positions/import-template', [JobPositionController::class, 'downloadTemplate'])->name('job-positions.import.template');
+    Route::post('job-positions/import', [JobPositionController::class, 'import'])->name('job-positions.import');
     Route::resource('job-positions', JobPositionController::class);
 
     // ─── Operaciones de asignación (Livewire Full-Page Components) ────────────

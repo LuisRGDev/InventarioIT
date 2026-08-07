@@ -41,13 +41,36 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                 }
 
                 // 1. Empleado
+                $department = (string) ($row['departamento'] ?? 'General');
+                $positionName = (string) ($row['puesto'] ?? 'General');
+                $direction = (string) ($row['direccion'] ?? 'General');
+
+                // Intentar buscar el JobPosition
+                $jobPositionId = null;
+                if (!empty($row['departamento']) && !empty($row['puesto'])) {
+                    $jobPosition = \App\Models\JobPosition::where('name', $positionName)
+                        ->where('area', $department)
+                        ->first();
+                    
+                    if (!$jobPosition && !empty($row['direccion'])) {
+                        // Si no existe, lo creamos
+                        $jobPosition = \App\Models\JobPosition::create([
+                            'direction' => $direction,
+                            'area' => $department,
+                            'name' => $positionName,
+                        ]);
+                    }
+                    $jobPositionId = $jobPosition?->id;
+                }
+
                 $employee = Employee::firstOrCreate(
                     ['email' => $employeeEmail],
                     [
                         'name'           => (string) ($row['empleado'] ?? 'Colaborador Importado'),
                         'employee_code'  => !empty($row['numero_de_empleado']) && $row['numero_de_empleado'] !== 'N/A' ? (string) $row['numero_de_empleado'] : null,
-                        'department'     => (string) ($row['departamento'] ?? 'General'),
-                        'position'       => (string) ($row['puesto'] ?? 'General'),
+                        'department'     => $department,
+                        'position'       => $positionName,
+                        'job_position_id'=> $jobPositionId,
                         'domain_account' => (string) ($row['usuario_de_dominio'] ?? null),
                         'status'         => EmployeeStatus::Activo,
                     ]
@@ -56,9 +79,10 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                 if ($employee->wasRecentlyCreated === false) {
                     if (!empty($row['empleado']) && $row['empleado'] !== 'N/A') $employee->name = (string) $row['empleado'];
                     if (!empty($row['numero_de_empleado']) && $row['numero_de_empleado'] !== 'N/A') $employee->employee_code = (string) $row['numero_de_empleado'];
-                    if (!empty($row['departamento']) && $row['departamento'] !== 'N/A') $employee->department = (string) $row['departamento'];
-                    if (!empty($row['puesto']) && $row['puesto'] !== 'N/A') $employee->position = (string) $row['puesto'];
+                    if (!empty($row['departamento']) && $row['departamento'] !== 'N/A') $employee->department = $department;
+                    if (!empty($row['puesto']) && $row['puesto'] !== 'N/A') $employee->position = $positionName;
                     if (!empty($row['usuario_de_dominio']) && $row['usuario_de_dominio'] !== 'N/A') $employee->domain_account = (string) $row['usuario_de_dominio'];
+                    if ($jobPositionId) $employee->job_position_id = $jobPositionId;
                     $employee->status = EmployeeStatus::Activo;
                     $employee->save();
                 }
@@ -69,9 +93,9 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                 // 2. Computadora
                 $computerSerial = trim((string) ($row['numero_de_serie'] ?? ''));
                 if (!empty($computerSerial) && $computerSerial !== 'N/A') {
-                    // Buscar la llave que contiene 'categoria'
-                    $catKey = collect(array_keys($row->toArray()))->first(fn($k) => str_contains($k, 'categoria'));
-                    $categoryInput = mb_strtolower(trim((string) ($row[$catKey] ?? '')), 'UTF-8');
+                    // Buscar la llave que contiene 'categoria' de forma segura
+                    $catKey = collect(array_keys($row->toArray()))->first(fn($k) => str_contains((string)$k, 'categoria'));
+                    $categoryInput = $catKey ? mb_strtolower(trim((string) ($row[$catKey] ?? '')), 'UTF-8') : '';
                     $normalizedCategory = str_replace(['á','é','í','ó','ú','ä','ë','ï','ö','ü'], ['a','e','i','o','u','a','e','i','o','u'], $categoryInput);
                     
                     $categoryId = ($this->categories->get($categoryInput) ?? $this->categories->get($normalizedCategory))?->id;
@@ -122,17 +146,17 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                     $smartphoneCategoryId = $this->categories->get('smartphone')?->id ?? DeviceCategory::first()?->id ?? 1;
                     $existingMobile = Device::where('imei', $imei)->first();
 
-                    $modeloMobileKey = collect(array_keys($row->toArray()))->filter(fn($k) => str_contains($k, 'modelo'))->last();
-                    $osMobileKey = collect(array_keys($row->toArray()))->filter(fn($k) => str_contains($k, 'sistema_operativo'))->last();
+                    $modeloMobileKey = collect(array_keys($row->toArray()))->filter(fn($k) => str_contains((string)$k, 'modelo'))->last();
+                    $osMobileKey = collect(array_keys($row->toArray()))->filter(fn($k) => str_contains((string)$k, 'sistema_operativo'))->last();
 
                     $mobileData = [
                         'device_category_id' => $smartphoneCategoryId,
                         'brand'              => (string) ($row['marca_de_celular'] ?? $existingMobile?->brand ?? 'Genérico'),
-                        'model'              => (string) ($row[$modeloMobileKey] ?? $existingMobile?->model ?? 'Genérico'),
+                        'model'              => (string) ($modeloMobileKey && isset($row[$modeloMobileKey]) ? $row[$modeloMobileKey] : ($existingMobile?->model ?? 'Genérico')),
                     ];
 
                     $mobileSpecs = $existingMobile?->specs ?? [];
-                    if (!empty($row[$osMobileKey])) $mobileSpecs['os'] = (string) $row[$osMobileKey];
+                    if ($osMobileKey && !empty($row[$osMobileKey])) $mobileSpecs['os'] = (string) $row[$osMobileKey];
                     $mobileData['specs'] = count($mobileSpecs) > 0 ? $mobileSpecs : null;
 
                     if (!empty($notes)) {
@@ -179,6 +203,39 @@ class GlobalEmployeesInventoryImportSheet implements ToCollection, WithHeadingRo
                         }
                         \App\Models\PhoneLineAssignment::create([
                             'phone_line_id' => $existingLine->id,
+                            'employee_id' => $employee->id,
+                            'assigned_at' => now(),
+                            'notes' => 'Asignado/Actualizado durante importación masiva del Dashboard.',
+                        ]);
+                    }
+                }
+
+                // 5. Extensión de Oficina
+                $extensionNumber = trim((string) ($row['numero_de_extension'] ?? ''));
+                if (!empty($extensionNumber) && $extensionNumber !== 'N/A') {
+                    $existingExtension = \App\Models\OfficeExtension::where('extension_number', $extensionNumber)->first();
+                    $extDirection = (string) ($row['direccion_de_extension'] ?? $existingExtension?->direct_number ?? null);
+
+                    $extData = [
+                        'extension_number' => $extensionNumber,
+                        'direct_number' => $extDirection,
+                        'status' => \App\Enums\ExtensionStatus::Asignada,
+                    ];
+
+                    if (!$existingExtension) {
+                        $existingExtension = \App\Models\OfficeExtension::create($extData);
+                    } else {
+                        $existingExtension->update($extData);
+                    }
+
+                    // Asignar extensión al empleado
+                    $currentExtAssignment = $existingExtension->currentAssignment;
+                    if (!$currentExtAssignment || $currentExtAssignment->employee_id !== $employee->id) {
+                        if ($currentExtAssignment) {
+                            $currentExtAssignment->update(['returned_at' => now()]);
+                        }
+                        \App\Models\OfficeExtensionAssignment::create([
+                            'office_extension_id' => $existingExtension->id,
                             'employee_id' => $employee->id,
                             'assigned_at' => now(),
                             'notes' => 'Asignado/Actualizado durante importación masiva del Dashboard.',

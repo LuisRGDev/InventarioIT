@@ -22,6 +22,7 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
             'Número Directo',
             'Estatus',
             'Asignado A (Empleado)',
+            'Correo',
             'Asignado A (Departamento)',
             'Notas'
         ];
@@ -30,10 +31,12 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
     public function map($extension): array
     {
         $employeeName = 'N/A';
+        $employeeEmail = 'N/A';
         $department   = 'N/A';
         
         if ($extension->currentAssignment && $extension->currentAssignment->employee) {
             $employeeName = $extension->currentAssignment->employee->name;
+            $employeeEmail = $extension->currentAssignment->employee->email ?? 'N/A';
             $department   = $extension->currentAssignment->employee->department;
         }
 
@@ -43,6 +46,7 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
             $extension->direct_number ?? 'N/A',
             $extension->status->label(),
             $employeeName,
+            $employeeEmail,
             $department,
             $extension->notes
         ];
