@@ -94,14 +94,6 @@
                                 <x-input-error :messages="$errors->get('email')" class="mt-1"/>
                             </div>
 
-                            <div>
-                                <x-input-label for="phone" value="Teléfono"/>
-                                <x-text-input id="phone" name="phone" type="text" class="mt-1 block w-full"
-                                              value="{{ old('phone', $employee->phone) }}"
-                                              placeholder="+52 55 1234 5678"
-                                              :class="$errors->has('phone') ? 'border-red-400' : ''"/>
-                                <x-input-error :messages="$errors->get('phone')" class="mt-1"/>
-                            </div>
                         </div>
                     </div>
 

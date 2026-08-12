@@ -156,6 +156,13 @@
                             </a>
                             @unless($phoneLine->currentAssignment)
                                 <hr class="my-1 border-gray-100">
+                                <a href="{{ route('assignments.assign-phone-line', ['selectedPhoneId' => $phoneLine->id]) }}"
+                                   class="flex items-center gap-3 px-4 py-2.5 text-sm text-indigo-700 hover:bg-indigo-50 rounded-lg transition group">
+                                    <svg class="w-4 h-4 text-indigo-400 group-hover:text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Asignar línea
+                                </a>
                                 <form method="POST" action="{{ route('phone-lines.destroy', $phoneLine) }}"
                                       onsubmit="return confirm('¿Seguro que deseas eliminar esta línea telefónica? Esta acción no se puede deshacer.')">
                                     @csrf

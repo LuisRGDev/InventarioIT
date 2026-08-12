@@ -7,6 +7,8 @@ use App\Http\Requests\UpdatePhoneLineRequest;
 use App\Models\PhoneLine;
 use Illuminate\Http\Request;
 use App\Exports\PhoneLinesExport;
+use App\Exports\PhoneLinesTemplateExport;
+use App\Imports\PhoneLinesImport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PhoneLineController extends Controller
@@ -118,5 +120,39 @@ class PhoneLineController extends Controller
     public function export()
     {
         return Excel::download(new PhoneLinesExport, 'directorio_lineas_telefonicas_' . now()->format('Y-m-d') . '.xlsx');
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new PhoneLinesTemplateExport, 'plantilla_importacion_lineas.xlsx');
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file.required' => 'Debes subir un archivo.',
+            'file.mimes'    => 'El archivo debe ser un Excel (.xlsx, .xls o .csv).',
+            'file.max'      => 'El archivo no debe pesar más de 5MB.'
+        ]);
+
+        try {
+            Excel::import(new PhoneLinesImport, $request->file('file'));
+            
+            return redirect()->route('phone-lines.index')
+                ->with('success', 'Importación de líneas telefónicas completada correctamente.');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            foreach ($failures as $failure) {
+                $row = $failure->row();
+                $errors = implode(', ', $failure->errors());
+                $errorMessages[] = "Fila {$row}: {$errors}";
+            }
+            return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Ocurrió un error inesperado al importar el archivo: ' . $e->getMessage());
+        }
     }
 }

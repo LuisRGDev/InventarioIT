@@ -53,6 +53,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('phone-lines/export', function () {
         return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PhoneLinesExport, 'lineas_telefonicas.xlsx');
     })->name('phone-lines.export');
+    Route::get('phone-lines/import-template', [PhoneLineController::class, 'downloadTemplate'])->name('phone-lines.import.template');
+    Route::post('phone-lines/import', [PhoneLineController::class, 'import'])->name('phone-lines.import');
     Route::resource('phone-lines', PhoneLineController::class);
     Route::get('phone-lines/{phone_line}/history', [PhoneLineController::class, 'history'])
         ->name('phone-lines.history');

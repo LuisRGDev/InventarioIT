@@ -20,7 +20,6 @@ class StoreEmployeeRequest extends FormRequest
             'domain_account' => ['nullable', 'string', 'max:100', 'unique:employees,domain_account'],
             'name'           => ['required', 'string', 'max:255'],
             'email'         => ['required', 'email', 'max:255', 'unique:employees,email'],
-            'phone'         => ['nullable', 'string', 'max:30'],
             'department'    => ['required', 'string', 'max:100'],
             'position'      => ['required', 'string', 'max:100'],
             'status'        => ['required', Rule::enum(EmployeeStatus::class)],

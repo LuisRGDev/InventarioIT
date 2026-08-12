@@ -115,20 +115,22 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             {{-- CPU --}}
-                            <div x-show="!isSmartphone" x-transition>
+                            <div>
                                 <label for="cpu" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     Procesador (CPU)
                                 </label>
-                                <input type="text" id="cpu" name="cpu" value="{{ old('cpu') }}" placeholder="Ej. Intel Core i5-1235U 1.3GHz, Apple M3 Pro..."
+                                <input type="text" id="cpu" name="cpu" value="{{ old('cpu') }}" 
+                                       x-bind:placeholder="isSmartphone ? 'Ej. Snapdragon 8 Gen 2, Apple A17 Pro...' : 'Ej. Intel Core i5-1235U 1.3GHz, Apple M3 Pro...'"
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
                             </div>
 
                             {{-- Núcleos (Cores) --}}
-                            <div x-show="!isSmartphone" x-transition>
+                            <div>
                                 <label for="cores" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     Núcleos (Cores)
                                 </label>
-                                <input type="text" id="cores" name="cores" value="{{ old('cores') }}" placeholder="Ej. 10 Núcleos, Octa-core..."
+                                <input type="text" id="cores" name="cores" value="{{ old('cores') }}" 
+                                       x-bind:placeholder="isSmartphone ? 'Ej. 8 Núcleos (Octa-core)...' : 'Ej. 10 Núcleos, Octa-core...'"
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
                             </div>
 
@@ -137,7 +139,8 @@
                                 <label for="ram" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     Memoria RAM
                                 </label>
-                                <input type="text" id="ram" name="ram" value="{{ old('ram') }}" placeholder="Ej. 16 GB LPDDR5, 32 GB DDR4..."
+                                <input type="text" id="ram" name="ram" value="{{ old('ram') }}" 
+                                       x-bind:placeholder="isSmartphone ? 'Ej. 8 GB LPDDR5X, 12 GB...' : 'Ej. 16 GB LPDDR5, 32 GB DDR4...'"
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
                             </div>
 
@@ -146,7 +149,8 @@
                                 <label for="storage" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     <span x-text="isSmartphone ? 'Almacenamiento (Capacidad)' : 'Almacenamiento (Disco)'">Almacenamiento (Disco)</span>
                                 </label>
-                                <input type="text" id="storage" name="storage" value="{{ old('storage') }}" placeholder="Ej. 512 GB SSD NVMe M.2, 1 TB SSD..."
+                                <input type="text" id="storage" name="storage" value="{{ old('storage') }}" 
+                                       x-bind:placeholder="isSmartphone ? 'Ej. 128 GB ROM, 256 GB UFS...' : 'Ej. 512 GB SSD NVMe M.2, 1 TB SSD...'"
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
                             </div>
 
@@ -155,7 +159,8 @@
                                 <label for="os" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                                     <span x-text="isSmartphone ? 'Sistema Operativo Móvil' : 'Sistema Operativo por Defecto'">Sistema Operativo por Defecto</span>
                                 </label>
-                                <input type="text" id="os" name="os" value="{{ old('os') }}" placeholder="Ej. Windows 11 Pro 64-bit, macOS Sonoma, iOS 17..."
+                                <input type="text" id="os" name="os" value="{{ old('os') }}" 
+                                       x-bind:placeholder="isSmartphone ? 'Ej. iOS 17, Android 14...' : 'Ej. Windows 11 Pro 64-bit, macOS Sonoma...'"
                                        class="w-full border-2 border-slate-200 rounded-2xl p-3 text-sm text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 bg-slate-50/50 hover:bg-white transition"/>
                             </div>
                         </div>

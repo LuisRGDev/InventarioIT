@@ -85,7 +85,7 @@
                             <div class="p-4 rounded-lg border border-emerald-200 bg-emerald-50/50 flex items-center justify-between">
                                 <div>
                                     <p class="font-medium text-emerald-900">{{ $this->selectedPhoneLine->number }}</p>
-                                    <p class="text-sm text-emerald-700 font-mono">Proveedor: {{ $this->selectedPhoneLine->provider }}</p>
+                                    <p class="text-sm text-emerald-700 font-mono">Plan: {{ $this->selectedPhoneLine->data_plan }} - ${{ number_format($this->selectedPhoneLine->plan_cost, 2) }}</p>
                                 </div>
                                 <button type="button" wire:click="clearPhoneLine" class="text-emerald-600 hover:text-emerald-800 p-2 rounded-full hover:bg-emerald-100 transition">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -93,7 +93,7 @@
                             </div>
                         @else
                             <div class="relative">
-                                <input type="text" wire:model.live.debounce.300ms="phoneSearch" placeholder="Buscar por número o proveedor..." class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 pl-10 text-sm">
+                                <input type="text" wire:model.live.debounce.300ms="phoneSearch" placeholder="Buscar por número o plan..." class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 pl-10 text-sm">
                                 <div class="absolute left-3 top-2.5 text-gray-400">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
                                 </div>
@@ -105,7 +105,7 @@
                                     @forelse($this->availablePhoneLines as $phone)
                                         <button type="button" wire:click="selectPhoneLine({{ $phone->id }})" class="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0 transition">
                                             <p class="text-sm font-medium text-gray-900">{{ $phone->number }}</p>
-                                            <p class="text-xs text-gray-500 font-mono">Proveedor: {{ $phone->provider }}</p>
+                                            <p class="text-xs text-gray-500 font-mono">Plan: {{ $phone->data_plan }} - ${{ number_format($phone->plan_cost, 2) }}</p>
                                         </button>
                                     @empty
                                         <div class="px-4 py-3 text-sm text-gray-500 text-center">No hay líneas disponibles que coincidan.</div>

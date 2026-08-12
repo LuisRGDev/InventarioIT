@@ -37,10 +37,10 @@ class ReplaceDevicePage extends Component
     public ?string $errorMessage   = null;
 
 
-    public function mount(?int $employeeId = null): void
+    public function mount(?int $employee = null): void
     {
-        if ($employeeId) {
-            $this->employeeId = $employeeId;
+        if ($employee) {
+            $this->employeeId = $employee;
         }
     }
 
@@ -147,7 +147,7 @@ class ReplaceDevicePage extends Component
             $this->errorMessage = $e->getMessage();
             $this->showConfirm  = false;
         } catch (\Exception $e) {
-            $this->errorMessage = 'Ocurrió un error: ' . $e->getMessage();
+            $this->errorMessage = 'Ocurrió un error inesperado: ' . $e->getMessage();
             $this->showConfirm  = false;
         }
     }

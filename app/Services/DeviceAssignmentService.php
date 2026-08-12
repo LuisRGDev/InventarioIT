@@ -59,7 +59,7 @@ class DeviceAssignmentService
                 'employee_id'          => $employee->id,
                 'assigned_by_user_id'  => Auth::id(),
                 'assigned_at'          => now(),
-                'condition_on_delivery' => $data['condition_on_delivery'] ?? DeviceCondition::BuenEstado->value,
+                'condition_on_delivery' => isset($data['condition_on_delivery']) ? DeviceCondition::from($data['condition_on_delivery']) : DeviceCondition::BuenEstado,
                 'notes'                => $data['notes'] ?? null,
             ]);
 
@@ -117,7 +117,7 @@ class DeviceAssignmentService
             $assignment->update([
                 'returned_at'          => now(),
                 'returned_by_user_id'  => Auth::id(),
-                'condition_on_return'  => $conditionOnReturn->value,
+                'condition_on_return'  => $conditionOnReturn,
                 'notes'                => $data['notes'] ?? $assignment->notes,
             ]);
 

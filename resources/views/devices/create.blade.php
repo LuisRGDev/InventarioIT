@@ -242,37 +242,40 @@
                             Especificaciones Técnicas
                         </h3>
 
-                        {{-- Campos de Cómputo --}}
-                        <div x-show="isComputer" class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                             <div>
                                 <x-input-label for="specs_cpu" value="Procesador (CPU)"/>
                                 <x-text-input id="specs_cpu" name="specs[cpu]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="cpu" x-bind:disabled="!isComputer"
-                                              value="{{ old('specs.cpu') }}" placeholder="Ej. Intel Core i5-1240P"/>
+                                              x-model="cpu"
+                                              value="{{ old('specs.cpu') }}" 
+                                              x-bind:placeholder="isSmartphone ? 'Ej. Apple A17 Pro, Snapdragon 8...' : 'Ej. Intel Core i5-1240P'"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_cores" value="Núcleos"/>
                                 <x-text-input id="specs_cores" name="specs[cores]" type="number" class="mt-1 block w-full"
-                                              x-bind:disabled="!isComputer"
-                                              value="{{ old('specs.cores') }}" placeholder="Ej. 12"/>
+                                              value="{{ old('specs.cores') }}" 
+                                              x-bind:placeholder="isSmartphone ? 'Ej. 8' : 'Ej. 12'"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_ram" value="Memoria RAM"/>
                                 <x-text-input id="specs_ram" name="specs[ram]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="ram" x-bind:disabled="!isComputer"
-                                              value="{{ old('specs.ram') }}" placeholder="Ej. 16 GB DDR4"/>
+                                              x-model="ram"
+                                              value="{{ old('specs.ram') }}" 
+                                              x-bind:placeholder="isSmartphone ? 'Ej. 8 GB' : 'Ej. 16 GB DDR4'"/>
                             </div>
                             <div>
-                                <x-input-label for="specs_storage" value="Almacenamiento (Disco)"/>
+                                <x-input-label for="specs_storage" value="Almacenamiento (Disco/ROM)"/>
                                 <x-text-input id="specs_storage" name="specs[storage]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="storage" x-bind:disabled="!isComputer"
-                                              value="{{ old('specs.storage') }}" placeholder="Ej. 512 GB SSD NVMe"/>
+                                              x-model="storage"
+                                              value="{{ old('specs.storage') }}" 
+                                              x-bind:placeholder="isSmartphone ? 'Ej. 128 GB ROM' : 'Ej. 512 GB SSD NVMe'"/>
                             </div>
                             <div>
                                 <x-input-label for="specs_os" value="Sistema Operativo"/>
                                 <x-text-input id="specs_os" name="specs[os]" type="text" class="mt-1 block w-full font-medium"
-                                              x-model="os" x-bind:disabled="!isComputer"
-                                              value="{{ old('specs.os') }}" placeholder="Ej. Windows 11 Pro"/>
+                                              x-model="os"
+                                              value="{{ old('specs.os') }}" 
+                                              x-bind:placeholder="isSmartphone ? 'Ej. iOS 17 / Android 14' : 'Ej. Windows 11 Pro'"/>
                             </div>
                         </div>
 
@@ -284,12 +287,6 @@
                                               x-bind:disabled="!isSmartphone"
                                               value="{{ old('imei') }}" placeholder="IMEI del dispositivo"/>
                                 <x-input-error :messages="$errors->get('imei')" class="mt-1"/>
-                            </div>
-                            <div>
-                                <x-input-label for="specs_os_mobile" value="Sistema Operativo"/>
-                                <x-text-input id="specs_os_mobile" name="specs[os]" type="text" class="mt-1 block w-full"
-                                              x-bind:disabled="!isSmartphone"
-                                              value="{{ old('specs.os') }}" placeholder="Ej. iOS 17 / Android 14"/>
                             </div>
                         </div>
                     </div>

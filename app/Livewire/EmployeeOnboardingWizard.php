@@ -19,12 +19,13 @@ class EmployeeOnboardingWizard extends Component
     public string $email = '';
     public string $employee_code = '';
     public string $domain_account = '';
-    public string $phone = '';
+
     public ?int $job_position_id = null;
     public string $notes = '';
     public ?int $employeeId = null;
     public ?int $assign_phone_line_id = null;
     public ?int $assign_office_extension_id = null;
+    public string $errorMessage = '';
 
     // ─── Cómputo (Paso 2) ───────────────────────────────────────────────
     public ?int $computer_id = null;
@@ -117,7 +118,7 @@ class EmployeeOnboardingWizard extends Component
             'email' => 'required|email|max:255|unique:employees,email',
             'employee_code' => 'nullable|string|max:50|unique:employees,employee_code',
             'domain_account' => 'nullable|string|max:100|unique:employees,domain_account',
-            'phone' => 'nullable|string|max:30',
+
             'job_position_id' => 'required|exists:job_positions,id',
             'notes' => 'nullable|string',
             'assign_phone_line_id' => 'nullable|exists:phone_lines,id',
@@ -155,14 +156,21 @@ class EmployeeOnboardingWizard extends Component
 
     public function assignComputer(DeviceAssignmentService $service)
     {
+        $this->errorMessage = '';
+
         if ($this->computer_id) {
             $this->validate(['computer_condition' => 'required|string']);
-            
-            $service->assign(
-                Device::findOrFail($this->computer_id),
-                Employee::findOrFail($this->employeeId),
-                ['condition_on_delivery' => $this->computer_condition]
-            );
+
+            try {
+                $service->assign(
+                    Device::findOrFail($this->computer_id),
+                    Employee::findOrFail($this->employeeId),
+                    ['condition_on_delivery' => $this->computer_condition]
+                );
+            } catch (\Exception $e) {
+                $this->errorMessage = 'No se pudo asignar el equipo: ' . $e->getMessage();
+                return;
+            }
         }
 
         $this->step = 3;
@@ -170,14 +178,21 @@ class EmployeeOnboardingWizard extends Component
 
     public function assignSmartphone(DeviceAssignmentService $service)
     {
+        $this->errorMessage = '';
+
         if ($this->smartphone_id) {
             $this->validate(['smartphone_condition' => 'required|string']);
-            
-            $service->assign(
-                Device::findOrFail($this->smartphone_id),
-                Employee::findOrFail($this->employeeId),
-                ['condition_on_delivery' => $this->smartphone_condition]
-            );
+
+            try {
+                $service->assign(
+                    Device::findOrFail($this->smartphone_id),
+                    Employee::findOrFail($this->employeeId),
+                    ['condition_on_delivery' => $this->smartphone_condition]
+                );
+            } catch (\Exception $e) {
+                $this->errorMessage = 'No se pudo asignar el celular: ' . $e->getMessage();
+                return;
+            }
         }
 
         session()->flash('success', 'Empleado dado de alta y equipos asignados (si seleccionaste alguno).');

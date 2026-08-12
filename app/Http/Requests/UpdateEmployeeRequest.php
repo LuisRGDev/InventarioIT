@@ -22,7 +22,6 @@ class UpdateEmployeeRequest extends FormRequest
             'domain_account' => ['nullable', 'string', 'max:100', Rule::unique('employees', 'domain_account')->ignore($employeeId)],
             'name'           => ['required', 'string', 'max:255'],
             'email'         => ['required', 'email', 'max:255', Rule::unique('employees', 'email')->ignore($employeeId)],
-            'phone'         => ['nullable', 'string', 'max:30'],
             'department'    => ['required', 'string', 'max:100'],
             'position'      => ['required', 'string', 'max:100'],
             'status'        => ['required', Rule::enum(EmployeeStatus::class)],

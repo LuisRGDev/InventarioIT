@@ -58,7 +58,14 @@ class DeviceController extends Controller
 
     public function store(StoreDeviceRequest $request, DeviceAssignmentService $assignmentService): RedirectResponse
     {
-        $device = Device::create($request->validated());
+        $validated = $request->validated();
+
+        if ($request->filled('assign_to_employee_id')) {
+            // Forzamos el estado a Disponible para que el servicio permita la asignación
+            $validated['status'] = DeviceStatus::Disponible->value;
+        }
+
+        $device = Device::create($validated);
 
         if ($request->filled('assign_to_employee_id')) {
             $employee = Employee::findOrFail($request->input('assign_to_employee_id'));

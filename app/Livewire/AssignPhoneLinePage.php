@@ -8,13 +8,18 @@ use App\Models\PhoneLine;
 use App\Services\PhoneLineAssignmentService;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 
 class AssignPhoneLinePage extends Component
 {
     // Búsqueda
     public string $employeeSearch = '';
     public string $phoneSearch   = '';
+    
+    #[Url]
     public ?int $selectedEmployeeId = null;
+    
+    #[Url]
     public ?int $selectedPhoneId   = null;
 
     // Formulario

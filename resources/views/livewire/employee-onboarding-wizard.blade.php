@@ -29,11 +29,6 @@
                             <x-input-error :messages="$errors->get('email')" class="mt-1"/>
                         </div>
 
-                        <div>
-                            <x-input-label for="phone" value="Numero de Telefono"/>
-                            <x-text-input wire:model="phone" id="phone" type="text" class="mt-1 block w-full"/>
-                            <x-input-error :messages="$errors->get('phone')" class="mt-1"/>
-                        </div>
 
                         <div>
                             <x-input-label for="employee_code" value="Número de Empleado (Nomina)"/>
@@ -103,12 +98,18 @@
                     </div>
 
                     @if($computer_id)
+                        @php $selectedComputer = $this->availableComputers->firstWhere('id', $computer_id) ?? \App\Models\Device::find($computer_id); @endphp
                         <div class="bg-green-50 border border-green-200 p-4 rounded-lg flex items-center justify-between">
                             <div>
-                                <h4 class="text-sm font-semibold text-green-900">Equipo seleccionado</h4>
-                                <p class="text-xs text-green-700">Equipo ID: {{ $computer_id }}</p>
+                                <h4 class="text-sm font-semibold text-green-900">✓ Equipo seleccionado</h4>
+                                @if($selectedComputer)
+                                    <p class="text-sm font-bold text-green-800">{{ $selectedComputer->brand }} {{ $selectedComputer->model }}</p>
+                                    <p class="text-xs text-green-600 font-mono">SN: {{ $selectedComputer->serial_number }}</p>
+                                @else
+                                    <p class="text-xs text-green-700">ID: {{ $computer_id }}</p>
+                                @endif
                             </div>
-                            <button wire:click="clearComputer" class="text-sm text-red-600 hover:underline">Quitar</button>
+                            <button wire:click="clearComputer" type="button" class="text-sm text-red-500 hover:text-red-700 hover:underline font-medium">Quitar</button>
                         </div>
                         
                         <div class="mt-4">
@@ -130,12 +131,12 @@
                         @if(count($this->availableComputers) > 0)
                             <div class="mt-2 border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
                                 @foreach($this->availableComputers as $device)
-                                    <div class="p-3 hover:bg-gray-50 flex items-center justify-between">
+                                    <div wire:key="computer-{{ $device->id }}" class="p-3 hover:bg-gray-50 flex items-center justify-between">
                                         <div>
                                             <p class="text-sm font-medium text-gray-900">{{ $device->brand }} {{ $device->model }}</p>
-                                            <p class="text-xs text-gray-500 font-mono">{{ $device->serial_number }}</p>
+                                            <p class="text-xs text-gray-500 font-mono">SN: {{ $device->serial_number }} &bull; {{ $device->category?->name }}</p>
                                         </div>
-                                        <button wire:click="selectComputer({{ $device->id }})" class="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                        <button wire:click="selectComputer({{ $device->id }})" type="button" class="px-3 py-1 text-xs bg-indigo-600 text-white border border-indigo-600 rounded hover:bg-indigo-700 transition">
                                             Seleccionar
                                         </button>
                                     </div>
@@ -146,11 +147,17 @@
                         @endif
                     @endif
 
+                    @if($this->errorMessage ?? false)
+                        <div class="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg">
+                            {{ $this->errorMessage }}
+                        </div>
+                    @endif
+
                     <div class="flex justify-between pt-4 border-t border-gray-100 mt-6">
-                        <button wire:click="assignComputer" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                        <button wire:click="assignComputer" type="button" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                             Saltar Cómputo
                         </button>
-                        <button wire:click="assignComputer" @if($computer_id && empty($computer_condition)) disabled @endif class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
+                        <button wire:click="assignComputer" type="button" @if($computer_id && empty($computer_condition)) disabled @endif class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
                             Siguiente: Asignar Celular
                         </button>
                     </div>
@@ -161,12 +168,18 @@
             @if($step === 3)
                 <div class="space-y-6">
                     @if($smartphone_id)
+                        @php $selectedPhone = $this->availableSmartphones->firstWhere('id', $smartphone_id) ?? \App\Models\Device::find($smartphone_id); @endphp
                         <div class="bg-green-50 border border-green-200 p-4 rounded-lg flex items-center justify-between">
                             <div>
-                                <h4 class="text-sm font-semibold text-green-900">Celular seleccionado</h4>
-                                <p class="text-xs text-green-700">Equipo ID: {{ $smartphone_id }}</p>
+                                <h4 class="text-sm font-semibold text-green-900">✓ Celular seleccionado</h4>
+                                @if($selectedPhone)
+                                    <p class="text-sm font-bold text-green-800">{{ $selectedPhone->brand }} {{ $selectedPhone->model }}</p>
+                                    <p class="text-xs text-green-600 font-mono">SN: {{ $selectedPhone->serial_number }}</p>
+                                @else
+                                    <p class="text-xs text-green-700">ID: {{ $smartphone_id }}</p>
+                                @endif
                             </div>
-                            <button wire:click="clearSmartphone" class="text-sm text-red-600 hover:underline">Quitar</button>
+                            <button wire:click="clearSmartphone" type="button" class="text-sm text-red-500 hover:text-red-700 hover:underline font-medium">Quitar</button>
                         </div>
 
                         <div class="mt-4">
@@ -188,12 +201,12 @@
                         @if(count($this->availableSmartphones) > 0)
                             <div class="mt-2 border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
                                 @foreach($this->availableSmartphones as $device)
-                                    <div class="p-3 hover:bg-gray-50 flex items-center justify-between">
+                                    <div wire:key="smartphone-{{ $device->id }}" class="p-3 hover:bg-gray-50 flex items-center justify-between">
                                         <div>
                                             <p class="text-sm font-medium text-gray-900">{{ $device->brand }} {{ $device->model }}</p>
-                                            <p class="text-xs text-gray-500 font-mono">{{ $device->serial_number }}</p>
+                                            <p class="text-xs text-gray-500 font-mono">SN: {{ $device->serial_number }}@if($device->imei) &bull; IMEI: {{ $device->imei }}@endif</p>
                                         </div>
-                                        <button wire:click="selectSmartphone({{ $device->id }})" class="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50">
+                                        <button wire:click="selectSmartphone({{ $device->id }})" type="button" class="px-3 py-1 text-xs bg-indigo-600 text-white border border-indigo-600 rounded hover:bg-indigo-700 transition">
                                             Seleccionar
                                         </button>
                                     </div>

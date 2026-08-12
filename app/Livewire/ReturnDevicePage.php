@@ -24,9 +24,9 @@ class ReturnDevicePage extends Component
     public ?string $successMessage = null;
     public ?string $errorMessage   = null;
 
-    public function mount(?int $deviceId = null): void
+    public function mount(?int $device = null): void
     {
-        $this->deviceId = $deviceId;
+        $this->deviceId = $device;
     }
 
     #[Computed]
@@ -94,7 +94,7 @@ class ReturnDevicePage extends Component
             $this->errorMessage = $e->getMessage();
             $this->showConfirm  = false;
         } catch (\Exception $e) {
-            $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
+            $this->errorMessage = 'Error inesperado: ' . $e->getMessage();
             $this->showConfirm  = false;
         }
     }

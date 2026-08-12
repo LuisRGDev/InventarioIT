@@ -8,12 +8,15 @@ use App\Models\OfficeExtension;
 use App\Services\ExtensionAssignmentService;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 
 class AssignExtensionPage extends Component
 {
     // Búsqueda
     public string $employeeSearch = '';
     public string $extensionSearch = '';
+
+    #[Url]
     public ?int $selectedEmployeeId = null;
     public ?int $selectedExtensionId = null;
 

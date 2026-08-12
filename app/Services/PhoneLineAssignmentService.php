@@ -30,7 +30,7 @@ class PhoneLineAssignmentService
         return DB::transaction(function () use ($phoneLine, $employee, $data) {
             // Actualizar estado de la línea
             $phoneLine->update([
-                'status' => PhoneLineStatus::EnUso
+                'status' => PhoneLineStatus::Asignada
             ]);
 
             // Crear asignación

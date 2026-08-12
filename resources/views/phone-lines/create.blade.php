@@ -35,9 +35,11 @@
                                     <x-input-label for="status" value="Estatus Inicial *" />
                                     <select id="status" name="status" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                         @foreach(App\Enums\PhoneLineStatus::cases() as $status)
-                                            <option value="{{ $status->value }}" {{ old('status', 'disponible') == $status->value ? 'selected' : '' }}>
-                                                {{ $status->label() }}
-                                            </option>
+                                            @if($status->value !== 'asignada')
+                                                <option value="{{ $status->value }}" {{ old('status', 'disponible') == $status->value ? 'selected' : '' }}>
+                                                    {{ $status->label() }}
+                                                </option>
+                                            @endif
                                         @endforeach
                                     </select>
                                     <x-input-error :messages="$errors->get('status')" class="mt-1" />

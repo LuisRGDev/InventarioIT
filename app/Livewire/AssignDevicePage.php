@@ -11,13 +11,17 @@ use App\Models\Employee;
 use App\Services\DeviceAssignmentService;
 use Livewire\Component;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Url;
 
 class AssignDevicePage extends Component
 {
     // Búsqueda
     public string $employeeSearch = '';
     public string $deviceSearch   = '';
+    
+    #[Url]
     public ?int $selectedEmployeeId = null;
+    
     public ?int $selectedDeviceId   = null;
     public ?int $selectedCategoryId = null;
 
