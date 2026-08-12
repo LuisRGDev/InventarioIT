@@ -15,7 +15,7 @@ class DeviceTable extends Component
     use WithSorting;
 
     public $search = '';
-    public $category_id = '';
+    public $category_ids = [];
     public $status = '';
     public $condition = '';
     public $model_id = '';
@@ -24,7 +24,7 @@ class DeviceTable extends Component
 
     // Reset pagination when searching/filtering
     public function updatingSearch() { $this->resetPage(); }
-    public function updatingCategoryId() { $this->resetPage(); }
+    public function updatingCategoryIds() { $this->resetPage(); }
     public function updatingStatus() { $this->resetPage(); }
     public function updatingCondition() { $this->resetPage(); }
     public function updatingModelId() { $this->resetPage(); }
@@ -33,7 +33,7 @@ class DeviceTable extends Component
 
     public function clearFilters()
     {
-        $this->reset(['search', 'category_id', 'status', 'condition', 'model_id', 'date_from', 'date_to', 'sortBy', 'sortDirection']);
+        $this->reset(['search', 'category_ids', 'status', 'condition', 'model_id', 'date_from', 'date_to', 'sortBy', 'sortDirection']);
         $this->resetPage();
     }
 
@@ -54,8 +54,8 @@ class DeviceTable extends Component
         }
 
         // Filters
-        if (!empty($this->category_id)) {
-            $query->where('device_category_id', $this->category_id);
+        if (!empty($this->category_ids)) {
+            $query->whereIn('device_category_id', $this->category_ids);
         }
         if (!empty($this->status)) {
             $query->where('status', $this->status);

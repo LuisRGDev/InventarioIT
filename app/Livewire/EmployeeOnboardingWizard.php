@@ -154,6 +154,14 @@ class EmployeeOnboardingWizard extends Component
         $this->step = 2;
     }
 
+    public function skipComputer()
+    {
+        $this->errorMessage = '';
+        $this->computer_id = null;
+        $this->computer_condition = '';
+        $this->step = 3;
+    }
+
     public function assignComputer(DeviceAssignmentService $service)
     {
         $this->errorMessage = '';
@@ -174,6 +182,15 @@ class EmployeeOnboardingWizard extends Component
         }
 
         $this->step = 3;
+    }
+
+    public function skipSmartphone()
+    {
+        $this->smartphone_id = null;
+        $this->smartphone_condition = '';
+
+        session()->flash('success', 'Empleado dado de alta y equipos asignados (si seleccionaste alguno).');
+        $this->redirect(route('employees.show', $this->employeeId), navigate: true);
     }
 
     public function assignSmartphone(DeviceAssignmentService $service)

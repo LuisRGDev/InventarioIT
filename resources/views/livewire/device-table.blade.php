@@ -15,14 +15,30 @@
                     </div>
                 </div>
                 
-                <div class="min-w-[150px]">
+                <div class="min-w-[180px]" x-data="{ open: false }" @click.outside="open = false">
                     <label class="block text-xs font-medium text-gray-500 mb-1">Categoría</label>
-                    <select wire:model.live="category_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-                        <option value="">Todas</option>
-                        @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
+                    <div class="relative">
+                        <button type="button" @click="open = !open" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-left bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 flex items-center justify-between">
+                            <span>
+                                @if(empty($category_ids))
+                                    Todas
+                                @else
+                                    {{ count($category_ids) }} seleccionada{{ count($category_ids) > 1 ? 's' : '' }}
+                                @endif
+                            </span>
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div x-show="open" x-cloak class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-56 overflow-y-auto">
+                            @foreach($categories as $cat)
+                                <label class="flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" wire:model.live="category_ids" value="{{ $cat->id }}" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-400">
+                                    {{ $cat->name }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="min-w-[150px]">

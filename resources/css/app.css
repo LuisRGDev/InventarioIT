@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+[x-cloak] {
+  display: none !important;
+}
+
 @layer components {
   .card-hover {
     @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-premium;

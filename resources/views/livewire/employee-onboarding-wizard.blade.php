@@ -154,7 +154,7 @@
                     @endif
 
                     <div class="flex justify-between pt-4 border-t border-gray-100 mt-6">
-                        <button wire:click="assignComputer" type="button" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                        <button wire:click="skipComputer" type="button" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                             Saltar Cómputo
                         </button>
                         <button wire:click="assignComputer" type="button" @if($computer_id && empty($computer_condition)) disabled @endif class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
@@ -218,7 +218,7 @@
                     @endif
 
                     <div class="flex justify-between pt-4 border-t border-gray-100 mt-6">
-                        <button wire:click="assignSmartphone" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                        <button wire:click="skipSmartphone" class="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
                             Finalizar sin Celular
                         </button>
                         <button wire:click="assignSmartphone" @if($smartphone_id && empty($smartphone_condition)) disabled @endif class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
