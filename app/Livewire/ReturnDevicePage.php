@@ -86,9 +86,8 @@ class ReturnDevicePage extends Component
                 'notes'               => $this->notes,
             ]);
 
-            $this->successMessage = "Equipo [{$device->brand} {$device->model}] devuelto correctamente.";
-            $this->reset(['conditionOnReturn', 'newStatus', 'notes', 'showConfirm', 'deviceId']);
-            $this->errorMessage   = null;
+            session()->flash('success', "Equipo [{$device->brand} {$device->model}] devuelto correctamente.");
+            $this->redirect(route('assignments.index'), navigate: true);
 
         } catch (NoActiveAssignmentException $e) {
             $this->errorMessage = $e->getMessage();

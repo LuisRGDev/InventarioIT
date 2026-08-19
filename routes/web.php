@@ -90,6 +90,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('assignments/return/{device?}', \App\Livewire\ReturnDevicePage::class)->name('assignments.return');
     Route::get('assignments/replace/{employee?}', \App\Livewire\ReplaceDevicePage::class)->name('assignments.replace');
 
+    // Retorno rápido de líneas y extensiones
+    Route::post('assignments/phone-lines/{assignment}/return', [AssignmentController::class, 'returnPhoneLine'])->name('assignments.phone-lines.return');
+    Route::post('assignments/extensions/{assignment}/return', [AssignmentController::class, 'returnExtension'])->name('assignments.extensions.return');
+
     Route::get('assignments/{assignment}/carta-responsiva', [\App\Http\Controllers\AssignmentController::class, 'downloadCartaResponsiva'])
         ->name('assignments.carta-responsiva');
 });

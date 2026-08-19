@@ -58,9 +58,9 @@ services:
     restart: unless-stopped
 
     environment:
-      MYSQL_DATABASE: itam_db
-      MYSQL_USER: userIt
-      MYSQL_PASSWORD: Middleby
+      MYSQL_DATABASE: itam_system
+      MYSQL_USER: itam_user
+      MYSQL_PASSWORD: itam_password
       MYSQL_ROOT_PASSWORD: root_password
 
     ports:

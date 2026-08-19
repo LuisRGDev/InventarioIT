@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\DeviceAssignment;
+use App\Models\OfficeExtensionAssignment;
+use App\Models\PhoneLineAssignment;
+use App\Services\ExtensionAssignmentService;
+use App\Services\PhoneLineAssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -35,5 +39,17 @@ class AssignmentController extends Controller
         
         return response()->download($filePath, $fileName)
             ->deleteFileAfterSend(true);
+    }
+
+    public function returnPhoneLine(PhoneLineAssignment $assignment, Request $request, PhoneLineAssignmentService $service)
+    {
+        $service->returnLine($assignment, ['notes' => 'Devuelto desde perfil de empleado.']);
+        return back()->with('success', 'Línea celular devuelta correctamente al inventario.');
+    }
+
+    public function returnExtension(OfficeExtensionAssignment $assignment, Request $request, ExtensionAssignmentService $service)
+    {
+        $service->returnExtension($assignment, ['notes' => 'Devuelto desde perfil de empleado.']);
+        return back()->with('success', 'Extensión devuelta correctamente al inventario.');
     }
 }

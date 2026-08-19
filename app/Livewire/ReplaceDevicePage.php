@@ -139,9 +139,8 @@ class ReplaceDevicePage extends Component
                 'old_device_new_status' => $this->oldDeviceNewStatus,
             ]);
 
-            $this->successMessage = "Reemplazo completado: [{$oldDevice->brand} {$oldDevice->model}] → [{$newDevice->brand} {$newDevice->model}] para [{$employee->name}].";
-            $this->reset(['employeeId', 'oldDeviceId', 'newDeviceId', 'showConfirm']);
-            $this->errorMessage   = null;
+            session()->flash('success', "Reemplazo completado: [{$oldDevice->brand} {$oldDevice->model}] → [{$newDevice->brand} {$newDevice->model}] para [{$employee->name}].");
+            $this->redirect(route('assignments.index'), navigate: true);
 
         } catch (NoActiveAssignmentException | DeviceNotAvailableException $e) {
             $this->errorMessage = $e->getMessage();
