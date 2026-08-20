@@ -1,4 +1,4 @@
-<div class="max-w-4xl mx-auto sm:px-6 lg:px-8 py-8">
+﻿<div class="max-w-4xl mx-auto sm:px-6 lg:px-8 py-8">
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {{-- Stepper Header --}}
         <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
@@ -114,7 +114,7 @@
                         
                         <div class="mt-4">
                             <x-input-label for="computer_condition" value="Condición de Entrega *"/>
-                            <select wire:model="computer_condition" id="computer_condition" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <select wire:model.live="computer_condition" id="computer_condition" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="">Seleccionar condición...</option>
                                 @foreach($this->conditions as $cond)
                                     <option value="{{ $cond->value }}">{{ $cond->label() }}</option>
@@ -129,14 +129,17 @@
                         </div>
                         
                         @if(count($this->availableComputers) > 0)
-                            <div class="mt-2 border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
+                            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-1">
                                 @foreach($this->availableComputers as $device)
-                                    <div wire:key="computer-{{ $device->id }}" class="p-3 hover:bg-gray-50 flex items-center justify-between">
+                                    <div wire:key="computer-{{ $device->id }}" class="border border-gray-200 rounded-lg p-3 hover:border-indigo-300 hover:shadow-sm transition bg-white flex flex-col justify-between">
                                         <div>
-                                            <p class="text-sm font-medium text-gray-900">{{ $device->brand }} {{ $device->model }}</p>
-                                            <p class="text-xs text-gray-500 font-mono">SN: {{ $device->serial_number }} &bull; {{ $device->category?->name }}</p>
+                                            <div class="flex justify-between items-start mb-1">
+                                                <p class="text-sm font-semibold text-gray-900 line-clamp-1">{{ $device->brand }} {{ $device->model }}</p>
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-800 whitespace-nowrap ml-2">{{ $device->category?->name }}</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 font-mono mb-3">SN: {{ $device->serial_number }}</p>
                                         </div>
-                                        <button wire:click="selectComputer({{ $device->id }})" type="button" class="px-3 py-1 text-xs bg-indigo-600 text-white border border-indigo-600 rounded hover:bg-indigo-700 transition">
+                                        <button wire:click="selectComputer({{ $device->id }})" type="button" class="w-full py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-600 hover:text-white border border-indigo-100 rounded transition">
                                             Seleccionar
                                         </button>
                                     </div>
@@ -184,7 +187,7 @@
 
                         <div class="mt-4">
                             <x-input-label for="smartphone_condition" value="Condición de Entrega *"/>
-                            <select wire:model="smartphone_condition" id="smartphone_condition" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            <select wire:model.live="smartphone_condition" id="smartphone_condition" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                                 <option value="">Seleccionar condición...</option>
                                 @foreach($this->conditions as $cond)
                                     <option value="{{ $cond->value }}">{{ $cond->label() }}</option>
@@ -199,14 +202,14 @@
                         </div>
 
                         @if(count($this->availableSmartphones) > 0)
-                            <div class="mt-2 border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
+                            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-1">
                                 @foreach($this->availableSmartphones as $device)
-                                    <div wire:key="smartphone-{{ $device->id }}" class="p-3 hover:bg-gray-50 flex items-center justify-between">
+                                    <div wire:key="smartphone-{{ $device->id }}" class="border border-gray-200 rounded-lg p-3 hover:border-indigo-300 hover:shadow-sm transition bg-white flex flex-col justify-between">
                                         <div>
-                                            <p class="text-sm font-medium text-gray-900">{{ $device->brand }} {{ $device->model }}</p>
-                                            <p class="text-xs text-gray-500 font-mono">SN: {{ $device->serial_number }}@if($device->imei) &bull; IMEI: {{ $device->imei }}@endif</p>
+                                            <p class="text-sm font-semibold text-gray-900 line-clamp-1 mb-1">{{ $device->brand }} {{ $device->model }}</p>
+                                            <p class="text-xs text-gray-500 font-mono mb-3">SN: {{ $device->serial_number }}@if($device->imei)<br>IMEI: {{ $device->imei }}@endif</p>
                                         </div>
-                                        <button wire:click="selectSmartphone({{ $device->id }})" type="button" class="px-3 py-1 text-xs bg-indigo-600 text-white border border-indigo-600 rounded hover:bg-indigo-700 transition">
+                                        <button wire:click="selectSmartphone({{ $device->id }})" type="button" class="w-full py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-600 hover:text-white border border-indigo-100 rounded transition">
                                             Seleccionar
                                         </button>
                                     </div>
