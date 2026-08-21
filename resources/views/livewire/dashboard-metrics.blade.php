@@ -111,7 +111,7 @@
             </div>
         </div>
 
-        {{-- Garant├¡as por Vencer --}}
+        {{-- Garantias por Vencer --}}
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
             <div>
                 <div class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
@@ -120,7 +120,7 @@
                         <h3 class="font-bold text-slate-800">Garantias por Vencer</h3>
                     </div>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-200">
-                        &lt; 30 d├¡as
+                        &lt; 30 dias
                     </span>
                 </div>
                 <div class="divide-y divide-slate-100">

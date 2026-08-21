@@ -35,9 +35,9 @@ new class extends Component
 
         <!-- Logo Area -->
         <div class="relative shrink-0 flex items-center justify-between h-20 px-6 border-b border-middleby-950 shadow-[0_2px_4px_rgba(0,0,0,0.2)] bg-middleby-800">
-            <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center gap-3 transition-transform hover:scale-[1.02] duration-200">
-                <div class="bg-white p-1.5 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
-                    <x-application-logo class="block h-8 w-auto fill-current text-middleby-800" />
+            <a href="{{ route('dashboard') }}" wire:navigate class="flex flex-1 items-center justify-center transition-transform hover:scale-[1.02] duration-200">
+                <div class="flex w-full h-14 items-center justify-center overflow-hidden bg-white p-1.5 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]">
+                    <x-application-logo />
                 </div>
             </a>
             

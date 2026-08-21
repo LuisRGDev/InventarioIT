@@ -21,8 +21,8 @@ export default {
                     500: '#2A7CC8',
                     600: '#1D62A8',
                     700: '#004A87', // Brand Primary Blue
-                    800: '#003366', // Classic Middleby Navy
-                    900: '#05274D', // Deep Slate Corporate
+                    800: '#003b57', // Classic Middleby Navy
+                    900: '#00283d', // Deep Slate Corporate
                     950: '#03172E',
                 },
                 amber: { 

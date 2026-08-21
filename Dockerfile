@@ -87,4 +87,8 @@ RUN mkdir -p \
 # ============================================================
 EXPOSE 9000
 
+COPY docker/entrypoint.sh /usr/local/bin/inventarioit-entrypoint
+RUN chmod +x /usr/local/bin/inventarioit-entrypoint
+
+ENTRYPOINT ["inventarioit-entrypoint"]
 CMD ["php-fpm"]
