@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class OfficeExtensionAssignment extends Model
+class OfficeExtensionAssignment extends Pivot
 {
     use HasFactory;
+
+    public $incrementing = true;
+    public $timestamps = true;
 
     protected $guarded = [];
 
