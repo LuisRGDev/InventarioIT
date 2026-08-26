@@ -10,6 +10,8 @@ class OfficeExtensionAssignment extends Pivot
 {
     use HasFactory;
 
+    protected $table = 'office_extension_assignments';
+
     public $incrementing = true;
     public $timestamps = true;
 

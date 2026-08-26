@@ -10,6 +10,8 @@ class PhoneLineAssignment extends Pivot
 {
     use HasFactory;
 
+    protected $table = 'phone_line_assignments';
+
     public $incrementing = true;
     public $timestamps = true;
 
