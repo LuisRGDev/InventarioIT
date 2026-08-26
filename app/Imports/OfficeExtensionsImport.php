@@ -21,7 +21,8 @@ class OfficeExtensionsImport implements ToCollection, WithHeadingRow, WithValida
                 $number = trim((string)$row['numero_de_extension']);
                 $directNumber = trim((string)($row['numero_directo'] ?? ''));
                 $status = strtolower(trim((string)($row['estatus'] ?? '')));
-                $email = trim((string)($row['correo'] ?? ''));
+                $email = trim((string)($row['correo_empleado'] ?? ''));
+                $notes = trim((string)($row['notas'] ?? ''));
 
                 if (!in_array($status, ['disponible', 'asignada', 'baja'])) {
                     $status = 'disponible';
@@ -34,6 +35,7 @@ class OfficeExtensionsImport implements ToCollection, WithHeadingRow, WithValida
                     [
                         'direct_number' => !empty($directNumber) ? $directNumber : null,
                         'status'        => $status,
+                        'notes'         => !empty($notes) ? $notes : null,
                     ]
                 );
 
@@ -69,7 +71,7 @@ class OfficeExtensionsImport implements ToCollection, WithHeadingRow, WithValida
             'numero_de_extension' => ['required', 'string', 'max:50'],
             'numero_directo'      => ['nullable', 'string', 'max:50'],
             'estatus'             => ['nullable', 'string', 'in:disponible,asignada,baja,DISPONIBLE,ASIGNADA,BAJA'],
-            'correo'              => ['nullable', 'email'],
+            'correo_empleado'     => ['nullable', 'email'],
         ];
     }
 
@@ -78,7 +80,7 @@ class OfficeExtensionsImport implements ToCollection, WithHeadingRow, WithValida
         return [
             'numero_de_extension.required' => 'La columna "numero_de_extension" es obligatoria.',
             'estatus.in' => 'El estatus debe ser disponible, asignada o baja.',
-            'correo.email' => 'El correo debe tener un formato válido.',
+            'correo_empleado.email' => 'El correo debe tener un formato válido.',
         ];
     }
 }

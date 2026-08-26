@@ -17,14 +17,13 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
     public function headings(): array
     {
         return [
-            'ID',
             'Número de Extensión',
             'Número Directo',
             'Estatus',
-            'Asignado A (Empleado)',
-            'Correo',
-            'Asignado A (Departamento)',
-            'Notas'
+            'Notas',
+            'Nombre Empleado',
+            'Correo Empleado',
+            'Departamento'
         ];
     }
 
@@ -41,14 +40,13 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
         }
 
         return [
-            $extension->id,
             $extension->extension_number,
             $extension->direct_number ?? 'N/A',
             $extension->status->label(),
+            $extension->notes ?? '',
             $employeeName,
             $employeeEmail,
-            $department,
-            $extension->notes
+            $department
         ];
     }
 }

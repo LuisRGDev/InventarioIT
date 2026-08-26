@@ -20,40 +20,50 @@ class PhoneLinesExport implements FromCollection, WithHeadings, WithMapping, Sho
     public function headings(): array
     {
         return [
-            'Nombre del empleado',
-            'Correo',
-            'Línea/Número de teléfono',
-            'Marca y modelo del celular asignado',
-            'Tipo de plan',
-            'Costo del plan',
+            'Número Telefónico',
+            'Proveedor',
+            'Plan de Datos',
+            'Costo del Plan',
+            'Notas',
+            'Nombre Empleado',
+            'Correo Empleado',
+            'No. Empleado',
+            'Departamento',
+            'Puesto',
+            'Smartphone Asignado',
         ];
     }
 
-    public function map($phoneLine): array
+    public function map(): array
     {
-        $employee = $phoneLine->currentAssignment?->employee;
+         = ->currentAssignment?->employee;
         
-        $assignedSmartphone = 'Ninguno';
-        if ($employee) {
-            $smartphone = $employee->currentDevices->first(function ($device) {
-                return $device->category && $device->category->slug === 'smartphone';
+         = 'Ninguno';
+        if () {
+             = ->currentDevices->first(function (\) {
+                return \->category && \->category->slug === 'smartphone';
             });
-            if ($smartphone) {
-                $assignedSmartphone = trim($smartphone->brand . ' ' . $smartphone->model);
+            if (\) {
+                \ = trim(\->brand . ' ' . \->model);
             }
         }
 
         return [
-            $employee ? $employee->name : 'No Asignada',
-            $employee ? $employee->email : 'N/A',
-            $phoneLine->number,
-            $assignedSmartphone,
-            $phoneLine->data_plan ?: 'N/A',
-            $phoneLine->plan_cost ? '$' . number_format($phoneLine->plan_cost, 2) : 'N/A',
+            \->number,
+            \->provider ?? '',
+            \->data_plan ?? '',
+            \->plan_cost ? \->plan_cost : '',
+            \->notes ?? '',
+            \ ? \->name : '',
+            \ ? \->email : '',
+            \ ? \->employee_code : '',
+            \ ? \->department : '',
+            \ ? \->position : '',
+            \,
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet \)
     {
         return [
             1 => ['font' => ['bold' => true]],

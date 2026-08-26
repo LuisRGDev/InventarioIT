@@ -28,14 +28,16 @@ class PhoneLinesImport implements ToCollection, WithHeadingRow, WithValidation, 
         DB::transaction(function () use ($rows) {
             foreach ($rows as $row) {
                 // Las cabeceras normalizadas suelen ser snake_case de los nombres con minúsculas
-                $phoneLine = PhoneLine::create([
-                    'number'      => $row['numero_telefonico'],
-                    'provider'    => $row['proveedor'] ?? null,
-                    'data_plan'   => $row['plan_de_datos'] ?? null,
-                    'plan_cost'   => $row['costo_del_plan'] ? (float) $row['costo_del_plan'] : null,
-                    'status'      => PhoneLineStatus::Disponible,
-                    'notes'       => $row['notas'] ?? null,
-                ]);
+                $phoneLine = PhoneLine::updateOrCreate(
+                    ['number' => trim((string)$row['numero_telefonico'])],
+                    [
+                        'provider'    => $row['proveedor'] ?? null,
+                        'data_plan'   => $row['plan_de_datos'] ?? null,
+                        'plan_cost'   => $row['costo_del_plan'] ? (float) $row['costo_del_plan'] : null,
+                        'status'      => PhoneLineStatus::Disponible,
+                        'notes'       => $row['notas'] ?? null,
+                    ]
+                );
 
                 // Si viene un correo de empleado, crearlo/buscarlo y asignarlo
                 if (!empty($row['correo_empleado'])) {
@@ -50,13 +52,22 @@ class PhoneLinesImport implements ToCollection, WithHeadingRow, WithValidation, 
                         ]
                     );
 
-                    $this->assignmentService->assign(
-                        $phoneLine,
-                        $employee,
-                        [
-                            'notes' => 'Asignado automáticamente durante importación masiva.',
-                        ]
-                    );
+                    $currentAssignment = $phoneLine->currentAssignment;
+                    if (!$currentAssignment || $currentAssignment->employee_id !== $employee->id) {
+                        if ($currentAssignment) {
+                            $currentAssignment->update(['returned_at' => now()]);
+                        }
+                        $this->assignmentService->assign(
+                            $phoneLine,
+                            $employee,
+                            [
+                                'notes' => 'Asignado automáticamente durante importación masiva.',
+                            ]
+                        );
+                        if ($phoneLine->status->value !== PhoneLineStatus::Asignada->value) {
+                            $phoneLine->update(['status' => PhoneLineStatus::Asignada]);
+                        }
+                    }
                 }
             }
         });
@@ -65,7 +76,7 @@ class PhoneLinesImport implements ToCollection, WithHeadingRow, WithValidation, 
     public function rules(): array
     {
         return [
-            'numero_telefonico' => ['required', 'string', 'unique:phone_lines,number'],
+            'numero_telefonico' => ['required', 'string'],
         ];
     }
 
@@ -73,7 +84,6 @@ class PhoneLinesImport implements ToCollection, WithHeadingRow, WithValidation, 
     {
         return [
             'numero_telefonico.required' => 'El Número Telefónico es obligatorio.',
-            'numero_telefonico.unique'   => 'El Número Telefónico :input ya existe en la base de datos.',
         ];
     }
 }
