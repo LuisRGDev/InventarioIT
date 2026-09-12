@@ -132,6 +132,24 @@ class DeviceAssignmentService
             // Actualizar estado del equipo
             $device->update(['status' => $newStatus]);
 
+            $this->sendNotification(
+                'Equipo Devuelto',
+                "Se ha devuelto el equipo {$device->brand} {$device->model} del empleado {$assignment->employee->name}.",
+                [
+                    'Empleado'               => $assignment->employee->name,
+                    'Equipo'                 => "{$device->brand} {$device->model} (SN: {$device->serial_number})",
+                    'Condición de Devolución' => $conditionOnReturn->label(),
+                    'Nuevo Estado'           => $newStatus->label(),
+                ]
+            );
+
+            Log::info('Device returned successfully', [
+                'assignment_id' => $assignment->id,
+                'device_id'     => $device->id,
+                'employee_id'   => $assignment->employee_id,
+                'user_id'       => Auth::id(),
+            ]);
+
             return $assignment->load(['device', 'employee', 'returnedBy']);
         });
     }

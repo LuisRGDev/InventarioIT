@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Test de verificación del fix: ReplaceDevicePage pasa notes al service.
+ * Test de verificación de fixes en DeviceAssignmentService.
  *
  * Ejecutar: php tests/VerifyReplaceNotesFix.php
  * No requiere mbstring ni Laravel.
@@ -56,7 +56,7 @@ $livewire = $base . '/app/Livewire/ReplaceDevicePage.php';
 $service = $base . '/app/Services/DeviceAssignmentService.php';
 $blade = $base . '/resources/views/livewire/replace-device-page.blade.php';
 
-echo "=== Test: Fix de notas en reemplazo de equipos ===\n\n";
+echo "=== Test: Fixes en DeviceAssignmentService ===\n\n";
 
 // ── 1. ReplaceDevicePage tiene las propiedades ──
 echo "[1] Propiedades en ReplaceDevicePage.php\n";
@@ -86,8 +86,22 @@ assert_file_not_exists($base . '/app/Http/Requests/AssignDeviceRequest.php', 'As
 assert_file_not_exists($base . '/app/Http/Requests/ReturnDeviceRequest.php', 'ReturnDeviceRequest.php eliminado');
 assert_file_not_exists($base . '/app/Http/Requests/ReplaceDeviceRequest.php', 'ReplaceDeviceRequest.php eliminado');
 
-// ── 6. No se rompió nada existente ──
-echo "\n[6] Integridad del código existente\n";
+// ── 6. returnDevice envía notificación ──
+echo "\n[6] returnDevice() envía notificación y log\n";
+assert_contains($service, "'Equipo Devuelto'", 'returnDevice envía notificación con asunto correcto');
+assert_contains($service, 'Device returned successfully', 'returnDevice registra Log::info');
+
+// ── 7. assign() mantiene su notificación y log ──
+echo "\n[7] assign() mantiene notificación y log\n";
+assert_contains($service, "'Nuevo Equipo Asignado'", 'assign envía notificación');
+assert_contains($service, 'Device assigned successfully', 'assign registra Log::info');
+
+// ── 8. replace() mantiene su notificación ──
+echo "\n[8] replace() mantiene notificación\n";
+assert_contains($service, "'Reemplazo de Equipo'", 'replace envía notificación');
+
+// ── 9. No se rompió nada existente ──
+echo "\n[9] Integridad del código existente\n";
 assert_contains($livewire, 'condition_on_return', 'condition_on_return preservado');
 assert_contains($livewire, 'condition_on_delivery', 'condition_on_delivery preservado');
 assert_contains($livewire, 'old_device_new_status', 'old_device_new_status preservado');
