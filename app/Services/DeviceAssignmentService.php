@@ -14,6 +14,7 @@ use App\Models\DeviceAssignment;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class DeviceAssignmentService
@@ -76,6 +77,13 @@ class DeviceAssignmentService
                     'Condición de Entrega' => $assignment->condition_on_delivery instanceof \App\Enums\DeviceCondition ? $assignment->condition_on_delivery->label() : ($assignment->condition_on_delivery ?? 'N/A')
                 ]
             );
+
+            Log::info('Device assigned successfully', [
+                'assignment_id' => $assignment->id,
+                'device_id'     => $device->id,
+                'employee_id'   => $employee->id,
+                'user_id'       => Auth::id(),
+            ]);
 
             return $assignment->load(['device', 'employee', 'assignedBy']);
         });

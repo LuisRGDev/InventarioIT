@@ -31,6 +31,10 @@ class ReplaceDevicePage extends Component
     public string $conditionOnDelivery = 'buen_estado';
     public string $oldDeviceNewStatus  = 'disponible';
 
+    // Notas
+    public string $returnNotes = '';
+    public string $assignNotes = '';
+
     // UI
     public bool   $showConfirm    = false;
     public ?string $successMessage = null;
@@ -137,6 +141,8 @@ class ReplaceDevicePage extends Component
                 'condition_on_return'   => $this->conditionOnReturn,
                 'condition_on_delivery' => $this->conditionOnDelivery,
                 'old_device_new_status' => $this->oldDeviceNewStatus,
+                'return_notes'          => $this->returnNotes,
+                'assign_notes'          => $this->assignNotes,
             ]);
 
             session()->flash('success', "Reemplazo completado: [{$oldDevice->brand} {$oldDevice->model}] → [{$newDevice->brand} {$newDevice->model}] para [{$employee->name}].");

@@ -116,6 +116,10 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Notas de devolución</label>
+                                <textarea wire:model="returnNotes" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Observaciones sobre el estado del equipo devuelto..."></textarea>
+                            </div>
                         @endif
                     @endif
                 </div>
@@ -177,6 +181,10 @@
                                     <option value="{{ $cond->value }}">{{ $cond->label() }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Notas de asignación</label>
+                            <textarea wire:model="assignNotes" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" placeholder="Observaciones sobre la entrega del equipo nuevo..."></textarea>
                         </div>
                     @endif
                     @error('newDeviceId') <span class="text-xs text-red-500 mt-2 block">{{ $message }}</span> @enderror
