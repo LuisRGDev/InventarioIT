@@ -32,7 +32,7 @@
                         <select name="status" onchange="this.form.submit()" class="border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 min-w-[200px]">
                             <option value="">Todas las asignaciones</option>
                             <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Solo Activas</option>
-                            <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Hist├│ricas (Retornadas)</option>
+                            <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Historicas (Retornadas)</option>
                         </select>
                     </form>
                 </div>
