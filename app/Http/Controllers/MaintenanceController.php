@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMaintenanceRequest;
+use App\Http\Requests\CompleteMaintenanceRequest;
 use App\Models\DeviceMaintenance;
 use App\Models\Device;
-use App\Enums\MaintenanceType;
 use App\Enums\MaintenanceStatus;
 use App\Enums\DeviceStatus;
 use App\Exports\MaintenancesExport;
@@ -34,21 +35,9 @@ class MaintenanceController extends Controller
         return view('maintenances.create', compact('devices', 'selectedDeviceId'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreMaintenanceRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'device_id'    => 'required|exists:devices,id',
-            'type'         => 'required|in:preventivo,correctivo,upgrade',
-            'status'       => 'required|in:programado,en_proceso',
-            'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
-            'scheduled_at' => 'nullable|date',
-            'next_due_at'  => 'nullable|date|after_or_equal:today',
-            'update_device_status_repair' => 'nullable|boolean',
-        ], [
-            'device_id.required' => 'Debes seleccionar el equipo al que se le aplicará el servicio.',
-            'title.required'     => 'Por favor escribe un título corto para identificar el servicio.',
-        ]);
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $request) {
             $maintenance = DeviceMaintenance::create([
@@ -63,7 +52,6 @@ class MaintenanceController extends Controller
                 'next_due_at'  => $validated['next_due_at'] ?? null,
             ]);
 
-            // Si solicitaron cambiar estatus a "En Reparación" en inventario
             if ($request->boolean('update_device_status_repair') && $validated['status'] === 'en_proceso') {
                 $device = Device::find($validated['device_id']);
                 if ($device) {
@@ -82,25 +70,19 @@ class MaintenanceController extends Controller
         return view('maintenances.show', compact('maintenance'));
     }
 
-    public function complete(Request $request, DeviceMaintenance $maintenance): RedirectResponse
+    public function complete(CompleteMaintenanceRequest $request, DeviceMaintenance $maintenance): RedirectResponse
     {
-        $request->validate([
-            'resolution_notes'  => 'required|string',
-            'new_device_status' => 'required|in:disponible,asignado,obsoleto,baja,mantener',
-            'next_due_at'       => 'nullable|date|after:today',
-        ], [
-            'resolution_notes.required' => 'Por favor detalla qué solución o intervención se aplicó para cerrar el ticket.'
-        ]);
+        $validated = $request->validated();
 
-        DB::transaction(function () use ($request, $maintenance) {
+        DB::transaction(function () use ($validated, $maintenance) {
             $maintenance->update([
                 'status'           => MaintenanceStatus::Completado,
-                'resolution_notes' => $request->input('resolution_notes'),
+                'resolution_notes' => $validated['resolution_notes'],
                 'completed_at'     => now(),
-                'next_due_at'      => $request->input('next_due_at') ?? $maintenance->next_due_at,
+                'next_due_at'      => $validated['next_due_at'] ?? $maintenance->next_due_at,
             ]);
 
-            $newStatus = $request->input('new_device_status');
+            $newStatus = $validated['new_device_status'];
             if ($newStatus !== 'mantener') {
                 $device = $maintenance->device;
                 if ($device) {
@@ -115,6 +97,10 @@ class MaintenanceController extends Controller
 
     public function cancel(DeviceMaintenance $maintenance): RedirectResponse
     {
+        if (!in_array($maintenance->status, [MaintenanceStatus::Programado, MaintenanceStatus::EnProceso])) {
+            return back()->with('error', 'Solo se pueden cancelar mantenimientos en estado programado o en proceso.');
+        }
+
         $maintenance->update([
             'status' => MaintenanceStatus::Cancelado,
         ]);

@@ -28,8 +28,8 @@ class EmployeeController extends Controller
     public function create(): View
     {
         $statuses = EmployeeStatus::cases();
-        $availablePhoneLines = PhoneLine::where('status', PhoneLineStatus::Disponible->value)->get();
-        $availableExtensions = OfficeExtension::where('status', ExtensionStatus::Disponible->value)->get();
+        $availablePhoneLines = PhoneLine::where('status', PhoneLineStatus::Disponible->value)->limit(100)->get();
+        $availableExtensions = OfficeExtension::where('status', ExtensionStatus::Disponible->value)->limit(100)->get();
         return view('employees.create', compact('statuses', 'availablePhoneLines', 'availableExtensions'));
     }
 
@@ -119,18 +119,14 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee): RedirectResponse
     {
-        // Verificar que no tenga asignaciones activas antes de eliminar
         if ($employee->currentAssignments()->exists() || $employee->currentPhoneLineAssignments()->exists() || $employee->currentOfficeExtensionAssignments()->exists()) {
             return back()->with('error', 'No se puede eliminar un empleado con equipos o líneas/extensiones asignadas actualmente.');
         }
 
-        $employee->assignments()->delete();
-        $employee->phoneLineAssignments()->delete();
-        $employee->officeExtensionAssignments()->delete();
         $employee->delete();
 
         return redirect()->route('employees.index')
-            ->with('success', 'Empleado eliminado permanentemente.');
+            ->with('success', 'Empleado eliminado correctamente.');
     }
 
     public function history(Employee $employee): View

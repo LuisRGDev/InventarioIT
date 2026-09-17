@@ -177,7 +177,7 @@
                                 @if($device->mac_address_wifi)
                                     <div class="text-xs text-gray-400 mt-0.5 font-mono"><span class="text-gray-300">WiFi</span> {{ $device->mac_address_wifi }}</div>
                                 @endif
-                                @if($device->phone_number)
+                                @if($device->phone_number ?? null)
                                     <div class="text-xs text-gray-400 mt-0.5 font-mono"><span class="text-gray-300">Tel</span> {{ $device->phone_number }}</div>
                                 @endif
                                 @if($device->imei)

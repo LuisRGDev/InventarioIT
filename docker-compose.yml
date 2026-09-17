@@ -63,9 +63,6 @@ services:
       MYSQL_PASSWORD: itam_password
       MYSQL_ROOT_PASSWORD: root_password
 
-    ports:
-      - "3316:3306"
-
     volumes:
       - inventarioit_db_data:/var/lib/mysql
 

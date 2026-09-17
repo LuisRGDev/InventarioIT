@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class JobPositionController extends Controller
@@ -137,7 +138,8 @@ class JobPositionController extends Controller
             }
             return redirect()->route('job-positions.index')->with('error', 'Error de validación:<br>' . implode('<br>', $messages));
         } catch (\Exception $e) {
-            return redirect()->route('job-positions.index')->with('error', 'Ocurrió un error al importar el archivo: ' . $e->getMessage());
+            Log::error('Failed to import job positions', ['exception' => $e]);
+            return redirect()->route('job-positions.index')->with('error', 'Ocurrió un error al importar el archivo. Verifica el formato del archivo.');
         }
     }
 }

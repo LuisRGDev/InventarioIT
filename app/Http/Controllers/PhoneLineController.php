@@ -10,6 +10,7 @@ use App\Exports\PhoneLinesExport;
 use App\Exports\PhoneLinesTemplateExport;
 use App\Imports\PhoneLinesImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 
 class PhoneLineController extends Controller
 {
@@ -152,7 +153,8 @@ class PhoneLineController extends Controller
             }
             return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
         } catch (\Exception $e) {
-            return back()->with('error', 'Ocurrió un error inesperado al importar el archivo: ' . $e->getMessage());
+            Log::error('Failed to import phone lines', ['exception' => $e]);
+            return back()->with('error', 'Ocurrió un error inesperado al importar el archivo. Verifica el formato del archivo.');
         }
     }
 }

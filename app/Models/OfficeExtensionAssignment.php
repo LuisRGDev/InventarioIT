@@ -15,7 +15,13 @@ class OfficeExtensionAssignment extends Pivot
     public $incrementing = true;
     public $timestamps = true;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'office_extension_id',
+        'employee_id',
+        'assigned_at',
+        'returned_at',
+        'notes',
+    ];
 
     protected $casts = [
         'assigned_at' => 'datetime',

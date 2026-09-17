@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateOfficeExtensionRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -61,8 +62,6 @@ class OfficeExtensionController extends Controller
 
     public function destroy(OfficeExtension $officeExtension): RedirectResponse
     {
-        // Hard delete
-        $officeExtension->assignments()->delete();
         $officeExtension->delete();
 
         return redirect()->route('office-extensions.index')
@@ -112,7 +111,8 @@ class OfficeExtensionController extends Controller
             }
             return redirect()->route('office-extensions.index')->with('error', 'Error de validación:<br>' . implode('<br>', $messages));
         } catch (\Exception $e) {
-            return redirect()->route('office-extensions.index')->with('error', 'Ocurrió un error al importar el archivo: ' . $e->getMessage());
+            Log::error('Failed to import office extensions', ['exception' => $e]);
+            return redirect()->route('office-extensions.index')->with('error', 'Ocurrió un error al importar el archivo. Verifica el formato del archivo.');
         }
     }
 }

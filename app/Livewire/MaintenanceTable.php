@@ -60,12 +60,16 @@ class MaintenanceTable extends Component
             $query->where('type', $this->type);
         }
         if (!empty($this->date_from)) {
-            $query->whereDate('started_at', '>=', $this->date_from)
+            $query->where(function ($q) {
+                $q->whereDate('started_at', '>=', $this->date_from)
                   ->orWhereDate('scheduled_at', '>=', $this->date_from);
+            });
         }
         if (!empty($this->date_to)) {
-            $query->whereDate('started_at', '<=', $this->date_to)
+            $query->where(function ($q) {
+                $q->whereDate('started_at', '<=', $this->date_to)
                   ->orWhereDate('scheduled_at', '<=', $this->date_to);
+            });
         }
 
         // Default sorting

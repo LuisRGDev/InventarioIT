@@ -228,7 +228,7 @@ class DeviceAssignmentService
                 Mail::to($emails)->queue(new InventoryNotificationMail($subject, $message, $details));
             }
         } catch (\Exception $e) {
-            // Log exception or handle silently
+            Log::error('Failed to send notification', ['exception' => $e]);
         }
     }
 }

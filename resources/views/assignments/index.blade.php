@@ -43,8 +43,8 @@
                             <tr>
                                 <th scope="col" class="px-6 py-4 font-semibold">Equipo</th>
                                 <th scope="col" class="px-6 py-4 font-semibold">Empleado</th>
-                                <th scope="col" class="px-6 py-4 font-semibold">Asignaci├│n</th>
-                                <th scope="col" class="px-6 py-4 font-semibold">Retorno</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Asignación</th>
+                                <th scope="col" class="px-6 py-4 font-semibold">Retorno</th>  
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">Estado</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-right">Acciones</th>
                             </tr>

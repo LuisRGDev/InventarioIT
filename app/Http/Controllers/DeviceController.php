@@ -12,6 +12,7 @@ use App\Models\DeviceModel;
 use App\Models\Employee;
 use App\Services\DeviceAssignmentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DevicesExport;
@@ -87,6 +88,7 @@ class DeviceController extends Controller
             'category',
             'currentAssignment.employee',
             'currentAssignment.assignedBy',
+            'maintenances',
         ]);
 
         return view('devices.show', compact('device'));
@@ -129,11 +131,10 @@ class DeviceController extends Controller
             return back()->with('error', 'No se puede eliminar un equipo con una asignación activa.');
         }
 
-        $device->assignments()->delete();
         $device->delete();
 
         return redirect()->route('devices.index')
-            ->with('success', 'Equipo eliminado permanentemente.');
+            ->with('success', 'Equipo eliminado correctamente.');
     }
 
     public function history(Device $device): View
@@ -186,7 +187,8 @@ class DeviceController extends Controller
             }
             return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
         } catch (\Exception $e) {
-            return back()->with('error', 'Ocurrió un error inesperado al importar el archivo: ' . $e->getMessage());
+            Log::error('Failed to import devices', ['exception' => $e]);
+            return back()->with('error', 'Ocurrió un error inesperado al importar el archivo. Verifica el formato del archivo.');
         }
     }
 
@@ -220,7 +222,8 @@ class DeviceController extends Controller
             }
             return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
         } catch (\Exception $e) {
-            return back()->with('error', 'Ocurrió un error al procesar el archivo: ' . $e->getMessage());
+            Log::error('Failed to import general inventory', ['exception' => $e]);
+            return back()->with('error', 'Ocurrió un error al procesar el archivo. Verifica que los datos sean correctos.');
         }
     }
 }

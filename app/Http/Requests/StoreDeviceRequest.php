@@ -46,6 +46,8 @@ class StoreDeviceRequest extends FormRequest
             'specs.os'              => ['nullable', 'string', 'max:100'],
             'imei'                  => ['nullable', 'string', 'max:50'],
             'notes'                 => ['nullable', 'string'],
+            'assign_to_employee_id' => ['nullable', 'exists:employees,id'],
+            'condition_on_delivery' => ['nullable', 'string', 'in:nuevo,buen_estado,daniado,obsoleto'],
         ];
     }
 }

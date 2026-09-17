@@ -23,8 +23,7 @@ class ResponsiveLetterService
         $section->addText('CARTA RESPONSIVA', ['bold' => true, 'size' => 16], ['alignment' => 'center']);
         $section->addTextBreak(1);
 
-        Carbon::setLocale('es');
-        $dateText = $assignment->assigned_at->translatedFormat('d \d\e F \d\e Y');
+        $dateText = $assignment->assigned_at->locale('es')->translatedFormat('d \d\e F \d\e Y');
         $section->addText('Fecha: ' . $dateText);
 
         $device = $assignment->device;

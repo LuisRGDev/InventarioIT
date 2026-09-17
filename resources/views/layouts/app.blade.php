@@ -17,6 +17,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased text-slate-800 selection:bg-middleby-500 selection:text-white overflow-hidden">
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:px-4 focus:py-2 focus:bg-middleby-600 focus:text-white focus:rounded-md">Saltar al contenido</a>
         <div class="flex h-screen bg-gradient-to-br from-slate-100 via-sky-50/25 to-slate-100">
             <!-- Sidebar Navigation -->
             <livewire:layout.navigation />

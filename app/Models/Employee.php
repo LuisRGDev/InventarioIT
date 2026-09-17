@@ -6,9 +6,12 @@ use App\Enums\EmployeeStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
+    use SoftDeletes;
+
 
     protected $fillable = [
         'employee_code', 'domain_account', 'name', 'email', 'phone',

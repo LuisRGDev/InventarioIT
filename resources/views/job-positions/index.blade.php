@@ -90,7 +90,7 @@
                 <div class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-2xl shadow-xs flex items-center justify-between animate-fade-in">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 flex-shrink-0 font-extrabold">!</div>
-                        <p class="text-sm font-bold text-rose-900">{!! session('error') !!}</p>
+                        <p class="text-sm font-bold text-rose-900">{{ session('error') }}</p>
                     </div>
                 </div>
             @endif
@@ -112,7 +112,7 @@
                             Buscar
                         </button>
                         @if(request()->has('search'))
-                            <a href="{{ route('job-positions.index') }}" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition font-extrabold text-sm" title="Limpiar Filtros">
+                            <a href="{{ route('job-positions.index') }}" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition font-extrabold text-sm" title="Limpiar Filtros" aria-label="Limpiar filtros">
                                 ✕
                             </a>
                         @endif

@@ -23,17 +23,17 @@ class PhoneLineAssignmentService
      */
     public function assign(PhoneLine $phoneLine, Employee $employee, array $data = []): PhoneLineAssignment
     {
-        if ($phoneLine->status !== PhoneLineStatus::Disponible) {
-            throw new PhoneLineNotAvailableException("La línea {$phoneLine->number} no está disponible (Estatus actual: {$phoneLine->status->label()}).");
-        }
-
         return DB::transaction(function () use ($phoneLine, $employee, $data) {
-            // Actualizar estado de la línea
+            $phoneLine->refresh()->lockForUpdate();
+
+            if ($phoneLine->status !== PhoneLineStatus::Disponible) {
+                throw new PhoneLineNotAvailableException("La línea {$phoneLine->number} no está disponible (Estatus actual: {$phoneLine->status->label()}).");
+            }
+
             $phoneLine->update([
                 'status' => PhoneLineStatus::Asignada
             ]);
 
-            // Crear asignación
             return PhoneLineAssignment::create([
                 'phone_line_id' => $phoneLine->id,
                 'employee_id' => $employee->id,

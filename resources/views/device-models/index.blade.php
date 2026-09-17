@@ -69,7 +69,7 @@
                             Filtrar
                         </button>
                         @if(request()->hasAny(['search', 'category']))
-                            <a href="{{ route('device-models.index') }}" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition font-extrabold text-sm" title="Limpiar Filtros">
+                            <a href="{{ route('device-models.index') }}" class="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition font-extrabold text-sm" title="Limpiar Filtros" aria-label="Limpiar filtros">
                                 ✕
                             </a>
                         @endif

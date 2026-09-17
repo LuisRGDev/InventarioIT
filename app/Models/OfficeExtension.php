@@ -6,12 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\ExtensionStatus;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OfficeExtension extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'extension_number',
+        'direct_number',
+        'status',
+        'notes',
+    ];
 
     protected $casts = [
         'status' => ExtensionStatus::class,

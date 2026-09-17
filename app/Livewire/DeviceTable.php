@@ -61,7 +61,9 @@ class DeviceTable extends Component
             $query->where('status', $this->status);
         }
         if (!empty($this->condition)) {
-            $query->where('condition', $this->condition);
+            $query->whereHas('currentAssignment', function ($q) {
+                $q->where('condition_on_delivery', $this->condition);
+            });
         }
         if (!empty($this->model_id)) {
             $query->where('device_model_id', $this->model_id);

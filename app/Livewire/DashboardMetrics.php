@@ -6,6 +6,7 @@ use App\Enums\DeviceStatus;
 use App\Enums\MaintenanceStatus;
 use App\Models\Device;
 use App\Models\DeviceMaintenance;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -14,15 +15,17 @@ class DashboardMetrics extends Component
     #[Computed]
     public function metrics(): array
     {
-        $total        = Device::count();
-        $available    = Device::where('status', DeviceStatus::Disponible)->count();
-        $assigned     = Device::where('status', DeviceStatus::Asignado)->count();
-        $inRepair     = Device::where('status', DeviceStatus::EnReparacion)->count();
-        $obsolete     = Device::where('status', DeviceStatus::Obsoleto)->count();
-        $lowWarranty  = Device::warrantyExpiringSoon(30)->count();
-        $maintenances = DeviceMaintenance::where('status', MaintenanceStatus::EnProceso)->count();
+        return Cache::remember('dashboard_metrics', 300, function () {
+            $total        = Device::count();
+            $available    = Device::where('status', DeviceStatus::Disponible)->count();
+            $assigned     = Device::where('status', DeviceStatus::Asignado)->count();
+            $inRepair     = Device::where('status', DeviceStatus::EnReparacion)->count();
+            $obsolete     = Device::where('status', DeviceStatus::Obsoleto)->count();
+            $lowWarranty  = Device::warrantyExpiringSoon(30)->count();
+            $maintenances = DeviceMaintenance::where('status', MaintenanceStatus::EnProceso)->count();
 
-        return compact('total', 'available', 'assigned', 'inRepair', 'obsolete', 'lowWarranty', 'maintenances');
+            return compact('total', 'available', 'assigned', 'inRepair', 'obsolete', 'lowWarranty', 'maintenances');
+        });
     }
 
     #[Computed]

@@ -310,7 +310,7 @@
                             @if($employee->currentAssignments->count() === 0)
                                 <hr class="my-1 border-gray-100">
                                 <form method="POST" action="{{ route('employees.destroy', $employee) }}"
-                                      onsubmit="return confirm('¿Seguro que deseas eliminar a {{ addslashes($employee->name) }}?')">
+                                      onsubmit="return confirm({{ json_encode('¿Seguro que deseas eliminar a ' . $employee->name . '?') }})">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

@@ -18,11 +18,12 @@ class ExtensionAssignmentService
     public function assign(OfficeExtension $extension, Employee $employee, array $options = []): OfficeExtensionAssignment
     {
         return DB::transaction(function () use ($extension, $employee, $options) {
+            $extension->refresh()->lockForUpdate();
+
             if ($extension->status !== ExtensionStatus::Disponible) {
                 throw new ExtensionNotAvailableException("La extensión {$extension->extension_number} no está disponible.");
             }
 
-            // Return current extension if any
             $currentAssignment = $employee->currentOfficeExtensionAssignments()->first();
             if ($currentAssignment) {
                 $this->returnExtension($currentAssignment, ['notes' => 'Devolución automática por reasignación.']);

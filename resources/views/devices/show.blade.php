@@ -102,10 +102,12 @@
                                     <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Identificador de BL</dt>
                                     <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->bitlocker_identifier ?? '—' }}</dd>
                                 </div>
+                                @if(auth()->user()->hasRole('Admin TI'))
                                 <div>
                                     <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Clave de BL</dt>
                                     <dd class="mt-1 text-sm font-mono text-gray-900">{{ $device->bitlocker_key ?? '—' }}</dd>
                                 </div>
+                                @endif
                             @endif
                             <div>
                                 <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">MAC Ethernet (LAN)</dt>
