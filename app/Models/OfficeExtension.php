@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\ExtensionStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -31,6 +31,14 @@ class OfficeExtension extends Model
     public function currentAssignment()
     {
         return $this->hasOne(OfficeExtensionAssignment::class)->whereNull('returned_at');
+    }
+
+    /**
+     * Get the currently assigned employee.
+     */
+    public function getCurrentEmployeeAttribute(): ?Employee
+    {
+        return $this->currentAssignment?->employee;
     }
 
     public function scopeAvailable($query)

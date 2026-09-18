@@ -3,11 +3,11 @@
 namespace App\Exports\Sheets;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldAutoSize, WithTitle
+class UnassignedDevicesTemplateSheet implements FromArray, ShouldAutoSize, WithHeadings, WithTitle
 {
     public function array(): array
     {
@@ -32,7 +32,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
                 '',
                 '',
                 '',
-                'Monitor 4K en almacén listo para asignación'
+                'Monitor 4K en almacén listo para asignación',
             ],
             [
                 'EQ-2002',
@@ -54,7 +54,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
                 '',
                 '',
                 '',
-                'Impresora de red en segundo piso'
+                'Impresora de red en segundo piso',
             ],
             [
                 'EQ-2003',
@@ -76,8 +76,8 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
                 '70F73ABC',
                 '483120-123456',
                 '',
-                'Enviado a garantía por cambio de teclado'
-            ]
+                'Enviado a garantía por cambio de teclado',
+            ],
         ];
     }
 
@@ -103,7 +103,7 @@ class UnassignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldA
             'Identificador de BL',
             'Clave de BL',
             'IMEI',
-            'Notas / Ubicación en Almacén'
+            'Notas / Ubicación en Almacén',
         ];
     }
 

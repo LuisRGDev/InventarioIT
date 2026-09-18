@@ -18,15 +18,15 @@ return new class extends Migration
             $table->string('brand');
             $table->string('model');
             $table->string('variant')->nullable(); // Ejemplo: "Edición i5 / 16GB", "Avanzada i7", "256GB Black"
-            
+
             // Especificaciones estándar del modelo
             $table->string('cpu')->nullable();
             $table->string('ram')->nullable();
             $table->string('storage')->nullable();
             $table->string('os')->nullable();
-            
+
             $table->text('notes')->nullable();
-            
+
             $table->timestamps();
             $table->softDeletes();
 

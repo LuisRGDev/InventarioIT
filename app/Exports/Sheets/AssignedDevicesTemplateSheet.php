@@ -3,11 +3,11 @@
 namespace App\Exports\Sheets;
 
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class AssignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldAutoSize, WithTitle
+class AssignedDevicesTemplateSheet implements FromArray, ShouldAutoSize, WithHeadings, WithTitle
 {
     public function array(): array
     {
@@ -37,7 +37,7 @@ class AssignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldAut
                 '',
                 '',
                 '',
-                'Equipo asignado en perfectas condiciones'
+                'Equipo asignado en perfectas condiciones',
             ],
             [
                 'EQ-1002',
@@ -64,8 +64,8 @@ class AssignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldAut
                 '5598765432',
                 '869453051234567',
                 'Plan Empresarial Ilimitado 5G',
-                'Incluye funda de protección'
-            ]
+                'Incluye funda de protección',
+            ],
         ];
     }
 
@@ -96,7 +96,7 @@ class AssignedDevicesTemplateSheet implements FromArray, WithHeadings, ShouldAut
             'Teléfono',
             'IMEI',
             'Plan de Datos',
-            'Notas del Equipo'
+            'Notas del Equipo',
         ];
     }
 

@@ -4,16 +4,27 @@ namespace App\Exports\Sheets;
 
 use App\Models\Employee;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithTitle
+class GlobalEmployeesInventorySheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
 {
     public function collection()
     {
-        return Employee::with(['currentAssignments.device.category', 'currentPhoneLines'])->get();
+        return Employee::with([
+            'currentAssignments.device.category',
+            'currentPhoneLines',
+            'currentOfficeExtensions',
+            'jobPosition',
+        ])->get();
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
@@ -78,48 +89,48 @@ class GlobalEmployeesInventorySheet implements FromCollection, WithHeadings, Wit
             $employee->employee_code ?? '',
             $employee->name ?? '',
             $employee->email ?? '',
-            $employee->jobPosition->direction ?? '',
+            $employee->jobPosition?->direction ?? '',
             $employee->department ?? '',
             $employee->position ?? '',
             $employee->domain_account ?? '',
-            
+
             // Computer fields
-            $computer ? ($computer->category->name ?? '') : '',
-            $computer->brand ?? '',
-            $computer->model ?? '',
-            $computer->specs['cpu'] ?? '',
-            $computer->specs['os'] ?? '',
-            $computer->specs['storage'] ?? '',
-            $computer->specs['ram'] ?? '',
-            $computer->specs['cores'] ?? '',
-            $computer->serial_number ?? '',
-            $computer->mac_address_ethernet ?? '',
-            $computer->mac_address_wifi ?? '',
+            $computer ? ($computer->category?->name ?? '') : '',
+            $computer?->brand ?? '',
+            $computer?->model ?? '',
+            $computer?->specs['cpu'] ?? '',
+            $computer?->specs['os'] ?? '',
+            $computer?->specs['storage'] ?? '',
+            $computer?->specs['ram'] ?? '',
+            $computer?->specs['cores'] ?? '',
+            $computer?->serial_number ?? '',
+            $computer?->mac_address_ethernet ?? '',
+            $computer?->mac_address_wifi ?? '',
             $computer ? $computer->status->label() : '',
-            $computer->service_tag ?? '',
-            $computer ? ($computer->purchase_date ? $computer->purchase_date->format('Y-m-d') : '') : '',
-            $computer ? ($computer->warranty_expires_at ? $computer->warranty_expires_at->format('Y-m-d') : '') : '',
-            $computer->bitlocker_identifier ?? '',
-            $computer->bitlocker_key ?? '',
-            
+            $computer?->service_tag ?? '',
+            $computer?->purchase_date?->format('Y-m-d') ?? '',
+            $computer?->warranty_expires_at?->format('Y-m-d') ?? '',
+            $computer?->bitlocker_identifier ?? '',
+            $computer?->bitlocker_key ?? '',
+
             // Mobile fields
-            $smartphone->brand ?? '',
-            $smartphone->model ?? '',
-            $smartphone->imei ?? '',
-            $smartphone->specs['os'] ?? '',
-            $phoneLine->number ?? '',
-            $phoneLine->data_plan ?? '',
-            $phoneLine->plan_cost ?? '',
-            
+            $smartphone?->brand ?? '',
+            $smartphone?->model ?? '',
+            $smartphone?->imei ?? '',
+            $smartphone?->specs['os'] ?? '',
+            $phoneLine?->number ?? '',
+            $phoneLine?->data_plan ?? '',
+            $phoneLine?->plan_cost ?? '',
+
             // Extension fields
-            $extension->direction ?? '',
-            $extension->number ?? '',
-            
+            $extension?->direction ?? '',
+            $extension?->number ?? '',
+
             // Notes
             trim(implode(' | ', array_filter([
                 $employee->notes,
-                $computer ? $computer->notes : null,
-                $smartphone ? $smartphone->notes : null
+                $computer?->notes,
+                $smartphone?->notes,
             ]))),
         ];
     }

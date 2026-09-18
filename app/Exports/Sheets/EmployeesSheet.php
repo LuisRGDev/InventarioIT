@@ -4,12 +4,12 @@ namespace App\Exports\Sheets;
 
 use App\Models\Employee;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class EmployeesSheet implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithTitle
+class EmployeesSheet implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping, WithTitle
 {
     public function collection()
     {

@@ -2,11 +2,18 @@
 
 namespace App\Livewire;
 
-use App\Enums\EmployeeStatus;
 use App\Enums\DeviceCondition;
+use App\Enums\EmployeeStatus;
+use App\Enums\ExtensionStatus;
+use App\Enums\PhoneLineStatus;
 use App\Models\Device;
 use App\Models\Employee;
+use App\Models\JobPosition;
+use App\Models\OfficeExtension;
+use App\Models\PhoneLine;
 use App\Services\DeviceAssignmentService;
+use App\Services\ExtensionAssignmentService;
+use App\Services\PhoneLineAssignmentService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -16,36 +23,47 @@ class EmployeeOnboardingWizard extends Component
 
     // ─── Empleado (Paso 1) ──────────────────────────────────────────────
     public string $name = '';
+
     public string $email = '';
+
     public string $employee_code = '';
+
     public string $domain_account = '';
 
     public ?int $job_position_id = null;
+
     public string $notes = '';
+
     public ?int $employeeId = null;
+
     public ?int $assign_phone_line_id = null;
+
     public ?int $assign_office_extension_id = null;
+
     public string $errorMessage = '';
 
     // ─── Cómputo (Paso 2) ───────────────────────────────────────────────
     public ?int $computer_id = null;
+
     public string $computerSearch = '';
+
     public string $computer_condition = '';
 
     // ─── Celular (Paso 3) ───────────────────────────────────────────────
     public ?int $smartphone_id = null;
+
     public string $smartphoneSearch = '';
+
     public string $smartphone_condition = '';
 
     #[Computed]
     public function availableComputers()
     {
         return Device::available()
-            ->whereHas('category', fn($q) => $q->whereIn('slug', ['portatil', 'desktop']))
-            ->when($this->computerSearch, fn($q) => $q->where(fn($w) =>
-                $w->where('serial_number', 'like', "%{$this->computerSearch}%")
-                  ->orWhere('brand', 'like', "%{$this->computerSearch}%")
-                  ->orWhere('model', 'like', "%{$this->computerSearch}%")
+            ->whereHas('category', fn ($q) => $q->whereIn('slug', ['portatil', 'desktop']))
+            ->when($this->computerSearch, fn ($q) => $q->where(fn ($w) => $w->where('serial_number', 'like', "%{$this->computerSearch}%")
+                ->orWhere('brand', 'like', "%{$this->computerSearch}%")
+                ->orWhere('model', 'like', "%{$this->computerSearch}%")
             ))
             ->limit(10)
             ->get();
@@ -55,11 +73,10 @@ class EmployeeOnboardingWizard extends Component
     public function availableSmartphones()
     {
         return Device::available()
-            ->whereHas('category', fn($q) => $q->where('slug', 'smartphone'))
-            ->when($this->smartphoneSearch, fn($q) => $q->where(fn($w) =>
-                $w->where('serial_number', 'like', "%{$this->smartphoneSearch}%")
-                  ->orWhere('brand', 'like', "%{$this->smartphoneSearch}%")
-                  ->orWhere('model', 'like', "%{$this->smartphoneSearch}%")
+            ->whereHas('category', fn ($q) => $q->where('slug', 'smartphone'))
+            ->when($this->smartphoneSearch, fn ($q) => $q->where(fn ($w) => $w->where('serial_number', 'like', "%{$this->smartphoneSearch}%")
+                ->orWhere('brand', 'like', "%{$this->smartphoneSearch}%")
+                ->orWhere('model', 'like', "%{$this->smartphoneSearch}%")
             ))
             ->limit(10)
             ->get();
@@ -74,19 +91,19 @@ class EmployeeOnboardingWizard extends Component
     #[Computed]
     public function jobPositions()
     {
-        return \App\Models\JobPosition::orderBy('direction')->orderBy('area')->orderBy('name')->get();
+        return JobPosition::orderBy('direction')->orderBy('area')->orderBy('name')->get();
     }
 
     #[Computed]
     public function availablePhoneLines()
     {
-        return \App\Models\PhoneLine::where('status', \App\Enums\PhoneLineStatus::Disponible->value)->get();
+        return PhoneLine::where('status', PhoneLineStatus::Disponible->value)->get();
     }
 
     #[Computed]
     public function availableExtensions()
     {
-        return \App\Models\OfficeExtension::where('status', \App\Enums\ExtensionStatus::Disponible->value)->get();
+        return OfficeExtension::where('status', ExtensionStatus::Disponible->value)->get();
     }
 
     public function selectComputer(int $id)
@@ -125,7 +142,7 @@ class EmployeeOnboardingWizard extends Component
             'assign_office_extension_id' => 'nullable|exists:office_extensions,id',
         ]);
 
-        $jobPosition = \App\Models\JobPosition::findOrFail($this->job_position_id);
+        $jobPosition = JobPosition::findOrFail($this->job_position_id);
         $validated['department'] = $jobPosition->area;
         $validated['position'] = $jobPosition->name;
 
@@ -140,17 +157,17 @@ class EmployeeOnboardingWizard extends Component
         $this->employeeId = $employee->id;
 
         if ($assignPhoneLineId) {
-            $phoneService = app(\App\Services\PhoneLineAssignmentService::class);
-            $phoneLine = \App\Models\PhoneLine::findOrFail($assignPhoneLineId);
+            $phoneService = app(PhoneLineAssignmentService::class);
+            $phoneLine = PhoneLine::findOrFail($assignPhoneLineId);
             $phoneService->assign($phoneLine, $employee);
         }
 
         if ($assignExtensionId) {
-            $extensionService = app(\App\Services\ExtensionAssignmentService::class);
-            $extension = \App\Models\OfficeExtension::findOrFail($assignExtensionId);
+            $extensionService = app(ExtensionAssignmentService::class);
+            $extension = OfficeExtension::findOrFail($assignExtensionId);
             $extensionService->assign($extension, $employee);
         }
-        
+
         $this->step = 2;
     }
 
@@ -176,7 +193,9 @@ class EmployeeOnboardingWizard extends Component
                     ['condition_on_delivery' => $this->computer_condition]
                 );
             } catch (\Exception $e) {
-                $this->errorMessage = 'No se pudo asignar el equipo: ' . $e->getMessage();
+                report($e);
+                $this->errorMessage = 'No se pudo asignar el equipo. Intenta de nuevo.';
+
                 return;
             }
         }
@@ -207,7 +226,9 @@ class EmployeeOnboardingWizard extends Component
                     ['condition_on_delivery' => $this->smartphone_condition]
                 );
             } catch (\Exception $e) {
-                $this->errorMessage = 'No se pudo asignar el celular: ' . $e->getMessage();
+                report($e);
+                $this->errorMessage = 'No se pudo asignar el celular. Intenta de nuevo.';
+
                 return;
             }
         }
@@ -218,6 +239,7 @@ class EmployeeOnboardingWizard extends Component
 
     public function render()
     {
-        return view('livewire.employee-onboarding-wizard');
+        return view('livewire.employee-onboarding-wizard')
+            ->layout('layouts.app', ['title' => 'Onboarding de Empleado']);
     }
 }

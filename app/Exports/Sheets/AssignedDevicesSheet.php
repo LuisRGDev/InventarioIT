@@ -4,16 +4,22 @@ namespace App\Exports\Sheets;
 
 use App\Models\Device;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class AssignedDevicesSheet implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithTitle
+class AssignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
 {
     public function collection()
     {
         return Device::whereHas('currentAssignment')->with(['category', 'currentAssignment.employee'])->get();
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
@@ -41,7 +47,7 @@ class AssignedDevicesSheet implements FromCollection, WithHeadings, WithMapping,
             'Almacenamiento',
             'Sistema Operativo',
             'IMEI',
-            'Notas del Equipo'
+            'Notas del Equipo',
         ];
     }
 

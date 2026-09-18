@@ -14,9 +14,9 @@ class OfficeExtensionFactory extends Factory
     {
         return [
             'extension_number' => fake()->numerify('####'),
-            'direct_number'    => fake()->optional(0.7)->numerify('+## ###-###-####'),
-            'status'           => fake()->randomElement(ExtensionStatus::cases()),
-            'notes'            => fake()->optional(0.3)->sentence(),
+            'direct_number' => fake()->optional(0.7)->numerify('+## ###-###-####'),
+            'status' => fake()->randomElement(ExtensionStatus::cases()),
+            'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 

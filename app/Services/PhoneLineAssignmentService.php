@@ -15,10 +15,8 @@ class PhoneLineAssignmentService
     /**
      * Asignar una línea telefónica a un empleado.
      *
-     * @param PhoneLine $phoneLine
-     * @param Employee $employee
-     * @param array $data Opcional (notas, etc.)
-     * @return PhoneLineAssignment
+     * @param  array  $data  Opcional (notas, etc.)
+     *
      * @throws PhoneLineNotAvailableException
      */
     public function assign(PhoneLine $phoneLine, Employee $employee, array $data = []): PhoneLineAssignment
@@ -31,7 +29,7 @@ class PhoneLineAssignmentService
             }
 
             $phoneLine->update([
-                'status' => PhoneLineStatus::Asignada
+                'status' => PhoneLineStatus::Asignada,
             ]);
 
             return PhoneLineAssignment::create([
@@ -47,23 +45,23 @@ class PhoneLineAssignmentService
     /**
      * Retornar una línea telefónica que tiene un empleado.
      *
-     * @param PhoneLineAssignment $assignment
-     * @param array $data Opcional (notas, etc.)
-     * @return PhoneLineAssignment
+     * @param  array  $data  Opcional (notas, etc.)
      */
     public function returnLine(PhoneLineAssignment $assignment, array $data = []): PhoneLineAssignment
     {
         return DB::transaction(function () use ($assignment, $data) {
+            $assignment->phoneLine->refresh()->lockForUpdate();
+
             $assignment->update([
                 'returned_at' => now(),
                 'returned_by_user_id' => Auth::id(),
-                'notes' => isset($data['notes']) 
-                    ? $assignment->notes . "\n[Retorno]: " . $data['notes'] 
+                'notes' => isset($data['notes'])
+                    ? $assignment->notes."\n[Retorno]: ".$data['notes']
                     : $assignment->notes,
             ]);
 
             $assignment->phoneLine->update([
-                'status' => PhoneLineStatus::Disponible
+                'status' => PhoneLineStatus::Disponible,
             ]);
 
             return $assignment;

@@ -2,11 +2,11 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class PhoneLinesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
+class PhoneLinesTemplateExport implements FromArray, ShouldAutoSize, WithHeadings
 {
     public function array(): array
     {
@@ -36,7 +36,7 @@ class PhoneLinesTemplateExport implements FromArray, WithHeadings, ShouldAutoSiz
                 '',
                 '',
                 '',
-            ]
+            ],
         ];
     }
 
@@ -53,7 +53,7 @@ class PhoneLinesTemplateExport implements FromArray, WithHeadings, ShouldAutoSiz
             'No. Empleado',
             'Departamento',
             'Puesto',
-            'Smartphone Asignado'
+            'Smartphone Asignado',
         ];
     }
 }

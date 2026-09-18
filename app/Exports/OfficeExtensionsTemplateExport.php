@@ -2,11 +2,11 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class OfficeExtensionsTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
+class OfficeExtensionsTemplateExport implements FromArray, ShouldAutoSize, WithHeadings
 {
     public function array(): array
     {
@@ -18,7 +18,7 @@ class OfficeExtensionsTemplateExport implements FromArray, WithHeadings, ShouldA
                 'Extension en sala de juntas',
                 'Maria Gomez',
                 'maria.gomez@itam.local',
-                'Recursos Humanos'
+                'Recursos Humanos',
             ],
             [
                 '102',
@@ -27,8 +27,8 @@ class OfficeExtensionsTemplateExport implements FromArray, WithHeadings, ShouldA
                 '',
                 '',
                 '',
-                ''
-            ]
+                '',
+            ],
         ];
     }
 
@@ -41,7 +41,7 @@ class OfficeExtensionsTemplateExport implements FromArray, WithHeadings, ShouldA
             'Notas',
             'Nombre Empleado',
             'Correo Empleado',
-            'Departamento'
+            'Departamento',
         ];
     }
 }

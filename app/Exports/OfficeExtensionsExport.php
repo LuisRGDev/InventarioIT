@@ -4,14 +4,20 @@ namespace App\Exports;
 
 use App\Models\OfficeExtension;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMapping
+class OfficeExtensionsExport implements FromCollection, WithChunkReading, WithHeadings, WithMapping
 {
     public function collection()
     {
         return OfficeExtension::with('currentAssignment.employee')->get();
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
@@ -23,7 +29,7 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
             'Notas',
             'Nombre Empleado',
             'Correo Empleado',
-            'Departamento'
+            'Departamento',
         ];
     }
 
@@ -31,12 +37,12 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
     {
         $employeeName = 'N/A';
         $employeeEmail = 'N/A';
-        $department   = 'N/A';
-        
+        $department = 'N/A';
+
         if ($extension->currentAssignment && $extension->currentAssignment->employee) {
             $employeeName = $extension->currentAssignment->employee->name;
             $employeeEmail = $extension->currentAssignment->employee->email ?? 'N/A';
-            $department   = $extension->currentAssignment->employee->department;
+            $department = $extension->currentAssignment->employee->department;
         }
 
         return [
@@ -46,7 +52,7 @@ class OfficeExtensionsExport implements FromCollection, WithHeadings, WithMappin
             $extension->notes ?? '',
             $employeeName,
             $employeeEmail,
-            $department
+            $department,
         ];
     }
 }

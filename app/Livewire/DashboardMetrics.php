@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Enums\DeviceStatus;
 use App\Enums\MaintenanceStatus;
 use App\Models\Device;
+use App\Models\DeviceAssignment;
 use App\Models\DeviceMaintenance;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
@@ -16,12 +17,12 @@ class DashboardMetrics extends Component
     public function metrics(): array
     {
         return Cache::remember('dashboard_metrics', 300, function () {
-            $total        = Device::count();
-            $available    = Device::where('status', DeviceStatus::Disponible)->count();
-            $assigned     = Device::where('status', DeviceStatus::Asignado)->count();
-            $inRepair     = Device::where('status', DeviceStatus::EnReparacion)->count();
-            $obsolete     = Device::where('status', DeviceStatus::Obsoleto)->count();
-            $lowWarranty  = Device::warrantyExpiringSoon(30)->count();
+            $total = Device::count();
+            $available = Device::where('status', DeviceStatus::Disponible)->count();
+            $assigned = Device::where('status', DeviceStatus::Asignado)->count();
+            $inRepair = Device::where('status', DeviceStatus::EnReparacion)->count();
+            $obsolete = Device::where('status', DeviceStatus::Obsoleto)->count();
+            $lowWarranty = Device::warrantyExpiringSoon(30)->count();
             $maintenances = DeviceMaintenance::where('status', MaintenanceStatus::EnProceso)->count();
 
             return compact('total', 'available', 'assigned', 'inRepair', 'obsolete', 'lowWarranty', 'maintenances');
@@ -31,32 +32,38 @@ class DashboardMetrics extends Component
     #[Computed]
     public function recentAssignments()
     {
-        return \App\Models\DeviceAssignment::with(['device.category', 'employee', 'assignedBy'])
-            ->whereNull('returned_at')
-            ->orderByDesc('assigned_at')
-            ->limit(5)
-            ->get();
+        return Cache::remember('dashboard_recent_assignments', 300, function () {
+            return DeviceAssignment::with(['device.category', 'employee', 'assignedBy'])
+                ->whereNull('returned_at')
+                ->orderByDesc('assigned_at')
+                ->limit(5)
+                ->get();
+        });
     }
 
     #[Computed]
     public function expiringWarranties()
     {
-        return Device::warrantyExpiringSoon(30)
-            ->with(['category', 'currentAssignment.employee'])
-            ->orderBy('warranty_expires_at')
-            ->limit(5)
-            ->get();
+        return Cache::remember('dashboard_expiring_warranties', 300, function () {
+            return Device::warrantyExpiringSoon(30)
+                ->with(['category', 'currentAssignment.employee'])
+                ->orderBy('warranty_expires_at')
+                ->limit(5)
+                ->get();
+        });
     }
 
     #[Computed]
     public function activeMaintenances()
     {
-        return DeviceMaintenance::with(['device.category', 'user'])
-            ->whereIn('status', [MaintenanceStatus::EnProceso, MaintenanceStatus::Programado])
-            ->orderBy('status')
-            ->orderByDesc('created_at')
-            ->limit(5)
-            ->get();
+        return Cache::remember('dashboard_active_maintenances', 300, function () {
+            return DeviceMaintenance::with(['device.category', 'user'])
+                ->whereIn('status', [MaintenanceStatus::EnProceso, MaintenanceStatus::Programado])
+                ->orderBy('status')
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get();
+        });
     }
 
     public function render()

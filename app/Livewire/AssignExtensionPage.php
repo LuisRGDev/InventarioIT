@@ -2,41 +2,46 @@
 
 namespace App\Livewire;
 
+use App\Enums\ExtensionStatus;
 use App\Exceptions\ExtensionNotAvailableException;
 use App\Models\Employee;
 use App\Models\OfficeExtension;
 use App\Services\ExtensionAssignmentService;
-use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 
 class AssignExtensionPage extends Component
 {
     // Búsqueda
     public string $employeeSearch = '';
+
     public string $extensionSearch = '';
 
     #[Url]
     public ?int $selectedEmployeeId = null;
+
     public ?int $selectedExtensionId = null;
 
     // Formulario
     public string $notes = '';
 
     // Estado UI
-    public bool  $showConfirm = false;
+    public bool $showConfirm = false;
+
     public ?string $successMessage = null;
-    public ?string $errorMessage   = null;
-    public ?int $lastAssignmentId  = null;
+
+    public ?string $errorMessage = null;
+
+    public ?int $lastAssignmentId = null;
 
     #[Computed]
     public function employees()
     {
         return Employee::active()
-            ->when($this->employeeSearch, fn($q) =>
-                $q->where('name', 'like', "%{$this->employeeSearch}%")
-                  ->orWhere('email', 'like', "%{$this->employeeSearch}%")
-                  ->orWhere('employee_code', 'like', "%{$this->employeeSearch}%")
+            ->when($this->employeeSearch, fn ($q) => $q->where('name', 'like', "%{$this->employeeSearch}%")
+                ->orWhere('email', 'like', "%{$this->employeeSearch}%")
+                ->orWhere('employee_code', 'like', "%{$this->employeeSearch}%")
             )
             ->orderBy('name')
             ->limit(10)
@@ -46,12 +51,10 @@ class AssignExtensionPage extends Component
     #[Computed]
     public function availableExtensions()
     {
-        return OfficeExtension::where('status', \App\Enums\ExtensionStatus::Disponible->value)
-            ->when($this->extensionSearch, fn($q) =>
-                $q->where(fn($w) => 
-                    $w->where('extension_number', 'like', "%{$this->extensionSearch}%")
-                      ->orWhere('direct_number', 'like', "%{$this->extensionSearch}%")
-                )
+        return OfficeExtension::where('status', ExtensionStatus::Disponible->value)
+            ->when($this->extensionSearch, fn ($q) => $q->where(fn ($w) => $w->where('extension_number', 'like', "%{$this->extensionSearch}%")
+                ->orWhere('direct_number', 'like', "%{$this->extensionSearch}%")
+            )
             )
             ->orderBy('extension_number')
             ->limit(15)
@@ -77,37 +80,37 @@ class AssignExtensionPage extends Component
     public function selectEmployee(int $id): void
     {
         $this->selectedEmployeeId = $id;
-        $this->employeeSearch     = '';
+        $this->employeeSearch = '';
         $this->resetValidation();
     }
 
     public function selectExtension(int $id): void
     {
         $this->selectedExtensionId = $id;
-        $this->extensionSearch     = '';
+        $this->extensionSearch = '';
         $this->resetValidation();
     }
 
     public function clearEmployee(): void
     {
         $this->selectedEmployeeId = null;
-        $this->showConfirm        = false;
+        $this->showConfirm = false;
     }
 
     public function clearExtension(): void
     {
         $this->selectedExtensionId = null;
-        $this->showConfirm      = false;
+        $this->showConfirm = false;
     }
 
     public function prepareConfirm(): void
     {
         $this->validate([
-            'selectedEmployeeId'    => 'required',
-            'selectedExtensionId'   => 'required',
+            'selectedEmployeeId' => 'required',
+            'selectedExtensionId' => 'required',
         ], [
             'selectedEmployeeId.required' => 'Selecciona un empleado.',
-            'selectedExtensionId.required'   => 'Selecciona una extensión.',
+            'selectedExtensionId.required' => 'Selecciona una extensión.',
         ]);
 
         $this->showConfirm = true;
@@ -117,7 +120,7 @@ class AssignExtensionPage extends Component
     {
         try {
             $extension = OfficeExtension::findOrFail($this->selectedExtensionId);
-            $employee  = Employee::findOrFail($this->selectedEmployeeId);
+            $employee = Employee::findOrFail($this->selectedEmployeeId);
 
             $assignment = $service->assign($extension, $employee, [
                 'notes' => $this->notes,
@@ -129,11 +132,11 @@ class AssignExtensionPage extends Component
             $this->errorMessage = null;
 
         } catch (ExtensionNotAvailableException $e) {
-            $this->errorMessage   = $e->getMessage();
-            $this->showConfirm    = false;
+            $this->errorMessage = $e->getMessage();
+            $this->showConfirm = false;
         } catch (\Exception $e) {
-            $this->errorMessage   = 'Ocurrió un error inesperado. Intenta de nuevo.';
-            $this->showConfirm    = false;
+            $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
+            $this->showConfirm = false;
         }
     }
 

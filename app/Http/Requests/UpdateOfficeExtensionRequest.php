@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ExtensionStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOfficeExtensionRequest extends FormRequest
 {
@@ -23,10 +25,10 @@ class UpdateOfficeExtensionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'extension_number' => ['required', 'string', 'max:50', \Illuminate\Validation\Rule::unique('office_extensions')->ignore($this->office_extension)],
-            'direct_number'    => ['nullable', 'string', 'max:50'],
-            'status'           => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\ExtensionStatus::class)],
-            'notes'            => ['nullable', 'string'],
+            'extension_number' => ['required', 'string', 'max:50', Rule::unique('office_extensions')->ignore($this->office_extension)],
+            'direct_number' => ['nullable', 'string', 'max:50'],
+            'status' => ['required', Rule::enum(ExtensionStatus::class)],
+            'notes' => ['nullable', 'string'],
         ];
     }
 }

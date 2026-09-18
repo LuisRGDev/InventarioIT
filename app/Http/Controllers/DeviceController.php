@@ -2,27 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\DeviceStatus;
 use App\Enums\DeviceCondition;
+use App\Enums\DeviceStatus;
+use App\Exports\DevicesExport;
+use App\Exports\DevicesTemplateExport;
+use App\Exports\GeneralInventoryExport;
+use App\Exports\GeneralInventoryTemplateExport;
 use App\Http\Requests\StoreDeviceRequest;
 use App\Http\Requests\UpdateDeviceRequest;
+use App\Imports\DevicesImport;
+use App\Imports\GeneralInventoryImport;
 use App\Models\Device;
 use App\Models\DeviceCategory;
 use App\Models\DeviceModel;
 use App\Models\Employee;
 use App\Services\DeviceAssignmentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\DevicesExport;
-use App\Exports\DevicesTemplateExport;
-use App\Exports\GeneralInventoryExport;
-use App\Exports\GeneralInventoryTemplateExport;
-use App\Imports\DevicesImport;
-use App\Imports\GeneralInventoryImport;
+use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Illuminate\Http\Request;
 
 class DeviceController extends Controller
 {
@@ -31,17 +32,16 @@ class DeviceController extends Controller
         return view('devices.index');
     }
 
-
     public function create(): View
     {
         $categories = DeviceCategory::orderBy('name')->get();
-        $statuses   = DeviceStatus::cases();
+        $statuses = DeviceStatus::cases();
         $conditions = DeviceCondition::cases();
-        $employees  = Employee::active()->orderBy('name')->get();
-        $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
+        $employees = Employee::active()->orderBy('name')->limit(500)->get();
+        $categoriesJson = $categories->map(fn ($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        $models = DeviceModel::orderBy('brand')->orderBy('model')->orderBy('variant')->get();
-        $modelsJson = $models->map(fn($m) => [
+        $models = DeviceModel::orderBy('brand')->orderBy('model')->orderBy('variant')->limit(200)->get();
+        $modelsJson = $models->map(fn ($m) => [
             'id' => $m->id,
             'category_id' => $m->device_category_id,
             'brand' => $m->brand,
@@ -71,11 +71,11 @@ class DeviceController extends Controller
         if ($request->filled('assign_to_employee_id')) {
             $employee = Employee::findOrFail($request->input('assign_to_employee_id'));
             $assignmentService->assign($device, $employee, [
-                'condition_on_delivery' => $request->input('condition_on_delivery')
+                'condition_on_delivery' => $request->input('condition_on_delivery'),
             ]);
-            
+
             return redirect()->route('devices.show', $device)
-                ->with('success', 'Equipo registrado y asignado correctamente a ' . $employee->name);
+                ->with('success', 'Equipo registrado y asignado correctamente a '.$employee->name);
         }
 
         return redirect()->route('devices.index')
@@ -88,7 +88,11 @@ class DeviceController extends Controller
             'category',
             'currentAssignment.employee',
             'currentAssignment.assignedBy',
+            'currentAssignment.returnedBy',
             'maintenances',
+            'deviceModel',
+            'activeMaintenance',
+            'lastPreventiveMaintenance',
         ]);
 
         return view('devices.show', compact('device'));
@@ -97,11 +101,11 @@ class DeviceController extends Controller
     public function edit(Device $device): View
     {
         $categories = DeviceCategory::orderBy('name')->get();
-        $statuses   = DeviceStatus::cases();
-        $categoriesJson = $categories->map(fn($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
+        $statuses = DeviceStatus::cases();
+        $categoriesJson = $categories->map(fn ($c) => ['id' => $c->id, 'isComputer' => $c->isComputer(), 'isSmartphone' => $c->isSmartphone()])->keyBy('id')->toJson();
 
-        $models = DeviceModel::orderBy('brand')->orderBy('model')->orderBy('variant')->get();
-        $modelsJson = $models->map(fn($m) => [
+        $models = DeviceModel::orderBy('brand')->orderBy('model')->orderBy('variant')->limit(200)->get();
+        $modelsJson = $models->map(fn ($m) => [
             'id' => $m->id,
             'category_id' => $m->device_category_id,
             'brand' => $m->brand,
@@ -149,12 +153,12 @@ class DeviceController extends Controller
 
     public function export(): BinaryFileResponse
     {
-        return Excel::download(new DevicesExport, 'inventario_equipos_' . date('Y-m-d') . '.xlsx');
+        return Excel::download(new DevicesExport, 'inventario_equipos_'.date('Y-m-d').'.xlsx');
     }
 
     public function exportGeneral(): BinaryFileResponse
     {
-        return Excel::download(new GeneralInventoryExport, 'inventario_global_completo_' . date('Y-m-d') . '.xlsx');
+        return Excel::download(new GeneralInventoryExport, 'inventario_global_completo_'.date('Y-m-d').'.xlsx');
     }
 
     public function downloadTemplate(): BinaryFileResponse
@@ -168,16 +172,16 @@ class DeviceController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:5120',
         ], [
             'file.required' => 'Debes subir un archivo.',
-            'file.mimes'    => 'El archivo debe ser un Excel (.xlsx, .xls o .csv).',
-            'file.max'      => 'El archivo no debe pesar más de 5MB.'
+            'file.mimes' => 'El archivo debe ser un Excel (.xlsx, .xls o .csv).',
+            'file.max' => 'El archivo no debe pesar más de 5MB.',
         ]);
 
         try {
             Excel::import(new DevicesImport, $request->file('file'));
-            
+
             return redirect()->route('devices.index')
                 ->with('success', 'Importación masiva completada correctamente.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $errorMessages = [];
             foreach ($failures as $failure) {
@@ -185,9 +189,11 @@ class DeviceController extends Controller
                 $errors = implode(', ', $failure->errors());
                 $errorMessages[] = "Fila {$row}: {$errors}";
             }
-            return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
+
+            return back()->with('error', 'Errores de validación en el archivo: <br>'.implode('<br>', $errorMessages));
         } catch (\Exception $e) {
             Log::error('Failed to import devices', ['exception' => $e]);
+
             return back()->with('error', 'Ocurrió un error inesperado al importar el archivo. Verifica el formato del archivo.');
         }
     }
@@ -203,8 +209,8 @@ class DeviceController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:5120',
         ], [
             'file.required' => 'Debes seleccionar un archivo para importar.',
-            'file.mimes'    => 'El archivo debe tener formato Excel (.xlsx, .xls o .csv).',
-            'file.max'      => 'El archivo supera el límite de 5MB.'
+            'file.mimes' => 'El archivo debe tener formato Excel (.xlsx, .xls o .csv).',
+            'file.max' => 'El archivo supera el límite de 5MB.',
         ]);
 
         try {
@@ -212,7 +218,7 @@ class DeviceController extends Controller
 
             return redirect()->route('dashboard')
                 ->with('success', '¡Importación general y actualización masiva completadas con éxito!');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $errorMessages = [];
             foreach ($failures as $failure) {
@@ -220,9 +226,11 @@ class DeviceController extends Controller
                 $errors = implode(', ', $failure->errors());
                 $errorMessages[] = "Fila {$row}: {$errors}";
             }
-            return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
+
+            return back()->with('error', 'Errores de validación en el archivo: <br>'.implode('<br>', $errorMessages));
         } catch (\Exception $e) {
             Log::error('Failed to import general inventory', ['exception' => $e]);
+
             return back()->with('error', 'Ocurrió un error al procesar el archivo. Verifica que los datos sean correctos.');
         }
     }

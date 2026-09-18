@@ -4,15 +4,21 @@ namespace App\Exports;
 
 use App\Models\Device;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class DevicesExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping
 {
     public function collection()
     {
         return Device::with(['category', 'currentAssignment.employee'])->get();
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
@@ -43,7 +49,7 @@ class DevicesExport implements FromCollection, WithHeadings, WithMapping, Should
             'Identificador de BL',
             'Clave de BL',
             'IMEI',
-            'Notas'
+            'Notas',
         ];
     }
 

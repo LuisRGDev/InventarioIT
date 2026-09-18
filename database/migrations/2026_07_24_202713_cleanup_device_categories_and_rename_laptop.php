@@ -1,10 +1,7 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use App\Models\DeviceCategory;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -19,7 +16,7 @@ return new class extends Migration
         // 2. Renombrar Laptop a Portátil
         DeviceCategory::where('slug', 'laptop')->update([
             'name' => 'Portátil',
-            'slug' => 'portatil'
+            'slug' => 'portatil',
         ]);
 
         // Asegurarnos de que las 3 categorías existan (por si no han corrido el seeder)

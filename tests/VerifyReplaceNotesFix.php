@@ -6,7 +6,6 @@
  * Ejecutar: php tests/VerifyReplaceNotesFix.php
  * No requiere mbstring ni Laravel.
  */
-
 $passed = 0;
 $failed = 0;
 
@@ -28,7 +27,7 @@ function assert_not_contains(string $file, string $needle, string $description):
 {
     global $passed, $failed;
     $content = file_get_contents($file);
-    if (!str_contains($file, $needle) || !str_contains($content, $needle)) {
+    if (! str_contains($file, $needle) || ! str_contains($content, $needle)) {
         echo "  ✓ {$description}\n";
         $passed++;
     } else {
@@ -41,7 +40,7 @@ function assert_not_contains(string $file, string $needle, string $description):
 function assert_file_not_exists(string $path, string $description): void
 {
     global $passed, $failed;
-    if (!file_exists($path)) {
+    if (! file_exists($path)) {
         echo "  ✓ {$description}\n";
         $passed++;
     } else {
@@ -51,10 +50,10 @@ function assert_file_not_exists(string $path, string $description): void
     }
 }
 
-$base = __DIR__ . '/..';
-$livewire = $base . '/app/Livewire/ReplaceDevicePage.php';
-$service = $base . '/app/Services/DeviceAssignmentService.php';
-$blade = $base . '/resources/views/livewire/replace-device-page.blade.php';
+$base = __DIR__.'/..';
+$livewire = $base.'/app/Livewire/ReplaceDevicePage.php';
+$service = $base.'/app/Services/DeviceAssignmentService.php';
+$blade = $base.'/resources/views/livewire/replace-device-page.blade.php';
 
 echo "=== Test: Fixes en DeviceAssignmentService ===\n\n";
 
@@ -82,9 +81,9 @@ assert_contains($blade, 'Notas de asignación', 'Label de notas de asignación')
 
 // ── 5. Código muerto eliminado ──
 echo "\n[5] FormRequests muertos eliminados\n";
-assert_file_not_exists($base . '/app/Http/Requests/AssignDeviceRequest.php', 'AssignDeviceRequest.php eliminado');
-assert_file_not_exists($base . '/app/Http/Requests/ReturnDeviceRequest.php', 'ReturnDeviceRequest.php eliminado');
-assert_file_not_exists($base . '/app/Http/Requests/ReplaceDeviceRequest.php', 'ReplaceDeviceRequest.php eliminado');
+assert_file_not_exists($base.'/app/Http/Requests/AssignDeviceRequest.php', 'AssignDeviceRequest.php eliminado');
+assert_file_not_exists($base.'/app/Http/Requests/ReturnDeviceRequest.php', 'ReturnDeviceRequest.php eliminado');
+assert_file_not_exists($base.'/app/Http/Requests/ReplaceDeviceRequest.php', 'ReplaceDeviceRequest.php eliminado');
 
 // ── 6. returnDevice envía notificación ──
 echo "\n[6] returnDevice() envía notificación y log\n";
@@ -108,7 +107,7 @@ assert_contains($livewire, 'old_device_new_status', 'old_device_new_status prese
 assert_contains($service, 'lockForUpdate', 'lockForUpdate preservado en service');
 
 // ── Resultado ──
-echo "\n" . str_repeat('─', 50) . "\n";
+echo "\n".str_repeat('─', 50)."\n";
 $total = $passed + $failed;
 echo "Resultado: {$passed}/{$total} pruebas pasaron";
 if ($failed > 0) {

@@ -16,14 +16,14 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'employee_code'  => ['nullable', 'string', 'max:50', 'unique:employees,employee_code'],
+            'employee_code' => ['nullable', 'string', 'max:50', 'unique:employees,employee_code'],
             'domain_account' => ['nullable', 'string', 'max:100', 'unique:employees,domain_account'],
-            'name'           => ['required', 'string', 'max:255'],
-            'email'         => ['required', 'email', 'max:255', 'unique:employees,email'],
-            'department'    => ['required', 'string', 'max:100'],
-            'position'      => ['required', 'string', 'max:100'],
-            'status'        => ['required', Rule::enum(EmployeeStatus::class)],
-            'notes'         => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:employees,email'],
+            'department' => ['required', 'string', 'max:100'],
+            'position' => ['required', 'string', 'max:100'],
+            'status' => ['required', Rule::enum(EmployeeStatus::class)],
+            'notes' => ['nullable', 'string'],
             'assign_phone_line_id' => ['nullable', 'exists:phone_lines,id'],
             'assign_office_extension_id' => ['nullable', 'exists:office_extensions,id'],
         ];

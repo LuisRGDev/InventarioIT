@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class PhoneLineAssignment extends Pivot
 {
@@ -13,6 +13,7 @@ class PhoneLineAssignment extends Pivot
     protected $table = 'phone_line_assignments';
 
     public $incrementing = true;
+
     public $timestamps = true;
 
     protected $fillable = [

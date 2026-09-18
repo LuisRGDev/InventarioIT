@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DeviceModel extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'device_category_id',
@@ -46,8 +47,8 @@ class DeviceModel extends Model
     public function getDisplayNameAttribute(): string
     {
         $name = trim("{$this->brand} · {$this->model}");
-        
-        if (!empty($this->variant)) {
+
+        if (! empty($this->variant)) {
             $name .= " — [{$this->variant}]";
         }
 
@@ -66,6 +67,6 @@ class DeviceModel extends Model
             $this->os ? "OS: {$this->os}" : null,
         ]);
 
-        return !empty($parts) ? implode(' · ', $parts) : 'Sin especificaciones técnicas registradas';
+        return ! empty($parts) ? implode(' · ', $parts) : 'Sin especificaciones técnicas registradas';
     }
 }

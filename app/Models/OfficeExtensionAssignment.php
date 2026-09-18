@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class OfficeExtensionAssignment extends Pivot
@@ -13,6 +13,7 @@ class OfficeExtensionAssignment extends Pivot
     protected $table = 'office_extension_assignments';
 
     public $incrementing = true;
+
     public $timestamps = true;
 
     protected $fillable = [

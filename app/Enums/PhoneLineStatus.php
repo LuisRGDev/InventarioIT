@@ -10,7 +10,7 @@ enum PhoneLineStatus: string
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::Disponible => 'Disponible',
             self::Asignada => 'Asignada',
             self::Baja => 'Baja',
@@ -19,7 +19,7 @@ enum PhoneLineStatus: string
 
     public function color(): string
     {
-        return match($this) {
+        return match ($this) {
             self::Disponible => 'bg-green-100 text-green-800 border-green-200',
             self::Asignada => 'bg-blue-100 text-blue-800 border-blue-200',
             self::Baja => 'bg-gray-100 text-gray-800 border-gray-200',

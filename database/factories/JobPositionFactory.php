@@ -21,7 +21,7 @@ class JobPositionFactory extends Factory
                 'Dirección Comercial',
                 'Dirección Administrativa',
             ]),
-            'area'       => fake()->randomElement([
+            'area' => fake()->randomElement([
                 'Desarrollo',
                 'Infraestructura',
                 'Soporte',
@@ -33,7 +33,7 @@ class JobPositionFactory extends Factory
                 'Compras',
                 'Legal',
             ]),
-            'name'       => fake()->randomElement([
+            'name' => fake()->randomElement([
                 'Ingeniero de Sistemas',
                 'Analista de Soporte TI',
                 'Desarrollador Full Stack',
@@ -47,7 +47,7 @@ class JobPositionFactory extends Factory
                 'Analista de Datos',
                 'Ingeniero DevOps',
             ]),
-            'notes'      => fake()->optional(0.3)->sentence(),
+            'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 
@@ -55,7 +55,7 @@ class JobPositionFactory extends Factory
     {
         return $this->state(fn () => [
             'direction' => 'Dirección de Tecnología',
-            'area'      => fake()->randomElement(['Desarrollo', 'Infraestructura', 'Soporte', 'Seguridad']),
+            'area' => fake()->randomElement(['Desarrollo', 'Infraestructura', 'Soporte', 'Seguridad']),
         ]);
     }
 
@@ -63,7 +63,7 @@ class JobPositionFactory extends Factory
     {
         return $this->state(fn () => [
             'direction' => 'Dirección de Recursos Humanos',
-            'area'      => fake()->randomElement(['Planeación', 'Control', 'Atención al Cliente']),
+            'area' => fake()->randomElement(['Planeación', 'Control', 'Atención al Cliente']),
         ]);
     }
 }

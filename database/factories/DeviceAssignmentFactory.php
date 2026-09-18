@@ -18,36 +18,36 @@ class DeviceAssignmentFactory extends Factory
         $assignedAt = fake()->dateTimeBetween('-2 years', 'now');
 
         return [
-            'device_id'              => Device::factory(),
-            'employee_id'            => Employee::factory(),
-            'assigned_by_user_id'    => User::factory(),
-            'returned_by_user_id'    => null,
-            'assigned_at'            => $assignedAt,
-            'returned_at'            => null,
-            'condition_on_delivery'  => fake()->randomElement([
+            'device_id' => Device::factory(),
+            'employee_id' => Employee::factory(),
+            'assigned_by_user_id' => User::factory(),
+            'returned_by_user_id' => null,
+            'assigned_at' => $assignedAt,
+            'returned_at' => null,
+            'condition_on_delivery' => fake()->randomElement([
                 DeviceCondition::Nuevo,
                 DeviceCondition::BuenEstado,
             ]),
-            'condition_on_return'    => null,
-            'notes'                  => fake()->optional(0.3)->sentence(),
+            'condition_on_return' => null,
+            'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 
     public function active(): static
     {
         return $this->state(fn () => [
-            'returned_at'           => null,
-            'returned_by_user_id'   => null,
-            'condition_on_return'   => null,
+            'returned_at' => null,
+            'returned_by_user_id' => null,
+            'condition_on_return' => null,
         ]);
     }
 
     public function returned(): static
     {
         return $this->state(fn (array $attributes) => [
-            'returned_at'           => fake()->dateTimeBetween($attributes['assigned_at'], 'now'),
-            'returned_by_user_id'   => User::factory(),
-            'condition_on_return'   => fake()->randomElement(DeviceCondition::cases()),
+            'returned_at' => fake()->dateTimeBetween($attributes['assigned_at'], 'now'),
+            'returned_by_user_id' => User::factory(),
+            'condition_on_return' => fake()->randomElement(DeviceCondition::cases()),
         ]);
     }
 
@@ -55,7 +55,7 @@ class DeviceAssignmentFactory extends Factory
     {
         return $this->state(fn () => [
             'condition_on_delivery' => DeviceCondition::Nuevo,
-            'condition_on_return'   => DeviceCondition::BuenEstado,
+            'condition_on_return' => DeviceCondition::BuenEstado,
         ]);
     }
 

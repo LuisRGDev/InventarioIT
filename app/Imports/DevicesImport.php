@@ -2,24 +2,25 @@
 
 namespace App\Imports;
 
+use App\Enums\DeviceStatus;
+use App\Enums\EmployeeStatus;
 use App\Models\Device;
 use App\Models\DeviceCategory;
-use App\Enums\DeviceStatus;
 use App\Models\Employee;
-use App\Enums\EmployeeStatus;
 use App\Services\DeviceAssignmentService;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, SkipsEmptyRows
+class DevicesImport implements SkipsEmptyRows, ToCollection, WithHeadingRow, WithValidation
 {
     private $categories;
+
     private $assignmentService;
 
     public function __construct()
@@ -29,56 +30,73 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
         foreach (DeviceCategory::all() as $cat) {
             $this->categories->put(mb_strtolower($cat->name, 'UTF-8'), $cat);
             $this->categories->put(mb_strtolower($cat->slug, 'UTF-8'), $cat);
-            $this->categories->put(str_replace(['á','é','í','ó','ú','ä','ë','ï','ö','ü'], ['a','e','i','o','u','a','e','i','o','u'], mb_strtolower($cat->name, 'UTF-8')), $cat);
+            $this->categories->put(str_replace(['á', 'é', 'í', 'ó', 'ú', 'ä', 'ë', 'ï', 'ö', 'ü'], ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'], mb_strtolower($cat->name, 'UTF-8')), $cat);
         }
         $this->assignmentService = app(DeviceAssignmentService::class);
     }
 
     public function collection(Collection $rows)
     {
+        $maxRows = config('inventory.import_max_rows', 5000);
+        if ($rows->count() > $maxRows) {
+            throw new \Exception("El archivo contiene {$rows->count()} filas. El máximo permitido es {$maxRows}.");
+        }
+
         DB::transaction(function () use ($rows) {
             foreach ($rows as $row) {
                 $categoryName = mb_strtolower(trim($row['categoria'] ?? ''), 'UTF-8');
-                $normalizedName = str_replace(['á','é','í','ó','ú','ä','ë','ï','ö','ü'], ['a','e','i','o','u','a','e','i','o','u'], $categoryName);
+                $normalizedName = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ä', 'ë', 'ï', 'ö', 'ü'], ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'], $categoryName);
                 $categoryId = ($this->categories->get($categoryName) ?? $this->categories->get($normalizedName))?->id;
 
                 $specs = [];
-                if (!empty($row['procesador_cpu'])) $specs['cpu'] = $row['procesador_cpu'];
-                if (!empty($row['nucleos'])) $specs['cores'] = $row['nucleos'];
-                if (!empty($row['ram'])) $specs['ram'] = $row['ram'];
-                if (!empty($row['almacenamiento'])) $specs['storage'] = $row['almacenamiento'];
-                if (!empty($row['sistema_operativo'])) $specs['os'] = $row['sistema_operativo'];
-                if (!empty($row['imei'])) $imei = $row['imei'];
+                if (! empty($row['procesador_cpu'])) {
+                    $specs['cpu'] = $row['procesador_cpu'];
+                }
+                if (! empty($row['nucleos'])) {
+                    $specs['cores'] = $row['nucleos'];
+                }
+                if (! empty($row['ram'])) {
+                    $specs['ram'] = $row['ram'];
+                }
+                if (! empty($row['almacenamiento'])) {
+                    $specs['storage'] = $row['almacenamiento'];
+                }
+                if (! empty($row['sistema_operativo'])) {
+                    $specs['os'] = $row['sistema_operativo'];
+                }
+                if (! empty($row['imei'])) {
+                    $imei = $row['imei'];
+                }
 
                 $device = Device::create([
-                    'device_category_id'  => $categoryId,
-                    'brand'               => $row['marca'],
-                    'model'               => $row['modelo'],
-                    'serial_number'       => $row['numero_de_serie'],
-                    'service_tag'         => $row['etiqueta_de_servicio'] ?? null,
-                    'computer_name'       => $row['hostname'] ?? null,
-                    'bitlocker_identifier'=> $row['identificador_de_bl'] ?? null,
-                    'bitlocker_key'       => $row['clave_de_bl'] ?? null,
-                    'mac_address_ethernet'=> $row['mac_ethernet'] ?? null,
-                    'mac_address_wifi'    => $row['mac_wifi'] ?? null,
-                    'imei'                => $imei ?? null,
-                    'status'              => DeviceStatus::Disponible,
-                    'purchase_date'       => $this->parseDate($row['fecha_compra'] ?? null),
+                    'device_category_id' => $categoryId,
+                    'brand' => $row['marca'],
+                    'model' => $row['modelo'],
+                    'serial_number' => $row['numero_de_serie'],
+                    'service_tag' => $row['etiqueta_de_servicio'] ?? null,
+                    'computer_name' => $row['hostname'] ?? null,
+                    'bitlocker_identifier' => $row['identificador_de_bl'] ?? null,
+                    'bitlocker_key' => $row['clave_de_bl'] ?? null,
+                    'mac_address_ethernet' => $row['mac_ethernet'] ?? null,
+                    'mac_address_wifi' => $row['mac_wifi'] ?? null,
+                    'imei' => $imei ?? null,
+                    'status' => DeviceStatus::Disponible,
+                    'purchase_date' => $this->parseDate($row['fecha_compra'] ?? null),
                     'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null),
-                    'specs'               => count($specs) > 0 ? $specs : null,
-                    'notes'               => $row['notas'] ?? null,
+                    'specs' => count($specs) > 0 ? $specs : null,
+                    'notes' => $row['notas'] ?? null,
                 ]);
 
                 // Si viene un correo de empleado, crearlo/buscarlo y asignarlo
-                if (!empty($row['correo_empleado'])) {
+                if (! empty($row['correo_empleado'])) {
                     $employee = Employee::firstOrCreate(
                         ['email' => mb_strtolower(trim($row['correo_empleado']), 'UTF-8')],
                         [
-                            'name'           => $row['nombre_empleado'] ?? 'Empleado Importado',
-                            'employee_code'  => $row['no_empleado'] ?? null,
-                            'department'     => $row['departamento'] ?? 'General',
-                            'position'       => $row['puesto'] ?? 'General',
-                            'status'         => EmployeeStatus::Activo,
+                            'name' => $row['nombre_empleado'] ?? 'Empleado Importado',
+                            'employee_code' => $row['no_empleado'] ?? null,
+                            'department' => $row['departamento'] ?? 'General',
+                            'position' => $row['puesto'] ?? 'General',
+                            'status' => EmployeeStatus::Activo,
                         ]
                     );
 
@@ -99,22 +117,22 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
     {
         $categories = DeviceCategory::all();
         $validNames = $categories->pluck('name')->toArray();
-        $validKeys  = $categories->flatMap(fn($c) => [
+        $validKeys = $categories->flatMap(fn ($c) => [
             mb_strtolower($c->name, 'UTF-8'),
             mb_strtolower($c->slug, 'UTF-8'),
-            str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], mb_strtolower($c->name, 'UTF-8')),
+            str_replace(['á', 'é', 'í', 'ó', 'ú'], ['a', 'e', 'i', 'o', 'u'], mb_strtolower($c->name, 'UTF-8')),
         ])->unique()->toArray();
 
         return [
-            'categoria' => ['required', function($attribute, $value, $fail) use ($validKeys, $validNames) {
+            'categoria' => ['required', function ($attribute, $value, $fail) use ($validKeys, $validNames) {
                 $val = mb_strtolower(trim($value), 'UTF-8');
-                $valNorm = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $val);
-                if (!in_array($val, $validKeys) && !in_array($valNorm, $validKeys)) {
-                    $fail("La categoría '{$value}' no es válida. Opciones permitidas: " . implode(', ', $validNames));
+                $valNorm = str_replace(['á', 'é', 'í', 'ó', 'ú'], ['a', 'e', 'i', 'o', 'u'], $val);
+                if (! in_array($val, $validKeys) && ! in_array($valNorm, $validKeys)) {
+                    $fail("La categoría '{$value}' no es válida. Opciones permitidas: ".implode(', ', $validNames));
                 }
             }],
-            'marca'           => ['required', 'string'],
-            'modelo'          => ['required', 'string'],
+            'marca' => ['required', 'string'],
+            'modelo' => ['required', 'string'],
             'numero_de_serie' => ['required', 'string', 'unique:devices,serial_number'],
             // Las demás columnas son opcionales
         ];
@@ -123,11 +141,11 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
     public function customValidationMessages()
     {
         return [
-            'categoria.required'       => 'La columna Categoría es obligatoria.',
-            'marca.required'           => 'La columna Marca es obligatoria.',
-            'modelo.required'          => 'La columna Modelo es obligatoria.',
+            'categoria.required' => 'La columna Categoría es obligatoria.',
+            'marca.required' => 'La columna Marca es obligatoria.',
+            'modelo.required' => 'La columna Modelo es obligatoria.',
             'numero_de_serie.required' => 'El Número de Serie es obligatorio.',
-            'numero_de_serie.unique'   => 'El Número de Serie :input ya existe en la base de datos.',
+            'numero_de_serie.unique' => 'El Número de Serie :input ya existe en la base de datos.',
         ];
     }
 
@@ -140,14 +158,16 @@ class DevicesImport implements ToCollection, WithHeadingRow, WithValidation, Ski
         try {
             // Excel a veces envía fechas como enteros (número de serie de Excel)
             if (is_numeric($value)) {
-                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
+                return Date::excelToDateTimeObject($value);
             }
             // Respaldos para formato común dd/mm/yyyy o dd-mm-yyyy en español
             $valClean = trim($value);
             if (preg_match('/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/', $valClean)) {
                 $separator = str_contains($valClean, '/') ? '/' : '-';
+
                 return Carbon::createFromFormat("d{$separator}m{$separator}Y", $valClean);
             }
+
             return Carbon::parse($valClean);
         } catch (\Exception $e) {
             return null;

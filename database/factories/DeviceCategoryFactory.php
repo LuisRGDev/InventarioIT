@@ -12,7 +12,7 @@ class DeviceCategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'        => fake()->unique()->randomElement([
+            'name' => fake()->unique()->randomElement([
                 'Portátil',
                 'Desktop',
                 'Monitor',

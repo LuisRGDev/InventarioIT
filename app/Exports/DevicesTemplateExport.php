@@ -2,11 +2,11 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
+class DevicesTemplateExport implements FromArray, ShouldAutoSize, WithHeadings
 {
     public function array(): array
     {
@@ -35,7 +35,7 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 '70F73ABC',
                 '483120-123456',
                 '',
-                'Equipo nuevo para gerencia'
+                'Equipo nuevo para gerencia',
             ],
             [
                 '',
@@ -61,8 +61,8 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
                 '',
                 '',
                 '987654321012345',
-                'Celular de ventas'
-            ]
+                'Celular de ventas',
+            ],
         ];
     }
 
@@ -92,7 +92,7 @@ class DevicesTemplateExport implements FromArray, WithHeadings, ShouldAutoSize
             'Identificador de BL',
             'Clave de BL',
             'IMEI',
-            'Notas'
+            'Notas',
         ];
     }
 }

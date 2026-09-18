@@ -4,15 +4,21 @@ namespace App\Exports;
 
 use App\Models\Employee;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class EmployeesExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class EmployeesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return Employee::active()->get();
+        return Employee::active()->withCount('currentAssignments')->get();
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
@@ -46,7 +52,7 @@ class EmployeesExport implements FromCollection, WithHeadings, WithMapping, Shou
             $employee->position,
             $employee->status->label(),
             $employee->notes,
-            $employee->currentAssignments()->count(),
+            $employee->current_assignments_count,
             $employee->created_at->format('Y-m-d'),
         ];
     }

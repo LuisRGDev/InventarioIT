@@ -2,23 +2,40 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Traits\WithSorting;
+use App\Models\Employee;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Employee;
-use App\Livewire\Traits\WithSorting;
 
 class EmployeeTable extends Component
 {
     use WithPagination;
     use WithSorting;
 
-    public $search = '';
-    public $department = '';
-    public $status = '';
+    protected array $allowedSortColumns = [
+        'name', 'email', 'employee_code', 'department', 'status', 'created_at',
+    ];
 
-    public function updatingSearch() { $this->resetPage(); }
-    public function updatingDepartment() { $this->resetPage(); }
-    public function updatingStatus() { $this->resetPage(); }
+    public string $search = '';
+
+    public string $department = '';
+
+    public string $status = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDepartment()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatus()
+    {
+        $this->resetPage();
+    }
 
     public function clearFilters()
     {
@@ -31,22 +48,22 @@ class EmployeeTable extends Component
         $query = Employee::withCount('currentAssignments');
 
         // Búsqueda por texto
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $search = $this->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('employee_code', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('employee_code', 'like', "%{$search}%");
             });
         }
 
         // Filtro por departamento
-        if (!empty($this->department)) {
+        if (! empty($this->department)) {
             $query->where('department', 'like', "%{$this->department}%");
         }
 
         // Filtro por estatus
-        if (!empty($this->status)) {
+        if (! empty($this->status)) {
             $query->where('status', $this->status);
         }
 

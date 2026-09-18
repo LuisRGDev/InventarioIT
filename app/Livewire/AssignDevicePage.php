@@ -3,46 +3,50 @@
 namespace App\Livewire;
 
 use App\Enums\DeviceCondition;
-use App\Enums\DeviceStatus;
 use App\Exceptions\DeviceAlreadyAssignedException;
 use App\Exceptions\DeviceNotAvailableException;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Services\DeviceAssignmentService;
-use Livewire\Component;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 
 class AssignDevicePage extends Component
 {
     // Búsqueda
     public string $employeeSearch = '';
-    public string $deviceSearch   = '';
-    
+
+    public string $deviceSearch = '';
+
     #[Url]
     public ?int $selectedEmployeeId = null;
-    
-    public ?int $selectedDeviceId   = null;
+
+    public ?int $selectedDeviceId = null;
+
     public ?int $selectedCategoryId = null;
 
     // Formulario
     public string $conditionOnDelivery = 'buen_estado';
-    public string $notes               = '';
+
+    public string $notes = '';
 
     // Estado UI
-    public bool  $showConfirm = false;
+    public bool $showConfirm = false;
+
     public ?string $successMessage = null;
-    public ?string $errorMessage   = null;
-    public ?int $lastAssignmentId  = null;
+
+    public ?string $errorMessage = null;
+
+    public ?int $lastAssignmentId = null;
 
     #[Computed]
     public function employees()
     {
         return Employee::active()
-            ->when($this->employeeSearch, fn($q) =>
-                $q->where('name', 'like', "%{$this->employeeSearch}%")
-                  ->orWhere('email', 'like', "%{$this->employeeSearch}%")
-                  ->orWhere('employee_code', 'like', "%{$this->employeeSearch}%")
+            ->when($this->employeeSearch, fn ($q) => $q->where('name', 'like', "%{$this->employeeSearch}%")
+                ->orWhere('email', 'like', "%{$this->employeeSearch}%")
+                ->orWhere('employee_code', 'like', "%{$this->employeeSearch}%")
             )
             ->orderBy('name')
             ->limit(10)
@@ -54,15 +58,12 @@ class AssignDevicePage extends Component
     {
         return Device::available()
             ->with('category')
-            ->when($this->selectedCategoryId, fn($q) =>
-                $q->where('device_category_id', $this->selectedCategoryId)
+            ->when($this->selectedCategoryId, fn ($q) => $q->where('device_category_id', $this->selectedCategoryId)
             )
-            ->when($this->deviceSearch, fn($q) =>
-                $q->where(fn($w) => 
-                    $w->where('serial_number', 'like', "%{$this->deviceSearch}%")
-                      ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
-                      ->orWhere('model', 'like', "%{$this->deviceSearch}%")
-                )
+            ->when($this->deviceSearch, fn ($q) => $q->where(fn ($w) => $w->where('serial_number', 'like', "%{$this->deviceSearch}%")
+                ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
+                ->orWhere('model', 'like', "%{$this->deviceSearch}%")
+            )
             )
             ->orderBy('brand')
             ->limit(15)
@@ -94,38 +95,38 @@ class AssignDevicePage extends Component
     public function selectEmployee(int $id): void
     {
         $this->selectedEmployeeId = $id;
-        $this->employeeSearch     = '';
+        $this->employeeSearch = '';
         $this->resetValidation();
     }
 
     public function selectDevice(int $id): void
     {
         $this->selectedDeviceId = $id;
-        $this->deviceSearch     = '';
+        $this->deviceSearch = '';
         $this->resetValidation();
     }
 
     public function clearEmployee(): void
     {
         $this->selectedEmployeeId = null;
-        $this->showConfirm        = false;
+        $this->showConfirm = false;
     }
 
     public function clearDevice(): void
     {
         $this->selectedDeviceId = null;
-        $this->showConfirm      = false;
+        $this->showConfirm = false;
     }
 
     public function prepareConfirm(): void
     {
         $this->validate([
-            'selectedEmployeeId'    => 'required',
-            'selectedDeviceId'      => 'required',
-            'conditionOnDelivery'   => 'required',
+            'selectedEmployeeId' => 'required',
+            'selectedDeviceId' => 'required',
+            'conditionOnDelivery' => 'required',
         ], [
             'selectedEmployeeId.required' => 'Selecciona un empleado.',
-            'selectedDeviceId.required'   => 'Selecciona un equipo.',
+            'selectedDeviceId.required' => 'Selecciona un equipo.',
         ]);
 
         $this->showConfirm = true;
@@ -134,12 +135,12 @@ class AssignDevicePage extends Component
     public function assign(DeviceAssignmentService $service): void
     {
         try {
-            $device   = Device::findOrFail($this->selectedDeviceId);
+            $device = Device::findOrFail($this->selectedDeviceId);
             $employee = Employee::findOrFail($this->selectedEmployeeId);
 
             $assignment = $service->assign($device, $employee, [
                 'condition_on_delivery' => $this->conditionOnDelivery,
-                'notes'                 => $this->notes,
+                'notes' => $this->notes,
             ]);
 
             $this->lastAssignmentId = $assignment->id;
@@ -147,12 +148,12 @@ class AssignDevicePage extends Component
             $this->reset(['selectedEmployeeId', 'selectedDeviceId', 'conditionOnDelivery', 'notes', 'showConfirm']);
             $this->errorMessage = null;
 
-        } catch (DeviceNotAvailableException | DeviceAlreadyAssignedException $e) {
-            $this->errorMessage   = $e->getMessage();
-            $this->showConfirm    = false;
+        } catch (DeviceNotAvailableException|DeviceAlreadyAssignedException $e) {
+            $this->errorMessage = $e->getMessage();
+            $this->showConfirm = false;
         } catch (\Exception $e) {
-            $this->errorMessage   = 'Ocurrió un error inesperado. Intenta de nuevo.';
-            $this->showConfirm    = false;
+            $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
+            $this->showConfirm = false;
         }
     }
 

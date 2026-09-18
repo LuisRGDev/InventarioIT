@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -9,13 +10,10 @@ use Illuminate\Support\Str;
 
 class DeviceCategory extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['name', 'slug', 'description'];
 
-    /**
-     * Auto-generate slug from name if not provided.
-     */
     protected static function booted(): void
     {
         static::creating(function (DeviceCategory $category) {
@@ -30,13 +28,18 @@ class DeviceCategory extends Model
         return $this->hasMany(Device::class);
     }
 
+    public function models(): HasMany
+    {
+        return $this->hasMany(DeviceModel::class);
+    }
+
     public function isComputer(): bool
     {
-        return in_array($this->slug, ['portatil', 'desktop']);
+        return in_array($this->slug, config('inventory.computer_slugs', ['portatil', 'desktop']));
     }
 
     public function isSmartphone(): bool
     {
-        return $this->slug === 'smartphone';
+        return $this->slug === config('inventory.smartphone_slug', 'smartphone');
     }
 }

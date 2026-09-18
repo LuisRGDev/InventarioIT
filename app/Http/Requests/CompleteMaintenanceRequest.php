@@ -14,9 +14,9 @@ class CompleteMaintenanceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'resolution_notes'  => ['required', 'string'],
+            'resolution_notes' => ['required', 'string'],
             'new_device_status' => ['required', 'in:disponible,asignado,obsoleto,baja,mantener'],
-            'next_due_at'       => ['nullable', 'date', 'after:today'],
+            'next_due_at' => ['nullable', 'date', 'after:today'],
         ];
     }
 

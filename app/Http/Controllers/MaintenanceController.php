@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreMaintenanceRequest;
-use App\Http\Requests\CompleteMaintenanceRequest;
-use App\Models\DeviceMaintenance;
-use App\Models\Device;
-use App\Enums\MaintenanceStatus;
 use App\Enums\DeviceStatus;
+use App\Enums\MaintenanceStatus;
 use App\Exports\MaintenancesExport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Requests\CompleteMaintenanceRequest;
+use App\Http\Requests\StoreMaintenanceRequest;
+use App\Models\Device;
+use App\Models\DeviceMaintenance;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
+use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MaintenanceController extends Controller
@@ -41,15 +41,15 @@ class MaintenanceController extends Controller
 
         DB::transaction(function () use ($validated, $request) {
             $maintenance = DeviceMaintenance::create([
-                'device_id'    => $validated['device_id'],
-                'user_id'      => Auth::id(),
-                'type'         => $validated['type'],
-                'status'       => $validated['status'],
-                'title'        => $validated['title'],
-                'description'  => $validated['description'] ?? null,
+                'device_id' => $validated['device_id'],
+                'user_id' => Auth::id(),
+                'type' => $validated['type'],
+                'status' => $validated['status'],
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
                 'scheduled_at' => $validated['scheduled_at'] ?? null,
-                'started_at'   => $validated['status'] === 'en_proceso' ? now() : null,
-                'next_due_at'  => $validated['next_due_at'] ?? null,
+                'started_at' => $validated['status'] === 'en_proceso' ? now() : null,
+                'next_due_at' => $validated['next_due_at'] ?? null,
             ]);
 
             if ($request->boolean('update_device_status_repair') && $validated['status'] === 'en_proceso') {
@@ -67,6 +67,7 @@ class MaintenanceController extends Controller
     public function show(DeviceMaintenance $maintenance): View
     {
         $maintenance->load(['device', 'device.category', 'device.currentAssignment.employee', 'user']);
+
         return view('maintenances.show', compact('maintenance'));
     }
 
@@ -76,10 +77,10 @@ class MaintenanceController extends Controller
 
         DB::transaction(function () use ($validated, $maintenance) {
             $maintenance->update([
-                'status'           => MaintenanceStatus::Completado,
+                'status' => MaintenanceStatus::Completado,
                 'resolution_notes' => $validated['resolution_notes'],
-                'completed_at'     => now(),
-                'next_due_at'      => $validated['next_due_at'] ?? $maintenance->next_due_at,
+                'completed_at' => now(),
+                'next_due_at' => $validated['next_due_at'] ?? $maintenance->next_due_at,
             ]);
 
             $newStatus = $validated['new_device_status'];
@@ -97,7 +98,7 @@ class MaintenanceController extends Controller
 
     public function cancel(DeviceMaintenance $maintenance): RedirectResponse
     {
-        if (!in_array($maintenance->status, [MaintenanceStatus::Programado, MaintenanceStatus::EnProceso])) {
+        if (! in_array($maintenance->status, [MaintenanceStatus::Programado, MaintenanceStatus::EnProceso])) {
             return back()->with('error', 'Solo se pueden cancelar mantenimientos en estado programado o en proceso.');
         }
 
@@ -111,6 +112,6 @@ class MaintenanceController extends Controller
 
     public function export(): BinaryFileResponse
     {
-        return Excel::download(new MaintenancesExport, 'bitacora_mantenimientos_' . now()->format('Y-m-d') . '.xlsx');
+        return Excel::download(new MaintenancesExport, 'bitacora_mantenimientos_'.now()->format('Y-m-d').'.xlsx');
     }
 }

@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\ExtensionStatus;
+use App\Exceptions\ExtensionNotAvailableException;
 use App\Models\Employee;
 use App\Models\OfficeExtension;
 use App\Models\OfficeExtensionAssignment;
-use App\Enums\ExtensionStatus;
-use App\Exceptions\ExtensionNotAvailableException;
-use App\Exceptions\ExtensionAlreadyAssignedException;
 use Illuminate\Support\Facades\DB;
 
 class ExtensionAssignmentService
@@ -31,9 +30,9 @@ class ExtensionAssignmentService
 
             $assignment = OfficeExtensionAssignment::create([
                 'office_extension_id' => $extension->id,
-                'employee_id'         => $employee->id,
-                'assigned_at'         => now(),
-                'notes'               => $options['notes'] ?? null,
+                'employee_id' => $employee->id,
+                'assigned_at' => now(),
+                'notes' => $options['notes'] ?? null,
             ]);
 
             $extension->update(['status' => ExtensionStatus::Asignada->value]);
@@ -45,10 +44,12 @@ class ExtensionAssignmentService
     public function returnExtension(OfficeExtensionAssignment $assignment, array $options = []): OfficeExtensionAssignment
     {
         return DB::transaction(function () use ($assignment, $options) {
+            $assignment->officeExtension->refresh()->lockForUpdate();
+
             $assignment->update([
                 'returned_at' => now(),
-                'notes'       => isset($options['notes'])
-                    ? ($assignment->notes ? $assignment->notes . "\n" . $options['notes'] : $options['notes'])
+                'notes' => isset($options['notes'])
+                    ? ($assignment->notes ? $assignment->notes."\n".$options['notes'] : $options['notes'])
                     : $assignment->notes,
             ]);
 

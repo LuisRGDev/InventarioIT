@@ -15,31 +15,38 @@ use Livewire\Component;
 class ReplaceDevicePage extends Component
 {
     // Empleado
-    public ?int   $employeeId     = null;
+    public ?int $employeeId = null;
+
     public string $employeeSearch = '';
 
     // Equipo viejo (se resuelve desde el empleado seleccionado)
     public ?int $oldDeviceId = null;
 
     // Equipo nuevo
-    public ?int   $newDeviceId  = null;
+    public ?int $newDeviceId = null;
+
     public string $deviceSearch = '';
-    public ?int   $categoryId   = null;
+
+    public ?int $categoryId = null;
 
     // Condiciones
-    public string $conditionOnReturn   = 'buen_estado';
+    public string $conditionOnReturn = 'buen_estado';
+
     public string $conditionOnDelivery = 'buen_estado';
-    public string $oldDeviceNewStatus  = 'disponible';
+
+    public string $oldDeviceNewStatus = 'disponible';
 
     // Notas
     public string $returnNotes = '';
+
     public string $assignNotes = '';
 
     // UI
-    public bool   $showConfirm    = false;
-    public ?string $successMessage = null;
-    public ?string $errorMessage   = null;
+    public bool $showConfirm = false;
 
+    public ?string $successMessage = null;
+
+    public ?string $errorMessage = null;
 
     public function mount(?int $employee = null): void
     {
@@ -53,9 +60,8 @@ class ReplaceDevicePage extends Component
     {
         return Employee::active()
             ->has('currentAssignments') // Solo empleados con equipos activos
-            ->when($this->employeeSearch, fn($q) =>
-                $q->where('name', 'like', "%{$this->employeeSearch}%")
-                  ->orWhere('email', 'like', "%{$this->employeeSearch}%")
+            ->when($this->employeeSearch, fn ($q) => $q->where('name', 'like', "%{$this->employeeSearch}%")
+                ->orWhere('email', 'like', "%{$this->employeeSearch}%")
             )
             ->orderBy('name')
             ->limit(10)
@@ -73,13 +79,11 @@ class ReplaceDevicePage extends Component
     {
         return Device::available()
             ->with('category')
-            ->when($this->categoryId, fn($q) => $q->where('device_category_id', $this->categoryId))
-            ->when($this->deviceSearch, fn($q) =>
-                $q->where(fn($w) => 
-                    $w->where('serial_number', 'like', "%{$this->deviceSearch}%")
-                      ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
-                      ->orWhere('model', 'like', "%{$this->deviceSearch}%")
-                )
+            ->when($this->categoryId, fn ($q) => $q->where('device_category_id', $this->categoryId))
+            ->when($this->deviceSearch, fn ($q) => $q->where(fn ($w) => $w->where('serial_number', 'like', "%{$this->deviceSearch}%")
+                ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
+                ->orWhere('model', 'like', "%{$this->deviceSearch}%")
+            )
             )
             ->orderBy('brand')
             ->limit(15)
@@ -100,10 +104,10 @@ class ReplaceDevicePage extends Component
 
     public function selectEmployee(?int $id = null): void
     {
-        $this->employeeId     = $id ? (int) $id : null;
+        $this->employeeId = $id ? (int) $id : null;
         $this->employeeSearch = '';
-        $this->oldDeviceId    = null;
-        $this->newDeviceId    = null;
+        $this->oldDeviceId = null;
+        $this->newDeviceId = null;
     }
 
     public function selectOldDevice(?int $id = null): void
@@ -113,16 +117,24 @@ class ReplaceDevicePage extends Component
 
     public function selectNewDevice(?int $id = null): void
     {
-        $this->newDeviceId  = $id ? (int) $id : null;
+        $this->newDeviceId = $id ? (int) $id : null;
         $this->deviceSearch = '';
     }
 
     public function prepareConfirm(): void
     {
+        $conditionValues = implode(',', array_column(DeviceCondition::cases(), 'value'));
+        $statusValues = implode(',', array_column(DeviceStatus::cases(), 'value'));
+
         $this->validate([
-            'employeeId'  => 'required',
-            'oldDeviceId' => 'required',
-            'newDeviceId' => 'required|different:oldDeviceId',
+            'employeeId' => 'required|integer|exists:employees,id',
+            'oldDeviceId' => 'required|integer|exists:devices,id',
+            'newDeviceId' => 'required|integer|exists:devices,id|different:oldDeviceId',
+            'conditionOnReturn' => "required|in:{$conditionValues}",
+            'conditionOnDelivery' => "required|in:{$conditionValues}",
+            'oldDeviceNewStatus' => "required|in:{$statusValues}",
+            'returnNotes' => 'nullable|string|max:1000',
+            'assignNotes' => 'nullable|string|max:1000',
         ], [
             'newDeviceId.different' => 'El equipo nuevo debe ser diferente al actual.',
         ]);
@@ -132,28 +144,43 @@ class ReplaceDevicePage extends Component
 
     public function replace(DeviceAssignmentService $service): void
     {
+        $conditionValues = implode(',', array_column(DeviceCondition::cases(), 'value'));
+        $statusValues = implode(',', array_column(DeviceStatus::cases(), 'value'));
+
+        $this->validate([
+            'employeeId' => 'required|integer|exists:employees,id',
+            'oldDeviceId' => 'required|integer|exists:devices,id',
+            'newDeviceId' => 'required|integer|exists:devices,id|different:oldDeviceId',
+            'conditionOnReturn' => "required|in:{$conditionValues}",
+            'conditionOnDelivery' => "required|in:{$conditionValues}",
+            'oldDeviceNewStatus' => "required|in:{$statusValues}",
+            'returnNotes' => 'nullable|string|max:1000',
+            'assignNotes' => 'nullable|string|max:1000',
+        ]);
+
         try {
             $oldDevice = Device::findOrFail($this->oldDeviceId);
             $newDevice = Device::findOrFail($this->newDeviceId);
-            $employee  = Employee::findOrFail($this->employeeId);
+            $employee = Employee::findOrFail($this->employeeId);
 
             $service->replace($oldDevice, $newDevice, $employee, [
-                'condition_on_return'   => $this->conditionOnReturn,
+                'condition_on_return' => $this->conditionOnReturn,
                 'condition_on_delivery' => $this->conditionOnDelivery,
                 'old_device_new_status' => $this->oldDeviceNewStatus,
-                'return_notes'          => $this->returnNotes,
-                'assign_notes'          => $this->assignNotes,
+                'return_notes' => $this->returnNotes,
+                'assign_notes' => $this->assignNotes,
             ]);
 
             session()->flash('success', "Reemplazo completado: [{$oldDevice->brand} {$oldDevice->model}] → [{$newDevice->brand} {$newDevice->model}] para [{$employee->name}].");
             $this->redirect(route('assignments.index'), navigate: true);
 
-        } catch (NoActiveAssignmentException | DeviceNotAvailableException $e) {
+        } catch (NoActiveAssignmentException|DeviceNotAvailableException $e) {
             $this->errorMessage = $e->getMessage();
-            $this->showConfirm  = false;
+            $this->showConfirm = false;
         } catch (\Exception $e) {
-            $this->errorMessage = 'Ocurrió un error inesperado: ' . $e->getMessage();
-            $this->showConfirm  = false;
+            report($e);
+            $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
+            $this->showConfirm = false;
         }
     }
 

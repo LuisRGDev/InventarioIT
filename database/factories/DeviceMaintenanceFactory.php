@@ -18,24 +18,24 @@ class DeviceMaintenanceFactory extends Factory
         $type = fake()->randomElement(MaintenanceType::cases());
 
         return [
-            'device_id'        => Device::factory(),
-            'user_id'          => User::factory(),
-            'type'             => $type,
-            'status'           => MaintenanceStatus::Programado,
-            'title'            => $this->generateTitle($type),
-            'description'      => fake()->paragraph(),
+            'device_id' => Device::factory(),
+            'user_id' => User::factory(),
+            'type' => $type,
+            'status' => MaintenanceStatus::Programado,
+            'title' => $this->generateTitle($type),
+            'description' => fake()->paragraph(),
             'resolution_notes' => null,
-            'scheduled_at'     => fake()->dateTimeBetween('now', '+3 months'),
-            'started_at'       => null,
-            'completed_at'     => null,
-            'next_due_at'      => fake()->optional(0.4)->dateTimeBetween('+3 months', '+1 year'),
+            'scheduled_at' => fake()->dateTimeBetween('now', '+3 months'),
+            'started_at' => null,
+            'completed_at' => null,
+            'next_due_at' => fake()->optional(0.4)->dateTimeBetween('+3 months', '+1 year'),
         ];
     }
 
     public function programado(): static
     {
         return $this->state(fn () => [
-            'status'     => MaintenanceStatus::Programado,
+            'status' => MaintenanceStatus::Programado,
             'started_at' => null,
             'completed_at' => null,
         ]);
@@ -44,8 +44,8 @@ class DeviceMaintenanceFactory extends Factory
     public function enProceso(): static
     {
         return $this->state(fn () => [
-            'status'       => MaintenanceStatus::EnProceso,
-            'started_at'   => fake()->dateTimeBetween('-1 week', 'now'),
+            'status' => MaintenanceStatus::EnProceso,
+            'started_at' => fake()->dateTimeBetween('-1 week', 'now'),
             'completed_at' => null,
         ]);
     }
@@ -53,9 +53,9 @@ class DeviceMaintenanceFactory extends Factory
     public function completado(): static
     {
         return $this->state(fn () => [
-            'status'           => MaintenanceStatus::Completado,
-            'started_at'       => fake()->dateTimeBetween('-2 weeks', '-1 day'),
-            'completed_at'     => fake()->dateTimeBetween('-1 day', 'now'),
+            'status' => MaintenanceStatus::Completado,
+            'started_at' => fake()->dateTimeBetween('-2 weeks', '-1 day'),
+            'completed_at' => fake()->dateTimeBetween('-1 day', 'now'),
             'resolution_notes' => fake()->paragraph(),
         ]);
     }
@@ -63,7 +63,7 @@ class DeviceMaintenanceFactory extends Factory
     public function cancelado(): static
     {
         return $this->state(fn () => [
-            'status'           => MaintenanceStatus::Cancelado,
+            'status' => MaintenanceStatus::Cancelado,
             'resolution_notes' => fake()->sentence(),
         ]);
     }

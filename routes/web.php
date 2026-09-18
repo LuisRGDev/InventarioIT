@@ -1,5 +1,7 @@
 <?php
 
+use App\Exports\OfficeExtensionsExport;
+use App\Exports\PhoneLinesExport;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\DeviceCategoryController;
 use App\Http\Controllers\DeviceController;
@@ -7,12 +9,15 @@ use App\Http\Controllers\DeviceModelController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\OfficeExtensionController;
 use App\Http\Controllers\PhoneLineController;
 use App\Livewire\AssignDevicePage;
+use App\Livewire\AssignExtensionPage;
 use App\Livewire\AssignPhoneLinePage;
 use App\Livewire\ReplaceDevicePage;
 use App\Livewire\ReturnDevicePage;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 // ─── Página de inicio → dashboard ────────────────────────────────────────────
 Route::redirect('/', 'dashboard');
@@ -31,44 +36,44 @@ Route::view('profile', 'profile')
 Route::middleware(['auth'])->group(function () {
 
     // Dashboard Export e Import
-    Route::get('/dashboard/export', [DeviceController::class, 'exportGeneral'])->name('dashboard.export');
+    Route::get('/dashboard/export', [DeviceController::class, 'exportGeneral'])->name('dashboard.export')->middleware('throttle:10,1');
     Route::get('/dashboard/import-template', [DeviceController::class, 'downloadGeneralTemplate'])->name('dashboard.import.template');
-    Route::post('/dashboard/import', [DeviceController::class, 'importGeneral'])->name('dashboard.import');
+    Route::post('/dashboard/import', [DeviceController::class, 'importGeneral'])->name('dashboard.import')->middleware('throttle:5,1');
 
     // Empleados
-    Route::get('/employees/export', [EmployeeController::class, 'export'])->name('employees.export');
+    Route::get('/employees/export', [EmployeeController::class, 'export'])->name('employees.export')->middleware('throttle:10,1');
     Route::resource('employees', EmployeeController::class);
     Route::get('employees/{employee}/history', [EmployeeController::class, 'history'])
         ->name('employees.history');
 
     // Equipos
-    Route::get('devices/export', [DeviceController::class, 'export'])->name('devices.export');
+    Route::get('devices/export', [DeviceController::class, 'export'])->name('devices.export')->middleware('throttle:10,1');
     Route::get('devices/import-template', [DeviceController::class, 'downloadTemplate'])->name('devices.import.template');
-    Route::post('devices/import', [DeviceController::class, 'import'])->name('devices.import');
+    Route::post('devices/import', [DeviceController::class, 'import'])->name('devices.import')->middleware('throttle:5,1');
     Route::resource('devices', DeviceController::class);
     Route::get('devices/{device}/history', [DeviceController::class, 'history'])
         ->name('devices.history');
 
     // Líneas Telefónicas
     Route::get('phone-lines/export', function () {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PhoneLinesExport, 'lineas_telefonicas.xlsx');
-    })->name('phone-lines.export');
+        return Excel::download(new PhoneLinesExport, 'lineas_telefonicas.xlsx');
+    })->name('phone-lines.export')->middleware('throttle:10,1');
     Route::get('phone-lines/import-template', [PhoneLineController::class, 'downloadTemplate'])->name('phone-lines.import.template');
-    Route::post('phone-lines/import', [PhoneLineController::class, 'import'])->name('phone-lines.import');
+    Route::post('phone-lines/import', [PhoneLineController::class, 'import'])->name('phone-lines.import')->middleware('throttle:5,1');
     Route::resource('phone-lines', PhoneLineController::class);
     Route::get('phone-lines/{phone_line}/history', [PhoneLineController::class, 'history'])
         ->name('phone-lines.history');
 
     // Extensiones
     Route::get('office-extensions/export', function () {
-        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\OfficeExtensionsExport, 'extensiones_telefonicas.xlsx');
-    })->name('office-extensions.export');
-    Route::get('office-extensions/import-template', [\App\Http\Controllers\OfficeExtensionController::class, 'downloadTemplate'])->name('office-extensions.import.template');
-    Route::post('office-extensions/import', [\App\Http\Controllers\OfficeExtensionController::class, 'import'])->name('office-extensions.import');
-    Route::resource('office-extensions', \App\Http\Controllers\OfficeExtensionController::class);
+        return Excel::download(new OfficeExtensionsExport, 'extensiones_telefonicas.xlsx');
+    })->name('office-extensions.export')->middleware('throttle:10,1');
+    Route::get('office-extensions/import-template', [OfficeExtensionController::class, 'downloadTemplate'])->name('office-extensions.import.template');
+    Route::post('office-extensions/import', [OfficeExtensionController::class, 'import'])->name('office-extensions.import')->middleware('throttle:5,1');
+    Route::resource('office-extensions', OfficeExtensionController::class);
 
     // Mantenimientos de Equipos
-    Route::get('maintenances/export', [MaintenanceController::class, 'export'])->name('maintenances.export');
+    Route::get('maintenances/export', [MaintenanceController::class, 'export'])->name('maintenances.export')->middleware('throttle:10,1');
     Route::post('maintenances/{maintenance}/complete', [MaintenanceController::class, 'complete'])->name('maintenances.complete');
     Route::post('maintenances/{maintenance}/cancel', [MaintenanceController::class, 'cancel'])->name('maintenances.cancel');
     Route::resource('maintenances', MaintenanceController::class)->only(['index', 'create', 'store', 'show']);
@@ -78,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('device-models', DeviceModelController::class);
     Route::get('job-positions/import-template', [JobPositionController::class, 'downloadTemplate'])->name('job-positions.import.template');
-    Route::post('job-positions/import', [JobPositionController::class, 'import'])->name('job-positions.import');
+    Route::post('job-positions/import', [JobPositionController::class, 'import'])->name('job-positions.import')->middleware('throttle:5,1');
     Route::resource('job-positions', JobPositionController::class);
 
     // ─── Operaciones de asignación (Livewire Full-Page Components) ────────────
@@ -86,16 +91,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('assignments', [AssignmentController::class, 'index'])->name('assignments.index');
     Route::get('assignments/assign', AssignDevicePage::class)->name('assignments.assign');
     Route::get('assignments/assign-phone-line', AssignPhoneLinePage::class)->name('assignments.assign-phone-line');
-    Route::get('assignments/assign-extension', \App\Livewire\AssignExtensionPage::class)->name('assignments.assign-extension');
-    Route::get('assignments/return/{device?}', \App\Livewire\ReturnDevicePage::class)->name('assignments.return');
-    Route::get('assignments/replace/{employee?}', \App\Livewire\ReplaceDevicePage::class)->name('assignments.replace');
+    Route::get('assignments/assign-extension', AssignExtensionPage::class)->name('assignments.assign-extension');
+    Route::get('assignments/return/{device?}', ReturnDevicePage::class)->name('assignments.return');
+    Route::get('assignments/replace/{employee?}', ReplaceDevicePage::class)->name('assignments.replace');
 
     // Retorno rápido de líneas y extensiones
     Route::post('assignments/phone-lines/{assignment}/return', [AssignmentController::class, 'returnPhoneLine'])->name('assignments.phone-lines.return');
     Route::post('assignments/extensions/{assignment}/return', [AssignmentController::class, 'returnExtension'])->name('assignments.extensions.return');
 
-    Route::get('assignments/{assignment}/carta-responsiva', [\App\Http\Controllers\AssignmentController::class, 'downloadCartaResponsiva'])
+    Route::get('assignments/{assignment}/carta-responsiva', [AssignmentController::class, 'downloadCartaResponsiva'])
         ->name('assignments.carta-responsiva');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

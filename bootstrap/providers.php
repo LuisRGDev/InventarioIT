@@ -1,7 +1,11 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use App\Providers\VoltServiceProvider;
+use Maatwebsite\Excel\ExcelServiceProvider;
+
 return [
-    App\Providers\AppServiceProvider::class,
-    App\Providers\VoltServiceProvider::class,
-    Maatwebsite\Excel\ExcelServiceProvider::class,
+    AppServiceProvider::class,
+    VoltServiceProvider::class,
+    ExcelServiceProvider::class,
 ];

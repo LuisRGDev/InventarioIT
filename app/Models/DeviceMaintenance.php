@@ -4,13 +4,14 @@ namespace App\Models;
 
 use App\Enums\MaintenanceStatus;
 use App\Enums\MaintenanceType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DeviceMaintenance extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'device_maintenances';
 
@@ -29,12 +30,12 @@ class DeviceMaintenance extends Model
     ];
 
     protected $casts = [
-        'type'           => MaintenanceType::class,
-        'status'         => MaintenanceStatus::class,
-        'scheduled_at'   => 'date',
-        'started_at'     => 'datetime',
-        'completed_at'   => 'datetime',
-        'next_due_at'    => 'date',
+        'type' => MaintenanceType::class,
+        'status' => MaintenanceStatus::class,
+        'scheduled_at' => 'date',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'next_due_at' => 'date',
     ];
 
     // ─── Relaciones ───────────────────────────────────────────

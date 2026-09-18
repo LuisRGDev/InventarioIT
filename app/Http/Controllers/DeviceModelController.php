@@ -26,9 +26,9 @@ class DeviceModelController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('brand', 'like', "%{$search}%")
-                  ->orWhere('model', 'like', "%{$search}%")
-                  ->orWhere('variant', 'like', "%{$search}%")
-                  ->orWhere('cpu', 'like', "%{$search}%");
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('variant', 'like', "%{$search}%")
+                    ->orWhere('cpu', 'like', "%{$search}%");
             });
         }
 
@@ -49,6 +49,7 @@ class DeviceModelController extends Controller
     public function create(): View
     {
         $categories = DeviceCategory::orderBy('name')->get();
+
         return view('device-models.create', compact('categories'));
     }
 
@@ -59,19 +60,19 @@ class DeviceModelController extends Controller
     {
         $validated = $request->validate([
             'device_category_id' => ['required', 'exists:device_categories,id'],
-            'brand'              => ['required', 'string', 'max:100'],
-            'model'              => ['required', 'string', 'max:150'],
-            'variant'            => ['nullable', 'string', 'max:150'],
-            'cpu'                => ['nullable', 'string', 'max:255'],
-            'cores'              => ['nullable', 'string', 'max:100'],
-            'ram'                => ['nullable', 'string', 'max:100'],
-            'storage'            => ['nullable', 'string', 'max:150'],
-            'os'                 => ['nullable', 'string', 'max:150'],
-            'notes'              => ['nullable', 'string'],
+            'brand' => ['required', 'string', 'max:100'],
+            'model' => ['required', 'string', 'max:150'],
+            'variant' => ['nullable', 'string', 'max:150'],
+            'cpu' => ['nullable', 'string', 'max:255'],
+            'cores' => ['nullable', 'string', 'max:100'],
+            'ram' => ['nullable', 'string', 'max:100'],
+            'storage' => ['nullable', 'string', 'max:150'],
+            'os' => ['nullable', 'string', 'max:150'],
+            'notes' => ['nullable', 'string'],
         ], [
             'device_category_id.required' => 'Debes seleccionar una categoría para este estándar de hardware.',
-            'brand.required'              => 'La marca (ej. Dell, Apple, HP) es obligatoria.',
-            'model.required'              => 'El nombre o número de modelo es obligatorio.',
+            'brand.required' => 'La marca (ej. Dell, Apple, HP) es obligatoria.',
+            'model.required' => 'El nombre o número de modelo es obligatorio.',
         ]);
 
         DeviceModel::create($validated);
@@ -86,6 +87,7 @@ class DeviceModelController extends Controller
     public function edit(DeviceModel $deviceModel): View
     {
         $categories = DeviceCategory::orderBy('name')->get();
+
         return view('device-models.edit', compact('deviceModel', 'categories'));
     }
 
@@ -96,19 +98,19 @@ class DeviceModelController extends Controller
     {
         $validated = $request->validate([
             'device_category_id' => ['required', 'exists:device_categories,id'],
-            'brand'              => ['required', 'string', 'max:100'],
-            'model'              => ['required', 'string', 'max:150'],
-            'variant'            => ['nullable', 'string', 'max:150'],
-            'cpu'                => ['nullable', 'string', 'max:255'],
-            'cores'              => ['nullable', 'string', 'max:100'],
-            'ram'                => ['nullable', 'string', 'max:100'],
-            'storage'            => ['nullable', 'string', 'max:150'],
-            'os'                 => ['nullable', 'string', 'max:150'],
-            'notes'              => ['nullable', 'string'],
+            'brand' => ['required', 'string', 'max:100'],
+            'model' => ['required', 'string', 'max:150'],
+            'variant' => ['nullable', 'string', 'max:150'],
+            'cpu' => ['nullable', 'string', 'max:255'],
+            'cores' => ['nullable', 'string', 'max:100'],
+            'ram' => ['nullable', 'string', 'max:100'],
+            'storage' => ['nullable', 'string', 'max:150'],
+            'os' => ['nullable', 'string', 'max:150'],
+            'notes' => ['nullable', 'string'],
         ], [
             'device_category_id.required' => 'Debes seleccionar una categoría para este estándar.',
-            'brand.required'              => 'La marca del modelo es obligatoria.',
-            'model.required'              => 'El nombre o número del modelo es obligatorio.',
+            'brand.required' => 'La marca del modelo es obligatoria.',
+            'model.required' => 'El nombre o número del modelo es obligatorio.',
         ]);
 
         $deviceModel->update($validated);
@@ -122,8 +124,9 @@ class DeviceModelController extends Controller
      */
     public function destroy(DeviceModel $deviceModel): RedirectResponse
     {
-        if ($deviceModel->devices()->count() > 0) {
-            return back()->with('error', "No puedes eliminar este modelo porque actualmente hay {$deviceModel->devices()->count()} equipo(s) inventariado(s) utilizándolo. Edita el registro o reasigna los equipos primero.");
+        $deviceCount = $deviceModel->devices()->count();
+        if ($deviceCount > 0) {
+            return back()->with('error', "No puedes eliminar este modelo porque actualmente hay {$deviceCount} equipo(s) inventariado(s) utilizándolo. Edita el registro o reasigna los equipos primero.");
         }
 
         $deviceModel->delete();

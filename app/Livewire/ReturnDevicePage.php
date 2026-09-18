@@ -16,13 +16,17 @@ class ReturnDevicePage extends Component
 
     // Formulario
     public string $conditionOnReturn = 'buen_estado';
-    public string $newStatus         = 'disponible';
-    public string $notes             = '';
+
+    public string $newStatus = 'disponible';
+
+    public string $notes = '';
 
     // UI
-    public bool   $showConfirm    = false;
+    public bool $showConfirm = false;
+
     public ?string $successMessage = null;
-    public ?string $errorMessage   = null;
+
+    public ?string $errorMessage = null;
 
     public function mount(?int $device = null): void
     {
@@ -67,9 +71,9 @@ class ReturnDevicePage extends Component
     public function prepareConfirm(): void
     {
         $this->validate([
-            'deviceId'        => 'required',
+            'deviceId' => 'required',
             'conditionOnReturn' => 'required',
-            'newStatus'       => 'required',
+            'newStatus' => 'required',
         ]);
 
         $this->showConfirm = true;
@@ -82,8 +86,8 @@ class ReturnDevicePage extends Component
 
             $service->returnDevice($device, [
                 'condition_on_return' => $this->conditionOnReturn,
-                'new_status'          => $this->newStatus,
-                'notes'               => $this->notes,
+                'new_status' => $this->newStatus,
+                'notes' => $this->notes,
             ]);
 
             session()->flash('success', "Equipo [{$device->brand} {$device->model}] devuelto correctamente.");
@@ -91,10 +95,11 @@ class ReturnDevicePage extends Component
 
         } catch (NoActiveAssignmentException $e) {
             $this->errorMessage = $e->getMessage();
-            $this->showConfirm  = false;
+            $this->showConfirm = false;
         } catch (\Exception $e) {
-            $this->errorMessage = 'Error inesperado: ' . $e->getMessage();
-            $this->showConfirm  = false;
+            report($e);
+            $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
+            $this->showConfirm = false;
         }
     }
 

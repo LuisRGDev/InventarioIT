@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PhoneLineStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePhoneLineRequest extends FormRequest
 {
@@ -24,7 +26,7 @@ class StorePhoneLineRequest extends FormRequest
     {
         return [
             'number' => ['required', 'string', 'max:20', 'unique:phone_lines,number'],
-            'status' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\PhoneLineStatus::class)],
+            'status' => ['required', Rule::enum(PhoneLineStatus::class)],
             'data_plan' => ['nullable', 'string', 'max:255'],
             'plan_cost' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],

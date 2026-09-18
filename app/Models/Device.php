@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\DeviceStatus;
+use App\Enums\MaintenanceStatus;
+use App\Enums\MaintenanceType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,7 +16,6 @@ class Device extends Model
 {
     use SoftDeletes;
 
-
     protected $fillable = [
         'device_category_id', 'device_model_id', 'serial_number', 'service_tag', 'computer_name',
         'bitlocker_identifier', 'bitlocker_key',
@@ -23,10 +24,15 @@ class Device extends Model
         'warranty_expires_at', 'specs', 'notes',
     ];
 
+    protected $hidden = [
+        'bitlocker_key',
+        'bitlocker_identifier',
+    ];
+
     protected $casts = [
-        'status'             => DeviceStatus::class,
-        'specs'              => 'array',
-        'purchase_date'      => 'date',
+        'status' => DeviceStatus::class,
+        'specs' => 'array',
+        'purchase_date' => 'date',
         'warranty_expires_at' => 'date',
     ];
 
@@ -60,15 +66,15 @@ class Device extends Model
     public function activeMaintenance(): HasOne
     {
         return $this->hasOne(DeviceMaintenance::class)
-            ->where('status', \App\Enums\MaintenanceStatus::EnProceso)
+            ->where('status', MaintenanceStatus::EnProceso)
             ->latest('started_at');
     }
 
     public function lastPreventiveMaintenance(): HasOne
     {
         return $this->hasOne(DeviceMaintenance::class)
-            ->where('type', \App\Enums\MaintenanceType::Preventivo)
-            ->where('status', \App\Enums\MaintenanceStatus::Completado)
+            ->where('type', MaintenanceType::Preventivo)
+            ->where('status', MaintenanceStatus::Completado)
             ->latest('completed_at');
     }
 
@@ -107,7 +113,7 @@ class Device extends Model
     {
         return $this->warranty_expires_at !== null
             && $this->warranty_expires_at->isFuture()
-            && $this->warranty_expires_at->diffInDays(now()) <= 30;
+            && $this->warranty_expires_at->diffInDays(now()) <= config('inventory.warranty_warning_days', 30);
     }
 
     public function getAgeAttribute(): ?int
@@ -115,6 +121,7 @@ class Device extends Model
         if (! $this->purchase_date) {
             return null;
         }
+
         return (int) $this->purchase_date->diffInYears(now());
     }
 

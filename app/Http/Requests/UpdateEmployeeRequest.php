@@ -18,14 +18,14 @@ class UpdateEmployeeRequest extends FormRequest
         $employeeId = $this->route('employee')?->id ?? $this->route('employee');
 
         return [
-            'employee_code'  => ['nullable', 'string', 'max:50', Rule::unique('employees', 'employee_code')->ignore($employeeId)],
+            'employee_code' => ['nullable', 'string', 'max:50', Rule::unique('employees', 'employee_code')->ignore($employeeId)],
             'domain_account' => ['nullable', 'string', 'max:100', Rule::unique('employees', 'domain_account')->ignore($employeeId)],
-            'name'           => ['required', 'string', 'max:255'],
-            'email'         => ['required', 'email', 'max:255', Rule::unique('employees', 'email')->ignore($employeeId)],
-            'department'    => ['required', 'string', 'max:100'],
-            'position'      => ['required', 'string', 'max:100'],
-            'status'        => ['required', Rule::enum(EmployeeStatus::class)],
-            'notes'         => ['nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('employees', 'email')->ignore($employeeId)],
+            'department' => ['required', 'string', 'max:100'],
+            'position' => ['required', 'string', 'max:100'],
+            'status' => ['required', Rule::enum(EmployeeStatus::class)],
+            'notes' => ['nullable', 'string'],
             'assign_phone_line_id' => ['nullable', 'exists:phone_lines,id'],
             'assign_office_extension_id' => ['nullable', 'exists:office_extensions,id'],
         ];

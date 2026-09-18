@@ -2,15 +2,15 @@
 
 namespace App\Imports\Sheets;
 
-use App\Models\Employee;
 use App\Enums\EmployeeStatus;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use App\Models\Employee;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class EmployeesImportSheet implements ToCollection, WithHeadingRow, SkipsEmptyRows
+class EmployeesImportSheet implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
     public function collection(Collection $rows)
     {
@@ -18,7 +18,7 @@ class EmployeesImportSheet implements ToCollection, WithHeadingRow, SkipsEmptyRo
             foreach ($rows as $row) {
                 // Obtener email o número de empleado como identificador
                 $email = mb_strtolower(trim((string) ($row['email'] ?? $row['correo'] ?? '')), 'UTF-8');
-                $code  = trim((string) ($row['numero_de_empleado'] ?? $row['no_empleado'] ?? ''));
+                $code = trim((string) ($row['numero_de_empleado'] ?? $row['no_empleado'] ?? ''));
 
                 if (empty($email) && empty($code)) {
                     continue; // Saltar si no tiene ni email ni número de empleado
@@ -28,10 +28,10 @@ class EmployeesImportSheet implements ToCollection, WithHeadingRow, SkipsEmptyRo
                 }
 
                 $existingEmployee = null;
-                if (!empty($email) && $email !== 'n/a') {
+                if (! empty($email) && $email !== 'n/a') {
                     $existingEmployee = Employee::where('email', $email)->first();
                 }
-                if (!$existingEmployee && !empty($code) && $code !== 'N/A') {
+                if (! $existingEmployee && ! empty($code) && $code !== 'N/A') {
                     $existingEmployee = Employee::where('employee_code', $code)->first();
                 }
 
@@ -39,18 +39,18 @@ class EmployeesImportSheet implements ToCollection, WithHeadingRow, SkipsEmptyRo
                 $targetStatus = $this->parseEmployeeStatus($statusInput);
 
                 $employeeData = [
-                    'employee_code'  => !empty($code) && $code !== 'N/A' ? $code : ($existingEmployee?->employee_code ?? null),
-                    'domain_account' => !empty($row['cuenta_de_dominio']) && $row['cuenta_de_dominio'] !== 'N/A' ? (string) $row['cuenta_de_dominio'] : ($existingEmployee?->domain_account ?? null),
-                    'name'           => !empty($row['nombre']) && $row['nombre'] !== 'N/A' ? (string) $row['nombre'] : ($existingEmployee?->name ?? 'Empleado Importado'),
-                    'email'          => !empty($email) && $email !== 'n/a' ? $email : ($existingEmployee?->email ?? ($code ? "empleado_{$code}@local.dev" : 'sin-email@local.dev')),
-                    'phone'          => !empty($row['telefono']) && $row['telefono'] !== 'N/A' ? (string) $row['telefono'] : ($existingEmployee?->phone ?? null),
-                    'department'     => !empty($row['departamento']) && $row['departamento'] !== 'N/A' ? (string) $row['departamento'] : ($existingEmployee?->department ?? 'General'),
-                    'position'       => !empty($row['puesto']) && $row['puesto'] !== 'N/A' ? (string) $row['puesto'] : ($existingEmployee?->position ?? 'Colaborador'),
-                    'status'         => $targetStatus,
-                    'notes'          => !empty($row['notas']) && $row['notas'] !== 'N/A' ? (string) $row['notas'] : ($existingEmployee?->notes ?? null),
+                    'employee_code' => ! empty($code) && $code !== 'N/A' ? $code : ($existingEmployee?->employee_code ?? null),
+                    'domain_account' => ! empty($row['cuenta_de_dominio']) && $row['cuenta_de_dominio'] !== 'N/A' ? (string) $row['cuenta_de_dominio'] : ($existingEmployee?->domain_account ?? null),
+                    'name' => ! empty($row['nombre']) && $row['nombre'] !== 'N/A' ? (string) $row['nombre'] : ($existingEmployee?->name ?? 'Empleado Importado'),
+                    'email' => ! empty($email) && $email !== 'n/a' ? $email : ($existingEmployee?->email ?? ($code ? "empleado_{$code}@local.dev" : 'sin-email@local.dev')),
+                    'phone' => ! empty($row['telefono']) && $row['telefono'] !== 'N/A' ? (string) $row['telefono'] : ($existingEmployee?->phone ?? null),
+                    'department' => ! empty($row['departamento']) && $row['departamento'] !== 'N/A' ? (string) $row['departamento'] : ($existingEmployee?->department ?? 'General'),
+                    'position' => ! empty($row['puesto']) && $row['puesto'] !== 'N/A' ? (string) $row['puesto'] : ($existingEmployee?->position ?? 'Colaborador'),
+                    'status' => $targetStatus,
+                    'notes' => ! empty($row['notas']) && $row['notas'] !== 'N/A' ? (string) $row['notas'] : ($existingEmployee?->notes ?? null),
                 ];
 
-                if (!$existingEmployee) {
+                if (! $existingEmployee) {
                     Employee::create($employeeData);
                 } else {
                     $existingEmployee->update($employeeData);
@@ -62,8 +62,8 @@ class EmployeesImportSheet implements ToCollection, WithHeadingRow, SkipsEmptyRo
     private function parseEmployeeStatus(string $input): EmployeeStatus
     {
         $clean = mb_strtolower(trim($input), 'UTF-8');
-        $cleanNorm = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $clean);
-        
+        $cleanNorm = str_replace(['á', 'é', 'í', 'ó', 'ú'], ['a', 'e', 'i', 'o', 'u'], $clean);
+
         return match ($cleanNorm) {
             'inactivo', 'suspension' => EmployeeStatus::Inactivo,
             'dado de baja', 'baja', 'despedido', 'renuncia' => EmployeeStatus::Baja,

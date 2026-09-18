@@ -2,20 +2,22 @@
 
 namespace App\Imports\Sheets;
 
+use App\Enums\DeviceStatus;
 use App\Models\Device;
 use App\Models\DeviceCategory;
-use App\Enums\DeviceStatus;
 use App\Services\DeviceAssignmentService;
 use Carbon\Carbon;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, SkipsEmptyRows
+class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
     private $categories;
+
     private $assignmentService;
 
     public function __construct()
@@ -24,13 +26,18 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
         foreach (DeviceCategory::all() as $cat) {
             $this->categories->put(mb_strtolower($cat->name, 'UTF-8'), $cat);
             $this->categories->put(mb_strtolower($cat->slug, 'UTF-8'), $cat);
-            $this->categories->put(str_replace(['á','é','í','ó','ú','ä','ë','ï','ö','ü'], ['a','e','i','o','u','a','e','i','o','u'], mb_strtolower($cat->name, 'UTF-8')), $cat);
+            $this->categories->put(str_replace(['á', 'é', 'í', 'ó', 'ú', 'ä', 'ë', 'ï', 'ö', 'ü'], ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'], mb_strtolower($cat->name, 'UTF-8')), $cat);
         }
         $this->assignmentService = app(DeviceAssignmentService::class);
     }
 
     public function collection(Collection $rows)
     {
+        $maxRows = config('inventory.import_max_rows', 5000);
+        if ($rows->count() > $maxRows) {
+            throw new \Exception("El archivo contiene {$rows->count()} filas. El máximo permitido es {$maxRows}.");
+        }
+
         DB::transaction(function () use ($rows) {
             foreach ($rows as $row) {
                 // Obtener número de serie
@@ -45,23 +52,35 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
 
                 // Parsear categoría
                 $categoryInput = mb_strtolower(trim((string) ($row['categoria_tipo'] ?? $row['categoria'] ?? '')), 'UTF-8');
-                $normalizedCategory = str_replace(['á','é','í','ó','ú','ä','ë','ï','ö','ü'], ['a','e','i','o','u','a','e','i','o','u'], $categoryInput);
+                $normalizedCategory = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ä', 'ë', 'ï', 'ö', 'ü'], ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'], $categoryInput);
                 $categoryId = ($this->categories->get($categoryInput) ?? $this->categories->get($normalizedCategory))?->id;
 
                 // Specs array
                 $specs = [];
-                if (!empty($row['procesador_cpu']) || !empty($row['cpu'])) $specs['cpu'] = (string) ($row['procesador_cpu'] ?? $row['cpu']);
-                if (!empty($row['nucleos'])) $specs['cores'] = (string) $row['nucleos'];
-                if (!empty($row['ram'])) $specs['ram'] = (string) $row['ram'];
-                if (!empty($row['almacenamiento'])) $specs['storage'] = (string) $row['almacenamiento'];
-                if (!empty($row['sistema_operativo']) || !empty($row['os'])) $specs['os'] = (string) ($row['sistema_operativo'] ?? $row['os']);
-                if (!empty($row['imei'])) $imei = (string) $row['imei'];
+                if (! empty($row['procesador_cpu']) || ! empty($row['cpu'])) {
+                    $specs['cpu'] = (string) ($row['procesador_cpu'] ?? $row['cpu']);
+                }
+                if (! empty($row['nucleos'])) {
+                    $specs['cores'] = (string) $row['nucleos'];
+                }
+                if (! empty($row['ram'])) {
+                    $specs['ram'] = (string) $row['ram'];
+                }
+                if (! empty($row['almacenamiento'])) {
+                    $specs['storage'] = (string) $row['almacenamiento'];
+                }
+                if (! empty($row['sistema_operativo']) || ! empty($row['os'])) {
+                    $specs['os'] = (string) ($row['sistema_operativo'] ?? $row['os']);
+                }
+                if (! empty($row['imei'])) {
+                    $imei = (string) $row['imei'];
+                }
 
                 $existingDevice = Device::where('serial_number', $serialNumber)->first();
-                if (!$categoryId && $existingDevice) {
+                if (! $categoryId && $existingDevice) {
                     $categoryId = $existingDevice->device_category_id;
                 }
-                if (!$categoryId) {
+                if (! $categoryId) {
                     $categoryId = DeviceCategory::first()?->id ?? 1;
                 }
 
@@ -69,29 +88,29 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
                 if ($existingDevice && $existingDevice->currentAssignment) {
                     $this->assignmentService->returnDevice($existingDevice, [
                         'condition_on_return' => 'buen_estado',
-                        'new_status'          => $targetStatus->value,
-                        'notes'               => 'Devolución automática en importación general (Pestaña Sin Asignar/Stock).'
+                        'new_status' => $targetStatus->value,
+                        'notes' => 'Devolución automática en importación general (Pestaña Sin Asignar/Stock).',
                     ]);
                 }
 
                 $deviceData = [
-                    'device_category_id'   => $categoryId,
-                    'brand'                => (string) ($row['marca'] ?? $existingDevice?->brand ?? 'Genérico'),
-                    'model'                => (string) ($row['modelo'] ?? $existingDevice?->model ?? 'Genérico'),
-                    'computer_name'        => !empty($row['hostname_identificador']) && $row['hostname_identificador'] !== 'N/A' ? (string) $row['hostname_identificador'] : (!empty($row['hostname']) ? (string) $row['hostname'] : ($existingDevice?->computer_name ?? null)),
-                    'mac_address_ethernet' => !empty($row['mac_ethernet']) && $row['mac_ethernet'] !== 'N/A' ? (string) $row['mac_ethernet'] : ($existingDevice?->mac_address_ethernet ?? null),
-                    'mac_address_wifi'     => !empty($row['mac_wifi']) && $row['mac_wifi'] !== 'N/A' ? (string) $row['mac_wifi'] : ($existingDevice?->mac_address_wifi ?? null),
-                    'bitlocker_identifier' => !empty($row['identificador_de_bl']) && $row['identificador_de_bl'] !== 'N/A' ? (string) $row['identificador_de_bl'] : ($existingDevice?->bitlocker_identifier ?? null),
-                    'bitlocker_key'        => !empty($row['clave_de_bl']) && $row['clave_de_bl'] !== 'N/A' ? (string) $row['clave_de_bl'] : ($existingDevice?->bitlocker_key ?? null),
-                    'status'               => $targetStatus,
-                    'purchase_date'        => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
-                    'warranty_expires_at'  => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
-                    'specs'                => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),
-                    'imei'                 => $imei ?? ($existingDevice?->imei ?? null),
-                    'notes'                => !empty($row['notas_ubicacion_en_almacen']) && $row['notas_ubicacion_en_almacen'] !== 'N/A' ? (string) $row['notas_ubicacion_en_almacen'] : (!empty($row['notas']) ? (string) $row['notas'] : ($existingDevice?->notes ?? null)),
+                    'device_category_id' => $categoryId,
+                    'brand' => (string) ($row['marca'] ?? $existingDevice?->brand ?? 'Genérico'),
+                    'model' => (string) ($row['modelo'] ?? $existingDevice?->model ?? 'Genérico'),
+                    'computer_name' => ! empty($row['hostname_identificador']) && $row['hostname_identificador'] !== 'N/A' ? (string) $row['hostname_identificador'] : (! empty($row['hostname']) ? (string) $row['hostname'] : ($existingDevice?->computer_name ?? null)),
+                    'mac_address_ethernet' => ! empty($row['mac_ethernet']) && $row['mac_ethernet'] !== 'N/A' ? (string) $row['mac_ethernet'] : ($existingDevice?->mac_address_ethernet ?? null),
+                    'mac_address_wifi' => ! empty($row['mac_wifi']) && $row['mac_wifi'] !== 'N/A' ? (string) $row['mac_wifi'] : ($existingDevice?->mac_address_wifi ?? null),
+                    'bitlocker_identifier' => ! empty($row['identificador_de_bl']) && $row['identificador_de_bl'] !== 'N/A' ? (string) $row['identificador_de_bl'] : ($existingDevice?->bitlocker_identifier ?? null),
+                    'bitlocker_key' => ! empty($row['clave_de_bl']) && $row['clave_de_bl'] !== 'N/A' ? (string) $row['clave_de_bl'] : ($existingDevice?->bitlocker_key ?? null),
+                    'status' => $targetStatus,
+                    'purchase_date' => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
+                    'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
+                    'specs' => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),
+                    'imei' => $imei ?? ($existingDevice?->imei ?? null),
+                    'notes' => ! empty($row['notas_ubicacion_en_almacen']) && $row['notas_ubicacion_en_almacen'] !== 'N/A' ? (string) $row['notas_ubicacion_en_almacen'] : (! empty($row['notas']) ? (string) $row['notas'] : ($existingDevice?->notes ?? null)),
                 ];
 
-                if (!$existingDevice) {
+                if (! $existingDevice) {
                     Device::create(array_merge(['serial_number' => $serialNumber], $deviceData));
                 } else {
                     $existingDevice->update($deviceData);
@@ -103,8 +122,8 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
     private function parseDeviceStatus(string $input): DeviceStatus
     {
         $clean = mb_strtolower(trim($input), 'UTF-8');
-        $cleanNorm = str_replace(['á','é','í','ó','ú'], ['a','e','i','o','u'], $clean);
-        
+        $cleanNorm = str_replace(['á', 'é', 'í', 'ó', 'ú'], ['a', 'e', 'i', 'o', 'u'], $clean);
+
         return match ($cleanNorm) {
             'en reparacion', 'en_reparacion', 'reparacion', 'mantenimiento' => DeviceStatus::EnReparacion,
             'obsoleto', 'desuso' => DeviceStatus::Obsoleto,
@@ -122,13 +141,15 @@ class UnassignedDevicesImportSheet implements ToCollection, WithHeadingRow, Skip
 
         try {
             if (is_numeric($value)) {
-                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value);
+                return Date::excelToDateTimeObject($value);
             }
             $valClean = trim((string) $value);
             if (preg_match('/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/', $valClean)) {
                 $separator = str_contains($valClean, '/') ? '/' : '-';
+
                 return Carbon::createFromFormat("d{$separator}m{$separator}Y", $valClean);
             }
+
             return Carbon::parse($valClean);
         } catch (\Exception $e) {
             return null;

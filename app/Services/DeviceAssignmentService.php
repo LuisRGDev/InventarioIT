@@ -56,12 +56,12 @@ class DeviceAssignmentService
 
             // Crear la asignación
             $assignment = DeviceAssignment::create([
-                'device_id'            => $device->id,
-                'employee_id'          => $employee->id,
-                'assigned_by_user_id'  => Auth::id(),
-                'assigned_at'          => now(),
+                'device_id' => $device->id,
+                'employee_id' => $employee->id,
+                'assigned_by_user_id' => Auth::id(),
+                'assigned_at' => now(),
                 'condition_on_delivery' => isset($data['condition_on_delivery']) ? DeviceCondition::from($data['condition_on_delivery']) : DeviceCondition::BuenEstado,
-                'notes'                => $data['notes'] ?? null,
+                'notes' => $data['notes'] ?? null,
             ]);
 
             // Actualizar estado del equipo
@@ -74,15 +74,15 @@ class DeviceAssignmentService
                     'Empleado' => $employee->name,
                     'Departamento' => $employee->department,
                     'Equipo' => "{$device->brand} {$device->model} (SN: {$device->serial_number})",
-                    'Condición de Entrega' => $assignment->condition_on_delivery instanceof \App\Enums\DeviceCondition ? $assignment->condition_on_delivery->label() : ($assignment->condition_on_delivery ?? 'N/A')
+                    'Condición de Entrega' => $assignment->condition_on_delivery instanceof DeviceCondition ? $assignment->condition_on_delivery->label() : ($assignment->condition_on_delivery ?? 'N/A'),
                 ]
             );
 
             Log::info('Device assigned successfully', [
                 'assignment_id' => $assignment->id,
-                'device_id'     => $device->id,
-                'employee_id'   => $employee->id,
-                'user_id'       => Auth::id(),
+                'device_id' => $device->id,
+                'employee_id' => $employee->id,
+                'user_id' => Auth::id(),
             ]);
 
             return $assignment->load(['device', 'employee', 'assignedBy']);
@@ -123,10 +123,10 @@ class DeviceAssignmentService
 
             // Cerrar la asignación
             $assignment->update([
-                'returned_at'          => now(),
-                'returned_by_user_id'  => Auth::id(),
-                'condition_on_return'  => $conditionOnReturn,
-                'notes'                => $data['notes'] ?? $assignment->notes,
+                'returned_at' => now(),
+                'returned_by_user_id' => Auth::id(),
+                'condition_on_return' => $conditionOnReturn,
+                'notes' => $data['notes'] ?? $assignment->notes,
             ]);
 
             // Actualizar estado del equipo
@@ -136,18 +136,18 @@ class DeviceAssignmentService
                 'Equipo Devuelto',
                 "Se ha devuelto el equipo {$device->brand} {$device->model} del empleado {$assignment->employee->name}.",
                 [
-                    'Empleado'               => $assignment->employee->name,
-                    'Equipo'                 => "{$device->brand} {$device->model} (SN: {$device->serial_number})",
+                    'Empleado' => $assignment->employee->name,
+                    'Equipo' => "{$device->brand} {$device->model} (SN: {$device->serial_number})",
                     'Condición de Devolución' => $conditionOnReturn->label(),
-                    'Nuevo Estado'           => $newStatus->label(),
+                    'Nuevo Estado' => $newStatus->label(),
                 ]
             );
 
             Log::info('Device returned successfully', [
                 'assignment_id' => $assignment->id,
-                'device_id'     => $device->id,
-                'employee_id'   => $assignment->employee_id,
-                'user_id'       => Auth::id(),
+                'device_id' => $device->id,
+                'employee_id' => $assignment->employee_id,
+                'user_id' => Auth::id(),
             ]);
 
             return $assignment->load(['device', 'employee', 'returnedBy']);
@@ -174,7 +174,9 @@ class DeviceAssignmentService
         array $data = []
     ): array {
         return DB::transaction(function () use ($oldDevice, $newDevice, $employee, $data) {
-            // Validar que el equipo viejo esté asignado a este empleado
+            $oldDevice->refresh()->lockForUpdate();
+            $newDevice->refresh()->lockForUpdate();
+
             $currentAssignment = $oldDevice->currentAssignment;
 
             if (! $currentAssignment || $currentAssignment->employee_id !== $employee->id) {
@@ -186,15 +188,15 @@ class DeviceAssignmentService
             // Devolver el equipo viejo
             $returnData = [
                 'condition_on_return' => $data['condition_on_return'] ?? DeviceCondition::BuenEstado->value,
-                'new_status'          => $data['old_device_new_status'] ?? DeviceStatus::Disponible->value,
-                'notes'               => $data['return_notes'] ?? null,
+                'new_status' => $data['old_device_new_status'] ?? DeviceStatus::Disponible->value,
+                'notes' => $data['return_notes'] ?? null,
             ];
             $returnedAssignment = $this->returnDevice($oldDevice, $returnData);
 
             // Asignar el equipo nuevo
             $assignData = [
                 'condition_on_delivery' => $data['condition_on_delivery'] ?? DeviceCondition::BuenEstado->value,
-                'notes'                 => $data['assign_notes'] ?? null,
+                'notes' => $data['assign_notes'] ?? null,
             ];
             $newAssignment = $this->assign($newDevice, $employee, $assignData);
 
@@ -205,7 +207,7 @@ class DeviceAssignmentService
                     'Empleado' => $employee->name,
                     'Equipo Anterior' => "{$oldDevice->brand} {$oldDevice->model} (SN: {$oldDevice->serial_number})",
                     'Nuevo Equipo' => "{$newDevice->brand} {$newDevice->model} (SN: {$newDevice->serial_number})",
-                    'Motivo' => $data['reason'] ?? 'N/A'
+                    'Motivo' => $data['reason'] ?? 'N/A',
                 ]
             );
 

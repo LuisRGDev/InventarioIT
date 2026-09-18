@@ -41,4 +41,12 @@ class PhoneLine extends Model
     {
         return $this->hasOne(PhoneLineAssignment::class)->whereNull('returned_at');
     }
+
+    /**
+     * Get the currently assigned employee.
+     */
+    public function getCurrentEmployeeAttribute(): ?Employee
+    {
+        return $this->currentAssignment?->employee;
+    }
 }

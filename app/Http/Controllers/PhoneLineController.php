@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StorePhoneLineRequest;
-use App\Http\Requests\UpdatePhoneLineRequest;
-use App\Models\PhoneLine;
-use Illuminate\Http\Request;
 use App\Exports\PhoneLinesExport;
 use App\Exports\PhoneLinesTemplateExport;
+use App\Http\Requests\StorePhoneLineRequest;
+use App\Http\Requests\UpdatePhoneLineRequest;
 use App\Imports\PhoneLinesImport;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Models\PhoneLine;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class PhoneLineController extends Controller
 {
@@ -25,10 +26,10 @@ class PhoneLineController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where('number', 'like', "%{$search}%")
-                  ->orWhere('data_plan', 'like', "%{$search}%")
-                  ->orWhereHas('currentAssignment.employee', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                ->orWhere('data_plan', 'like', "%{$search}%")
+                ->orWhereHas('currentAssignment.employee', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
         }
 
         // Filtro por estatus
@@ -66,7 +67,7 @@ class PhoneLineController extends Controller
     public function show(PhoneLine $phoneLine)
     {
         $phoneLine->load(['assignments.employee', 'currentAssignment.employee']);
-        
+
         return view('phone-lines.show', compact('phoneLine'));
     }
 
@@ -105,12 +106,13 @@ class PhoneLineController extends Controller
         return redirect()->route('phone-lines.index')
             ->with('success', 'Línea telefónica eliminada correctamente.');
     }
+
     /**
      * Display the history of assignments for the specified resource.
      */
     public function history(PhoneLine $phoneLine)
     {
-        $assignments = $phoneLine->assignments()->with('employee')->orderBy('assigned_at', 'desc')->get();
+        $assignments = $phoneLine->assignments()->with('employee')->orderBy('assigned_at', 'desc')->paginate(15);
 
         return view('phone-lines.history', compact('phoneLine', 'assignments'));
     }
@@ -120,7 +122,7 @@ class PhoneLineController extends Controller
      */
     public function export()
     {
-        return Excel::download(new PhoneLinesExport, 'directorio_lineas_telefonicas_' . now()->format('Y-m-d') . '.xlsx');
+        return Excel::download(new PhoneLinesExport, 'directorio_lineas_telefonicas_'.now()->format('Y-m-d').'.xlsx');
     }
 
     public function downloadTemplate()
@@ -134,16 +136,16 @@ class PhoneLineController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:5120',
         ], [
             'file.required' => 'Debes subir un archivo.',
-            'file.mimes'    => 'El archivo debe ser un Excel (.xlsx, .xls o .csv).',
-            'file.max'      => 'El archivo no debe pesar más de 5MB.'
+            'file.mimes' => 'El archivo debe ser un Excel (.xlsx, .xls o .csv).',
+            'file.max' => 'El archivo no debe pesar más de 5MB.',
         ]);
 
         try {
             Excel::import(new PhoneLinesImport, $request->file('file'));
-            
+
             return redirect()->route('phone-lines.index')
                 ->with('success', 'Importación de líneas telefónicas completada correctamente.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $errorMessages = [];
             foreach ($failures as $failure) {
@@ -151,9 +153,11 @@ class PhoneLineController extends Controller
                 $errors = implode(', ', $failure->errors());
                 $errorMessages[] = "Fila {$row}: {$errors}";
             }
-            return back()->with('error', 'Errores de validación en el archivo: <br>' . implode('<br>', $errorMessages));
+
+            return back()->with('error', 'Errores de validación en el archivo: <br>'.implode('<br>', $errorMessages));
         } catch (\Exception $e) {
             Log::error('Failed to import phone lines', ['exception' => $e]);
+
             return back()->with('error', 'Ocurrió un error inesperado al importar el archivo. Verifica el formato del archivo.');
         }
     }

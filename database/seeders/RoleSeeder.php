@@ -11,15 +11,15 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         // Crear roles
-        $adminRole    = Role::firstOrCreate(['name' => 'Admin TI']);
-        $tecnicoRole  = Role::firstOrCreate(['name' => 'Técnico']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin TI']);
+        $tecnicoRole = Role::firstOrCreate(['name' => 'Técnico']);
         $readonlyRole = Role::firstOrCreate(['name' => 'Solo lectura']);
 
         // Crear usuario administrador de prueba
         $admin = User::firstOrCreate(
             ['email' => 'admin@itam.local'],
             [
-                'name'     => 'Administrador TI',
+                'name' => 'Administrador TI',
                 'password' => bcrypt('password'),
             ]
         );

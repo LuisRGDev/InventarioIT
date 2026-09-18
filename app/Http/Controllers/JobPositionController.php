@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JobPosition;
 use App\Imports\JobPositionsImport;
+use App\Models\JobPosition;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
-use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class JobPositionController extends Controller
@@ -21,8 +22,8 @@ class JobPositionController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('direction', 'like', "%{$search}%")
-                  ->orWhere('area', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%");
+                    ->orWhere('area', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%");
             });
         }
 
@@ -44,13 +45,13 @@ class JobPositionController extends Controller
     {
         $validated = $request->validate([
             'direction' => ['required', 'string', 'max:100'],
-            'area'      => ['required', 'string', 'max:100'],
-            'name'      => ['required', 'string', 'max:100'],
-            'notes'     => ['nullable', 'string'],
+            'area' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
+            'notes' => ['nullable', 'string'],
         ], [
             'direction.required' => 'La dirección es obligatoria.',
-            'area.required'      => 'El área es obligatoria.',
-            'name.required'      => 'El puesto es obligatorio.',
+            'area.required' => 'El área es obligatoria.',
+            'name.required' => 'El puesto es obligatorio.',
         ]);
 
         JobPosition::create($validated);
@@ -68,13 +69,13 @@ class JobPositionController extends Controller
     {
         $validated = $request->validate([
             'direction' => ['required', 'string', 'max:100'],
-            'area'      => ['required', 'string', 'max:100'],
-            'name'      => ['required', 'string', 'max:100'],
-            'notes'     => ['nullable', 'string'],
+            'area' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:100'],
+            'notes' => ['nullable', 'string'],
         ], [
             'direction.required' => 'La dirección es obligatoria.',
-            'area.required'      => 'El área es obligatoria.',
-            'name.required'      => 'El puesto es obligatorio.',
+            'area.required' => 'El área es obligatoria.',
+            'name.required' => 'El puesto es obligatorio.',
         ]);
 
         $jobPosition->update($validated);
@@ -85,8 +86,9 @@ class JobPositionController extends Controller
 
     public function destroy(JobPosition $jobPosition): RedirectResponse
     {
-        if ($jobPosition->employees()->count() > 0) {
-            return back()->with('error', "No puedes eliminar este puesto porque actualmente hay {$jobPosition->employees()->count()} empleado(s) con este puesto. Edita el registro de los empleados primero.");
+        $employeeCount = $jobPosition->employees()->count();
+        if ($employeeCount > 0) {
+            return back()->with('error', "No puedes eliminar este puesto porque actualmente hay {$employeeCount} empleado(s) con este puesto. Edita el registro de los empleados primero.");
         }
 
         $jobPosition->delete();
@@ -101,14 +103,14 @@ class JobPositionController extends Controller
 
         $callback = function () use ($headers) {
             $file = fopen('php://output', 'w');
-            
+
             // BOM to force UTF-8 in Excel
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
             fputcsv($file, $headers);
             // Example row
             fputcsv($file, ['Finanzas', 'Contabilidad', 'Analista Contable', 'Ejemplo de puesto']);
-            
+
             fclose($file);
         };
 
@@ -124,21 +126,24 @@ class JobPositionController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
         ], [
             'file.required' => 'Debe seleccionar un archivo para importar.',
-            'file.mimes'    => 'El archivo debe ser un Excel o CSV válido.',
+            'file.mimes' => 'El archivo debe ser un Excel o CSV válido.',
         ]);
 
         try {
             Excel::import(new JobPositionsImport, $request->file('file'));
+
             return redirect()->route('job-positions.index')->with('success', 'Puestos importados correctamente.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $messages = [];
             foreach ($failures as $failure) {
-                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $messages[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
-            return redirect()->route('job-positions.index')->with('error', 'Error de validación:<br>' . implode('<br>', $messages));
+
+            return redirect()->route('job-positions.index')->with('error', 'Error de validación:<br>'.implode('<br>', $messages));
         } catch (\Exception $e) {
             Log::error('Failed to import job positions', ['exception' => $e]);
+
             return redirect()->route('job-positions.index')->with('error', 'Ocurrió un error al importar el archivo. Verifica el formato del archivo.');
         }
     }

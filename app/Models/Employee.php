@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EmployeeStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,10 +13,13 @@ class Employee extends Model
 {
     use SoftDeletes;
 
-
     protected $fillable = [
         'employee_code', 'domain_account', 'name', 'email', 'phone',
-        'department', 'position', 'status', 'notes',
+        'department', 'position', 'status', 'notes', 'job_position_id',
+    ];
+
+    protected $hidden = [
+        'domain_account',
     ];
 
     protected $casts = [
@@ -24,7 +28,7 @@ class Employee extends Model
 
     // ─── Relaciones ───────────────────────────────────────────
 
-    public function jobPosition(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function jobPosition(): BelongsTo
     {
         return $this->belongsTo(JobPosition::class);
     }

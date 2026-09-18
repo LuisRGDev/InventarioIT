@@ -13,9 +13,9 @@ class PhoneLineFactory extends Factory
     public function definition(): array
     {
         return [
-            'number'     => fake()->numerify('###-###-####'),
-            'provider'   => fake()->randomElement(['Telcel', 'AT&T', 'Movistar', 'Altán', 'Iusacell']),
-            'data_plan'  => fake()->randomElement([
+            'number' => fake()->numerify('###-###-####'),
+            'provider' => fake()->randomElement(['Telcel', 'AT&T', 'Movistar', 'Altán', 'Iusacell']),
+            'data_plan' => fake()->randomElement([
                 'Sin datos',
                 '2 GB',
                 '5 GB',
@@ -24,9 +24,9 @@ class PhoneLineFactory extends Factory
                 '20 GB',
                 'Ilimitado',
             ]),
-            'plan_cost'  => fake()->randomFloat(2, 150, 800),
-            'status'     => fake()->randomElement(PhoneLineStatus::cases()),
-            'notes'      => fake()->optional(0.3)->sentence(),
+            'plan_cost' => fake()->randomFloat(2, 150, 800),
+            'status' => fake()->randomElement(PhoneLineStatus::cases()),
+            'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 

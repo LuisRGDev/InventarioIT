@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PhoneLineStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePhoneLineRequest extends FormRequest
 {
@@ -23,8 +25,8 @@ class UpdatePhoneLineRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'number' => ['required', 'string', 'max:20', \Illuminate\Validation\Rule::unique('phone_lines', 'number')->ignore($this->route('phone_line'))],
-            'status' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\PhoneLineStatus::class)],
+            'number' => ['required', 'string', 'max:20', Rule::unique('phone_lines', 'number')->ignore($this->route('phone_line'))],
+            'status' => ['required', Rule::enum(PhoneLineStatus::class)],
             'data_plan' => ['nullable', 'string', 'max:255'],
             'plan_cost' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],

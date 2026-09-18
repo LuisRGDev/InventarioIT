@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Enums\EmployeeStatus;
 use App\Models\Employee;
-use App\Models\JobPosition;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EmployeeFactory extends Factory
@@ -16,12 +15,12 @@ class EmployeeFactory extends Factory
         $name = fake()->name();
 
         return [
-            'employee_code'  => strtoupper(fake()->bothify('??##')),
+            'employee_code' => strtoupper(fake()->bothify('??##')),
             'domain_account' => fake()->userName(),
-            'name'           => $name,
-            'email'          => fake()->unique()->companyEmail(),
-            'phone'          => fake()->optional(0.8)->numerify('+## ###-###-####'),
-            'department'     => fake()->randomElement([
+            'name' => $name,
+            'email' => fake()->unique()->companyEmail(),
+            'phone' => fake()->optional(0.8)->numerify('+## ###-###-####'),
+            'department' => fake()->randomElement([
                 'Tecnología',
                 'Recursos Humanos',
                 'Finanzas',
@@ -33,7 +32,7 @@ class EmployeeFactory extends Factory
                 'Gerencia',
                 'Soporte TI',
             ]),
-            'position'       => fake()->randomElement([
+            'position' => fake()->randomElement([
                 'Analista',
                 'Ingeniero',
                 'Desarrollador',
@@ -45,8 +44,8 @@ class EmployeeFactory extends Factory
                 'Jefe de Departamento',
                 'Consultor',
             ]),
-            'status'         => EmployeeStatus::Activo,
-            'notes'          => fake()->optional(0.3)->sentence(),
+            'status' => EmployeeStatus::Activo,
+            'notes' => fake()->optional(0.3)->sentence(),
         ];
     }
 

@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Enums\DeviceCondition;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DeviceAssignment extends Model
 {
+    use HasFactory;
+
     /**
      * Extends Model (not Pivot) so it can be used directly in the Service Layer
      * via DeviceAssignment::create([...]) and queried as a first-class entity.
@@ -16,7 +19,8 @@ class DeviceAssignment extends Model
     protected $table = 'device_assignments';
 
     public $incrementing = true;
-    public $timestamps   = true;
+
+    public $timestamps = true;
 
     protected $fillable = [
         'device_id',
@@ -31,17 +35,17 @@ class DeviceAssignment extends Model
     ];
 
     protected $casts = [
-        'assigned_at'          => 'datetime',
-        'returned_at'          => 'datetime',
+        'assigned_at' => 'datetime',
+        'returned_at' => 'datetime',
         'condition_on_delivery' => DeviceCondition::class,
-        'condition_on_return'   => DeviceCondition::class,
+        'condition_on_return' => DeviceCondition::class,
     ];
 
     // ─── Relaciones ───────────────────────────────────────────
 
     public function device(): BelongsTo
     {
-    return $this->belongsTo(Device::class);
+        return $this->belongsTo(Device::class);
     }
 
     public function employee(): BelongsTo
@@ -69,6 +73,7 @@ class DeviceAssignment extends Model
     public function getDurationAttribute(): ?string
     {
         $end = $this->returned_at ?? now();
+
         return $this->assigned_at->diffForHumans($end, true);
     }
 }

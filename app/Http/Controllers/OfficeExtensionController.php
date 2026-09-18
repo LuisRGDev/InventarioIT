@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ExtensionStatus;
-use App\Models\OfficeExtension;
-use App\Imports\OfficeExtensionsImport;
 use App\Http\Requests\StoreOfficeExtensionRequest;
 use App\Http\Requests\UpdateOfficeExtensionRequest;
+use App\Imports\OfficeExtensionsImport;
+use App\Models\OfficeExtension;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Validators\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OfficeExtensionController extends Controller
@@ -23,7 +24,7 @@ class OfficeExtensionController extends Controller
         $extensions = OfficeExtension::with('currentAssignment.employee')
             ->when($search, function ($query, $search) {
                 return $query->where('extension_number', 'like', "%{$search}%")
-                             ->orWhere('direct_number', 'like', "%{$search}%");
+                    ->orWhere('direct_number', 'like', "%{$search}%");
             })
             ->latest()
             ->paginate(15)
@@ -35,6 +36,7 @@ class OfficeExtensionController extends Controller
     public function create(): View
     {
         $statuses = ExtensionStatus::cases();
+
         return view('office-extensions.create', compact('statuses'));
     }
 
@@ -49,6 +51,7 @@ class OfficeExtensionController extends Controller
     public function edit(OfficeExtension $officeExtension): View
     {
         $statuses = ExtensionStatus::cases();
+
         return view('office-extensions.edit', compact('officeExtension', 'statuses'));
     }
 
@@ -74,14 +77,14 @@ class OfficeExtensionController extends Controller
 
         $callback = function () use ($headers) {
             $file = fopen('php://output', 'w');
-            
+
             // BOM to force UTF-8
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
-            
+
             fputcsv($file, $headers);
             // Example row
             fputcsv($file, ['101', '5551234567', 'asignada', 'ejemplo@empresa.com']);
-            
+
             fclose($file);
         };
 
@@ -97,21 +100,24 @@ class OfficeExtensionController extends Controller
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
         ], [
             'file.required' => 'Debe seleccionar un archivo para importar.',
-            'file.mimes'    => 'El archivo debe ser un Excel o CSV válido.',
+            'file.mimes' => 'El archivo debe ser un Excel o CSV válido.',
         ]);
 
         try {
             Excel::import(new OfficeExtensionsImport, $request->file('file'));
+
             return redirect()->route('office-extensions.index')->with('success', 'Extensiones importadas correctamente.');
-        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+        } catch (ValidationException $e) {
             $failures = $e->failures();
             $messages = [];
             foreach ($failures as $failure) {
-                $messages[] = "Fila {$failure->row()}: " . implode(', ', $failure->errors());
+                $messages[] = "Fila {$failure->row()}: ".implode(', ', $failure->errors());
             }
-            return redirect()->route('office-extensions.index')->with('error', 'Error de validación:<br>' . implode('<br>', $messages));
+
+            return redirect()->route('office-extensions.index')->with('error', 'Error de validación:<br>'.implode('<br>', $messages));
         } catch (\Exception $e) {
             Log::error('Failed to import office extensions', ['exception' => $e]);
+
             return redirect()->route('office-extensions.index')->with('error', 'Ocurrió un error al importar el archivo. Verifica el formato del archivo.');
         }
     }

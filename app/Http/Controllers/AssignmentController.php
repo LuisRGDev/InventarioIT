@@ -7,6 +7,7 @@ use App\Models\OfficeExtensionAssignment;
 use App\Models\PhoneLineAssignment;
 use App\Services\ExtensionAssignmentService;
 use App\Services\PhoneLineAssignmentService;
+use App\Services\ResponsiveLetterService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -29,27 +30,47 @@ class AssignmentController extends Controller
         return view('assignments.index', compact('assignments'));
     }
 
-    public function downloadCartaResponsiva(DeviceAssignment $assignment, \App\Services\ResponsiveLetterService $service)
+    public function downloadCartaResponsiva(DeviceAssignment $assignment, ResponsiveLetterService $service)
     {
-        $filePath = $service->generate($assignment);
-        
+        try {
+            $filePath = $service->generate($assignment);
+        } catch (\Exception $e) {
+            report($e);
+
+            return back()->with('error', 'No se pudo generar la carta responsiva. Intenta de nuevo.');
+        }
+
         $employeeName = str_replace(' ', '_', $assignment->employee->name);
         $date = $assignment->assigned_at->format('Y-m-d');
         $fileName = "Carta_Responsiva_{$employeeName}_{$date}.docx";
-        
+
         return response()->download($filePath, $fileName)
             ->deleteFileAfterSend(true);
     }
 
     public function returnPhoneLine(PhoneLineAssignment $assignment, Request $request, PhoneLineAssignmentService $service)
     {
-        $service->returnLine($assignment, ['notes' => 'Devuelto desde perfil de empleado.']);
-        return back()->with('success', 'Línea celular devuelta correctamente al inventario.');
+        try {
+            $service->returnLine($assignment, ['notes' => 'Devuelto desde perfil de empleado.']);
+
+            return back()->with('success', 'Línea celular devuelta correctamente al inventario.');
+        } catch (\Exception $e) {
+            report($e);
+
+            return back()->with('error', 'No se pudo devolver la línea. Intenta de nuevo.');
+        }
     }
 
     public function returnExtension(OfficeExtensionAssignment $assignment, Request $request, ExtensionAssignmentService $service)
     {
-        $service->returnExtension($assignment, ['notes' => 'Devuelto desde perfil de empleado.']);
-        return back()->with('success', 'Extensión devuelta correctamente al inventario.');
+        try {
+            $service->returnExtension($assignment, ['notes' => 'Devuelto desde perfil de empleado.']);
+
+            return back()->with('success', 'Extensión devuelta correctamente al inventario.');
+        } catch (\Exception $e) {
+            report($e);
+
+            return back()->with('error', 'No se pudo devolver la extensión. Intenta de nuevo.');
+        }
     }
 }

@@ -21,8 +21,8 @@ class DeviceCategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:100', 'unique:device_categories,name'],
-            'slug'        => ['nullable', 'string', 'max:100', 'unique:device_categories,slug'],
+            'name' => ['required', 'string', 'max:100', 'unique:device_categories,name'],
+            'slug' => ['nullable', 'string', 'max:100', 'unique:device_categories,slug'],
             'description' => ['nullable', 'string'],
         ]);
 
@@ -35,7 +35,7 @@ class DeviceCategoryController extends Controller
     public function update(Request $request, DeviceCategory $deviceCategory): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:100', "unique:device_categories,name,{$deviceCategory->id}"],
+            'name' => ['required', 'string', 'max:100', "unique:device_categories,name,{$deviceCategory->id}"],
             'description' => ['nullable', 'string'],
         ]);
 

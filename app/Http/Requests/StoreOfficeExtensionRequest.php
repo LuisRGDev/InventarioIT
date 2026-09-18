@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ExtensionStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreOfficeExtensionRequest extends FormRequest
 {
@@ -24,9 +26,9 @@ class StoreOfficeExtensionRequest extends FormRequest
     {
         return [
             'extension_number' => ['required', 'string', 'max:50', 'unique:office_extensions,extension_number'],
-            'direct_number'    => ['nullable', 'string', 'max:50'],
-            'status'           => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\ExtensionStatus::class)],
-            'notes'            => ['nullable', 'string'],
+            'direct_number' => ['nullable', 'string', 'max:50'],
+            'status' => ['required', Rule::enum(ExtensionStatus::class)],
+            'notes' => ['nullable', 'string'],
         ];
     }
 }

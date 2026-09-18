@@ -4,16 +4,22 @@ namespace App\Exports\Sheets;
 
 use App\Models\Device;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class UnassignedDevicesSheet implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithTitle
+class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
 {
     public function collection()
     {
         return Device::whereDoesntHave('currentAssignment')->with(['category'])->get();
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
@@ -38,7 +44,7 @@ class UnassignedDevicesSheet implements FromCollection, WithHeadings, WithMappin
             'Identificador de BL',
             'Clave de BL',
             'IMEI',
-            'Notas / Ubicación en Almacén'
+            'Notas / Ubicación en Almacén',
         ];
     }
 
