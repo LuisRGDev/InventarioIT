@@ -22,14 +22,18 @@ class PhoneLineController extends Controller
     {
         $query = PhoneLine::with('currentAssignment.employee');
 
-        // Búsqueda simple
+        // Búsqueda simple. Las condiciones van agrupadas en un closure para
+        // que el filtro de estatus (más abajo) aplique con AND sobre todo
+        // el bloque de búsqueda, en vez de solo sobre la última condición OR.
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where('number', 'like', "%{$search}%")
-                ->orWhere('data_plan', 'like', "%{$search}%")
-                ->orWhereHas('currentAssignment.employee', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                });
+            $query->where(function ($q) use ($search) {
+                $q->where('number', 'like', "%{$search}%")
+                    ->orWhere('data_plan', 'like', "%{$search}%")
+                    ->orWhereHas('currentAssignment.employee', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
         }
 
         // Filtro por estatus

@@ -2,16 +2,20 @@
 
 namespace App\Exports\Sheets;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Device;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class AssignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
+class AssignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithTitle
 {
+    use EscapesFormulaInjection;
+
     public function collection()
     {
         return Device::whereHas('currentAssignment')->with(['category', 'currentAssignment.employee'])->get();

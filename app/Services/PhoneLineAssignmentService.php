@@ -28,6 +28,17 @@ class PhoneLineAssignmentService
                 throw new PhoneLineNotAvailableException("La línea {$phoneLine->number} no está disponible (Estatus actual: {$phoneLine->status->label()}).");
             }
 
+            // Invariante: un empleado solo tiene una línea telefónica activa
+            // a la vez (igual que ExtensionAssignmentService::assign()). Sin
+            // esto, un empleado podía terminar con varias líneas activas
+            // simultáneas si se le asignaba una nueva sin devolver la
+            // anterior desde cualquier punto de entrada distinto de
+            // EmployeeController::update().
+            $currentAssignment = $employee->currentPhoneLineAssignments()->first();
+            if ($currentAssignment) {
+                $this->returnLine($currentAssignment, ['notes' => 'Devolución automática por reasignación.']);
+            }
+
             $phoneLine->update([
                 'status' => PhoneLineStatus::Asignada,
             ]);

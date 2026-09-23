@@ -2,14 +2,18 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\OfficeExtension;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class OfficeExtensionsExport implements FromCollection, WithChunkReading, WithHeadings, WithMapping
+class OfficeExtensionsExport implements FromCollection, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping
 {
+    use EscapesFormulaInjection;
+
     public function collection()
     {
         return OfficeExtension::with('currentAssignment.employee')->get();

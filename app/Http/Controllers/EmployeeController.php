@@ -85,41 +85,50 @@ class EmployeeController extends Controller
     {
         $employee->update($request->validated());
 
-        if ($request->has('assign_phone_line_id')) {
-            $newPhoneLineId = $request->input('assign_phone_line_id');
-            $currentPhoneLineAssignment = $employee->currentPhoneLineAssignments()->first();
+        // Los cambios de línea/extensión van en try/catch, igual que en
+        // store(): si el recurso elegido ya no está disponible (p. ej. otro
+        // admin lo tomó primero) o el modelo no existe, el dato del empleado
+        // ya guardado arriba no se pierde y el usuario recibe un aviso claro
+        // en vez de un error 500 sin manejar.
+        try {
+            if ($request->has('assign_phone_line_id')) {
+                $newPhoneLineId = $request->input('assign_phone_line_id');
+                $currentPhoneLineAssignment = $employee->currentPhoneLineAssignments()->first();
 
-            // Si se seleccionó una línea nueva y diferente a la actual
-            if ($newPhoneLineId && (! $currentPhoneLineAssignment || $currentPhoneLineAssignment->phone_line_id != $newPhoneLineId)) {
-                // Retornar la actual si existe
-                if ($currentPhoneLineAssignment) {
-                    $phoneService->returnLine($currentPhoneLineAssignment, ['notes' => 'Cambio de línea telefónica por edición de empleado.']);
+                // Si se seleccionó una línea nueva y diferente a la actual.
+                // PhoneLineAssignmentService::assign() ya devuelve
+                // automáticamente cualquier línea activa previa del empleado
+                // antes de asignar la nueva, así que no hace falta
+                // retornarla manualmente aquí.
+                if ($newPhoneLineId && (! $currentPhoneLineAssignment || $currentPhoneLineAssignment->phone_line_id != $newPhoneLineId)) {
+                    $phoneLine = PhoneLine::findOrFail($newPhoneLineId);
+                    $phoneService->assign($phoneLine, $employee);
                 }
-
-                // Asignar la nueva
-                $phoneLine = PhoneLine::findOrFail($newPhoneLineId);
-                $phoneService->assign($phoneLine, $employee);
-            }
-            // Si se deseleccionó la línea (se pasó vacío) y tenía una
-            elseif (! $newPhoneLineId && $currentPhoneLineAssignment) {
-                $phoneService->returnLine($currentPhoneLineAssignment, ['notes' => 'Línea telefónica removida por edición de empleado.']);
-            }
-        }
-
-        if ($request->has('assign_office_extension_id')) {
-            $newExtensionId = $request->input('assign_office_extension_id');
-            $currentExtensionAssignment = $employee->currentOfficeExtensionAssignments()->first();
-
-            if ($newExtensionId && (! $currentExtensionAssignment || $currentExtensionAssignment->office_extension_id != $newExtensionId)) {
-                if ($currentExtensionAssignment) {
-                    $extensionService->returnExtension($currentExtensionAssignment, ['notes' => 'Cambio de extensión por edición de empleado.']);
+                // Si se deseleccionó la línea (se pasó vacío) y tenía una
+                elseif (! $newPhoneLineId && $currentPhoneLineAssignment) {
+                    $phoneService->returnLine($currentPhoneLineAssignment, ['notes' => 'Línea telefónica removida por edición de empleado.']);
                 }
-
-                $extension = OfficeExtension::findOrFail($newExtensionId);
-                $extensionService->assign($extension, $employee);
-            } elseif (! $newExtensionId && $currentExtensionAssignment) {
-                $extensionService->returnExtension($currentExtensionAssignment, ['notes' => 'Extensión removida por edición de empleado.']);
             }
+
+            if ($request->has('assign_office_extension_id')) {
+                $newExtensionId = $request->input('assign_office_extension_id');
+                $currentExtensionAssignment = $employee->currentOfficeExtensionAssignments()->first();
+
+                // ExtensionAssignmentService::assign() también devuelve
+                // automáticamente la extensión activa previa del empleado.
+                if ($newExtensionId && (! $currentExtensionAssignment || $currentExtensionAssignment->office_extension_id != $newExtensionId)) {
+                    $extension = OfficeExtension::findOrFail($newExtensionId);
+                    $extensionService->assign($extension, $employee);
+                } elseif (! $newExtensionId && $currentExtensionAssignment) {
+                    $extensionService->returnExtension($currentExtensionAssignment, ['notes' => 'Extensión removida por edición de empleado.']);
+                }
+            }
+        } catch (\Exception $e) {
+            report($e);
+
+            return redirect()->route('employees.show', $employee)
+                ->with('success', 'Empleado actualizado correctamente.')
+                ->with('warning', 'Hubo un problema al actualizar la línea telefónica o extensión. Puedes intentarlo de nuevo desde Asignaciones.');
         }
 
         return redirect()->route('employees.show', $employee)

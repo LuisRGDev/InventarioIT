@@ -2,16 +2,20 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Device;
 use App\Support\Roles;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping
+class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping
 {
+    use EscapesFormulaInjection;
+
     /**
      * Las llaves BitLocker solo se exponen a Admin TI; para el resto de
      * roles con acceso a exportar (Técnico, Solo lectura) se redactan.
