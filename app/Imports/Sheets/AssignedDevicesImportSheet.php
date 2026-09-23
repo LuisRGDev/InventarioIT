@@ -70,10 +70,6 @@ class AssignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, WithHe
                 if (! empty($row['sistema_operativo']) || ! empty($row['os'])) {
                     $specs['os'] = (string) ($row['sistema_operativo'] ?? $row['os']);
                 }
-                if (! empty($row['imei'])) {
-                    $imei = (string) $row['imei'];
-                }
-
                 $existingDevice = Device::where('serial_number', $serialNumber)->first();
                 if (! $categoryId && $existingDevice) {
                     $categoryId = $existingDevice->device_category_id;
@@ -89,7 +85,7 @@ class AssignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, WithHe
                     'computer_name' => ! empty($row['hostname_nombre']) ? (string) $row['hostname_nombre'] : (! empty($row['hostname']) ? (string) $row['hostname'] : ($existingDevice?->computer_name ?? null)),
                     'mac_address_ethernet' => ! empty($row['mac_ethernet']) ? (string) $row['mac_ethernet'] : ($existingDevice?->mac_address_ethernet ?? null),
                     'mac_address_wifi' => ! empty($row['mac_wifi']) ? (string) $row['mac_wifi'] : ($existingDevice?->mac_address_wifi ?? null),
-                    'imei' => $imei ?? ($existingDevice?->imei ?? null),
+                    'imei' => ! empty($row['imei']) ? (string) $row['imei'] : ($existingDevice?->imei ?? null),
                     'purchase_date' => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
                     'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
                     'specs' => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),

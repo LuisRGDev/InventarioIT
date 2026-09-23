@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Device;
+use App\Support\Roles;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -11,6 +12,17 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping
 {
+    /**
+     * Las llaves BitLocker solo se exponen a Admin TI; para el resto de
+     * roles con acceso a exportar (Técnico, Solo lectura) se redactan.
+     */
+    protected bool $canViewBitlocker;
+
+    public function __construct()
+    {
+        $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
+    }
+
     public function collection()
     {
         return Device::with(['category', 'currentAssignment.employee'])->get();
@@ -78,8 +90,8 @@ class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading,
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->bitlocker_identifier,
-            $device->bitlocker_key,
+            $this->canViewBitlocker ? $device->bitlocker_identifier : '***',
+            $this->canViewBitlocker ? $device->bitlocker_key : '***',
             $device->imei,
             $device->notes,
         ];

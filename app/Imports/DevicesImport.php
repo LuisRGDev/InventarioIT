@@ -64,10 +64,6 @@ class DevicesImport implements SkipsEmptyRows, ToCollection, WithHeadingRow, Wit
                 if (! empty($row['sistema_operativo'])) {
                     $specs['os'] = $row['sistema_operativo'];
                 }
-                if (! empty($row['imei'])) {
-                    $imei = $row['imei'];
-                }
-
                 $device = Device::create([
                     'device_category_id' => $categoryId,
                     'brand' => $row['marca'],
@@ -79,7 +75,7 @@ class DevicesImport implements SkipsEmptyRows, ToCollection, WithHeadingRow, Wit
                     'bitlocker_key' => $row['clave_de_bl'] ?? null,
                     'mac_address_ethernet' => $row['mac_ethernet'] ?? null,
                     'mac_address_wifi' => $row['mac_wifi'] ?? null,
-                    'imei' => $imei ?? null,
+                    'imei' => $row['imei'] ?? null,
                     'status' => DeviceStatus::Disponible,
                     'purchase_date' => $this->parseDate($row['fecha_compra'] ?? null),
                     'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null),

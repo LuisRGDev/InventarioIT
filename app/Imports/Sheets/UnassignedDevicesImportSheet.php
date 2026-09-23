@@ -72,10 +72,6 @@ class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, With
                 if (! empty($row['sistema_operativo']) || ! empty($row['os'])) {
                     $specs['os'] = (string) ($row['sistema_operativo'] ?? $row['os']);
                 }
-                if (! empty($row['imei'])) {
-                    $imei = (string) $row['imei'];
-                }
-
                 $existingDevice = Device::where('serial_number', $serialNumber)->first();
                 if (! $categoryId && $existingDevice) {
                     $categoryId = $existingDevice->device_category_id;
@@ -106,7 +102,7 @@ class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, With
                     'purchase_date' => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
                     'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
                     'specs' => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),
-                    'imei' => $imei ?? ($existingDevice?->imei ?? null),
+                    'imei' => ! empty($row['imei']) ? (string) $row['imei'] : ($existingDevice?->imei ?? null),
                     'notes' => ! empty($row['notas_ubicacion_en_almacen']) && $row['notas_ubicacion_en_almacen'] !== 'N/A' ? (string) $row['notas_ubicacion_en_almacen'] : (! empty($row['notas']) ? (string) $row['notas'] : ($existingDevice?->notes ?? null)),
                 ];
 

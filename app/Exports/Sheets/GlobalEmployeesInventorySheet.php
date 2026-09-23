@@ -3,6 +3,7 @@
 namespace App\Exports\Sheets;
 
 use App\Models\Employee;
+use App\Support\Roles;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -12,6 +13,13 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class GlobalEmployeesInventorySheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
 {
+    protected bool $canViewBitlocker;
+
+    public function __construct()
+    {
+        $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
+    }
+
     public function collection()
     {
         return Employee::with([
@@ -110,8 +118,8 @@ class GlobalEmployeesInventorySheet implements FromCollection, ShouldAutoSize, W
             $computer?->service_tag ?? '',
             $computer?->purchase_date?->format('Y-m-d') ?? '',
             $computer?->warranty_expires_at?->format('Y-m-d') ?? '',
-            $computer?->bitlocker_identifier ?? '',
-            $computer?->bitlocker_key ?? '',
+            $this->canViewBitlocker ? ($computer?->bitlocker_identifier ?? '') : ($computer ? '***' : ''),
+            $this->canViewBitlocker ? ($computer?->bitlocker_key ?? '') : ($computer ? '***' : ''),
 
             // Mobile fields
             $smartphone?->brand ?? '',

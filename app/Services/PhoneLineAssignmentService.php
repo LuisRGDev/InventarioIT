@@ -22,7 +22,7 @@ class PhoneLineAssignmentService
     public function assign(PhoneLine $phoneLine, Employee $employee, array $data = []): PhoneLineAssignment
     {
         return DB::transaction(function () use ($phoneLine, $employee, $data) {
-            $phoneLine->refresh()->lockForUpdate();
+            $phoneLine = PhoneLine::whereKey($phoneLine->id)->lockForUpdate()->firstOrFail();
 
             if ($phoneLine->status !== PhoneLineStatus::Disponible) {
                 throw new PhoneLineNotAvailableException("La línea {$phoneLine->number} no está disponible (Estatus actual: {$phoneLine->status->label()}).");
@@ -50,7 +50,7 @@ class PhoneLineAssignmentService
     public function returnLine(PhoneLineAssignment $assignment, array $data = []): PhoneLineAssignment
     {
         return DB::transaction(function () use ($assignment, $data) {
-            $assignment->phoneLine->refresh()->lockForUpdate();
+            $phoneLine = PhoneLine::whereKey($assignment->phone_line_id)->lockForUpdate()->firstOrFail();
 
             $assignment->update([
                 'returned_at' => now(),
@@ -60,7 +60,7 @@ class PhoneLineAssignmentService
                     : $assignment->notes,
             ]);
 
-            $assignment->phoneLine->update([
+            $phoneLine->update([
                 'status' => PhoneLineStatus::Disponible,
             ]);
 

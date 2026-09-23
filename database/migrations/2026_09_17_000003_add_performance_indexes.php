@@ -22,10 +22,9 @@ return new class extends Migration
             $table->index('status');
         });
 
-        Schema::table('device_assignments', function (Blueprint $table) {
-            $table->index(['device_id', 'returned_at']);
-            $table->index(['employee_id', 'returned_at']);
-        });
+        // Nota: los índices de device_assignments(device_id, returned_at) y
+        // device_assignments(employee_id, returned_at) ya existen desde
+        // 2024_01_01_000004_create_device_assignments_table.php; no se repiten aquí.
 
         Schema::table('phone_line_assignments', function (Blueprint $table) {
             $table->index(['phone_line_id', 'returned_at']);

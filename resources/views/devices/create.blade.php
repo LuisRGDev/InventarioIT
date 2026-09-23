@@ -185,25 +185,26 @@
                                 <x-input-error :messages="$errors->get('mac_address_wifi')" class="mt-1"/>
                             </div>
 
-                            {{-- Identificador de BL --}}
-                            <div x-show="isComputer" style="display: none;">
-                                <x-input-label for="bitlocker_identifier" value="Identificador de BL (Opcional)"/>
-                                <x-text-input id="bitlocker_identifier" name="bitlocker_identifier" type="text" class="mt-1 block w-full font-mono"
-                                              x-bind:disabled="!isComputer"
-                                              value="{{ old('bitlocker_identifier') }}" placeholder="Ej. 70F73ABC..."
-                                              :class="$errors->has('bitlocker_identifier') ? 'border-red-400' : ''"/>
-                                <x-input-error :messages="$errors->get('bitlocker_identifier')" class="mt-1"/>
-                            </div>
+                            {{-- Identificador de BL y Clave de BL: solo Admin TI puede capturarlos --}}
+                            @role('Admin TI')
+                                <div x-show="isComputer" style="display: none;">
+                                    <x-input-label for="bitlocker_identifier" value="Identificador de BL (Opcional)"/>
+                                    <x-text-input id="bitlocker_identifier" name="bitlocker_identifier" type="text" class="mt-1 block w-full font-mono"
+                                                  x-bind:disabled="!isComputer"
+                                                  value="{{ old('bitlocker_identifier') }}" placeholder="Ej. 70F73ABC..."
+                                                  :class="$errors->has('bitlocker_identifier') ? 'border-red-400' : ''"/>
+                                    <x-input-error :messages="$errors->get('bitlocker_identifier')" class="mt-1"/>
+                                </div>
 
-                            {{-- Clave de BL --}}
-                            <div x-show="isComputer" style="display: none;">
-                                <x-input-label for="bitlocker_key" value="Clave de BL (Opcional)"/>
-                                <x-text-input id="bitlocker_key" name="bitlocker_key" type="text" class="mt-1 block w-full font-mono"
-                                              x-bind:disabled="!isComputer"
-                                              value="{{ old('bitlocker_key') }}" placeholder="Ej. 483120-..."
-                                              :class="$errors->has('bitlocker_key') ? 'border-red-400' : ''"/>
-                                <x-input-error :messages="$errors->get('bitlocker_key')" class="mt-1"/>
-                            </div>
+                                <div x-show="isComputer" style="display: none;">
+                                    <x-input-label for="bitlocker_key" value="Clave de BL (Opcional)"/>
+                                    <x-text-input id="bitlocker_key" name="bitlocker_key" type="text" class="mt-1 block w-full font-mono"
+                                                  x-bind:disabled="!isComputer"
+                                                  value="{{ old('bitlocker_key') }}" placeholder="Ej. 483120-..."
+                                                  :class="$errors->has('bitlocker_key') ? 'border-red-400' : ''"/>
+                                    <x-input-error :messages="$errors->get('bitlocker_key')" class="mt-1"/>
+                                </div>
+                            @endrole
                         </div>
                     </div>
 

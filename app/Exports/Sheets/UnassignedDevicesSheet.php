@@ -3,6 +3,7 @@
 namespace App\Exports\Sheets;
 
 use App\Models\Device;
+use App\Support\Roles;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -12,6 +13,13 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 
 class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
 {
+    protected bool $canViewBitlocker;
+
+    public function __construct()
+    {
+        $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
+    }
+
     public function collection()
     {
         return Device::whereDoesntHave('currentAssignment')->with(['category'])->get();
@@ -67,8 +75,8 @@ class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChun
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->bitlocker_identifier,
-            $device->bitlocker_key,
+            $this->canViewBitlocker ? $device->bitlocker_identifier : '***',
+            $this->canViewBitlocker ? $device->bitlocker_key : '***',
             $device->imei ?? '',
             $device->notes ?? '',
         ];
