@@ -5,7 +5,7 @@ namespace App\Exports\Sheets;
 use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Device;
 use App\Support\Roles;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithTitle
+class UnassignedDevicesSheet implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithTitle
 {
     use EscapesFormulaInjection;
 
@@ -24,9 +24,9 @@ class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChun
         $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
     }
 
-    public function collection()
+    public function query()
     {
-        return Device::whereDoesntHave('currentAssignment')->with(['category'])->get();
+        return Device::whereDoesntHave('currentAssignment')->with(['category']);
     }
 
     public function chunkSize(): int

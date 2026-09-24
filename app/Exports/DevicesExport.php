@@ -5,14 +5,14 @@ namespace App\Exports;
 use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Device;
 use App\Support\Roles;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping
+class DevicesExport implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping
 {
     use EscapesFormulaInjection;
 
@@ -27,9 +27,13 @@ class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading,
         $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
     }
 
-    public function collection()
+    public function query()
     {
-        return Device::with(['category', 'currentAssignment.employee'])->get();
+        // FromQuery (en vez de FromCollection) para que WithChunkReading
+        // funcione de verdad: FromCollection carga toda la tabla en memoria
+        // de una sola vez con ->get() antes de que el chunking pudiera
+        // aplicar (Hallazgo Alto H9 de la auditoría).
+        return Device::query()->with(['category', 'currentAssignment.employee']);
     }
 
     public function chunkSize(): int

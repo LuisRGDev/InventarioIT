@@ -4,20 +4,26 @@ namespace App\Exports\Sheets;
 
 use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Employee;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class EmployeesSheet implements FromCollection, ShouldAutoSize, WithCustomValueBinder, WithHeadings, WithMapping, WithTitle
+class EmployeesSheet implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithTitle
 {
     use EscapesFormulaInjection;
 
-    public function collection()
+    public function query()
     {
-        return Employee::with('currentAssignments')->get();
+        return Employee::query()->with('currentAssignments');
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000;
     }
 
     public function headings(): array
