@@ -47,17 +47,17 @@
         <div class="flex flex-col gap-4">
             <div class="flex flex-wrap gap-4 items-end">
                 <div class="flex-1 min-w-[240px]">
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Buscar</label>
+                    <label for="maintenance-search" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Buscar</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
-                        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Serie, marca, título, descripción..." class="w-full pl-9 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
+                        <input type="text" id="maintenance-search" wire:model.live.debounce.300ms="search" placeholder="Serie, marca, título, descripción..." class="w-full pl-9 border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
                     </div>
                 </div>
                 <div class="min-w-[170px]">
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Estatus</label>
-                    <select wire:model.live="status" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
+                    <label for="maintenance-status-filter" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Estatus</label>
+                    <select id="maintenance-status-filter" wire:model.live="status" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
                         <option value="">Todos los Estados</option>
                         @foreach(\App\Enums\MaintenanceStatus::cases() as $st)
                             <option value="{{ $st->value }}">{{ $st->label() }}</option>
@@ -65,8 +65,8 @@
                     </select>
                 </div>
                 <div class="min-w-[170px]">
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tipo Servicio</label>
-                    <select wire:model.live="type" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
+                    <label for="maintenance-type-filter" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Tipo Servicio</label>
+                    <select id="maintenance-type-filter" wire:model.live="type" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
                         <option value="">Todos los Tipos</option>
                         @foreach(\App\Enums\MaintenanceType::cases() as $tp)
                             <option value="{{ $tp->value }}">{{ $tp->label() }}</option>
@@ -77,12 +77,12 @@
             
             <div class="flex flex-wrap gap-4 items-end">
                 <div class="min-w-[170px]">
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Desde</label>
-                    <input type="date" wire:model.live="date_from" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
+                    <label for="maintenance-date-from" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Desde</label>
+                    <input type="date" id="maintenance-date-from" wire:model.live="date_from" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
                 </div>
                 <div class="min-w-[170px]">
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Hasta</label>
-                    <input type="date" wire:model.live="date_to" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
+                    <label for="maintenance-date-to" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Hasta</label>
+                    <input type="date" id="maintenance-date-to" wire:model.live="date_to" class="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition">
                 </div>
                 
                 <div class="flex gap-2.5">

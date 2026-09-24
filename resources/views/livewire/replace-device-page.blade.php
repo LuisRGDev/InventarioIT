@@ -100,16 +100,16 @@
                         @if($oldDeviceId)
                             <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Condición en la que entrega el viejo</label>
-                                    <select wire:model="conditionOnReturn" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <label for="condition-on-return" class="block text-sm font-medium text-gray-700 mb-2">Condición en la que entrega el viejo</label>
+                                    <select id="condition-on-return" wire:model="conditionOnReturn" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                         @foreach($this->conditions as $cond)
                                             <option value="{{ $cond->value }}">{{ $cond->label() }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Estatus al que pasará (Almacén)</label>
-                                    <select wire:model="oldDeviceNewStatus" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                    <label for="old-device-new-status" class="block text-sm font-medium text-gray-700 mb-2">Estatus al que pasará (Almacén)</label>
+                                    <select id="old-device-new-status" wire:model="oldDeviceNewStatus" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                         <option value="disponible">Disponible</option>
                                         <option value="en_reparacion">En Reparación</option>
                                         <option value="obsoleto">Obsoleto / Baja</option>
@@ -117,8 +117,8 @@
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Notas de devolución</label>
-                                <textarea wire:model="returnNotes" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Observaciones sobre el estado del equipo devuelto..."></textarea>
+                                <label for="return-notes" class="block text-sm font-medium text-gray-700 mb-2">Notas de devolución</label>
+                                <textarea id="return-notes" wire:model="returnNotes" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Observaciones sobre el estado del equipo devuelto..."></textarea>
                             </div>
                         @endif
                     @endif
@@ -175,16 +175,16 @@
 
                         {{-- Condición de entrega --}}
                         <div class="mt-5 max-w-sm">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Condición en la que se entrega</label>
-                            <select wire:model="conditionOnDelivery" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
+                            <label for="condition-on-delivery" class="block text-sm font-medium text-gray-700 mb-2">Condición en la que se entrega</label>
+                            <select id="condition-on-delivery" wire:model="conditionOnDelivery" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
                                 @foreach($this->conditions as $cond)
                                     <option value="{{ $cond->value }}">{{ $cond->label() }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Notas de asignación</label>
-                            <textarea wire:model="assignNotes" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" placeholder="Observaciones sobre la entrega del equipo nuevo..."></textarea>
+                            <label for="assign-notes" class="block text-sm font-medium text-gray-700 mb-2">Notas de asignación</label>
+                            <textarea id="assign-notes" wire:model="assignNotes" rows="2" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm" placeholder="Observaciones sobre la entrega del equipo nuevo..."></textarea>
                         </div>
                     @endif
                     @error('newDeviceId') <span class="text-xs text-red-500 mt-2 block">{{ $message }}</span> @enderror

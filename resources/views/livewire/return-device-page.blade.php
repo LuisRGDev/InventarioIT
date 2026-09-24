@@ -121,8 +121,8 @@
 
                             {{-- Nuevo Estatus --}}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Nuevo Estatus del Equipo</label>
-                                <select wire:model="newStatus" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                <label for="new-status" class="block text-sm font-medium text-gray-700 mb-2">Nuevo Estatus del Equipo</label>
+                                <select id="new-status" wire:model="newStatus" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                     @foreach($this->returnableStatuses as $status)
                                         <option value="{{ $status->value }}">{{ $status->label() }}</option>
                                     @endforeach
@@ -139,8 +139,8 @@
 
                             {{-- Notas --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Notas de Devolución (Opcional)</label>
-                                <textarea wire:model="notes" rows="3" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Escribe detalles sobre accesorios faltantes, rayones, o motivos de devolución..."></textarea>
+                                <label for="return-page-notes" class="block text-sm font-medium text-gray-700 mb-2">Notas de Devolución (Opcional)</label>
+                                <textarea id="return-page-notes" wire:model="notes" rows="3" class="block w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Escribe detalles sobre accesorios faltantes, rayones, o motivos de devolución..."></textarea>
                             </div>
                         </div>
                     </div>

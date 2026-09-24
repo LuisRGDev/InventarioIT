@@ -44,17 +44,17 @@
             <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
                 <form method="GET" action="{{ route('device-models.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
                     <div class="sm:col-span-6">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Buscar por Marca o Modelo</label>
+                        <label for="device-model-search" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Buscar por Marca o Modelo</label>
                         <div class="relative">
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Ej. HP, ProBook 440, Core i7, iPhone..." 
+                            <input type="text" id="device-model-search" name="search" value="{{ request('search') }}" placeholder="Ej. HP, ProBook 440, Core i7, iPhone..."
                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-middleby-500 focus:border-middleby-500 transition"/>
                             <svg class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
                     </div>
 
                     <div class="sm:col-span-4">
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Filtrar por Categoría</label>
-                        <select name="category" class="w-full py-2.5 px-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-middleby-500 transition">
+                        <label for="device-model-category-filter" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Filtrar por Categoría</label>
+                        <select id="device-model-category-filter" name="category" class="w-full py-2.5 px-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:bg-white focus:ring-2 focus:ring-middleby-500 transition">
                             <option value="">Todas las categorías...</option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>
