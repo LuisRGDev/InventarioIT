@@ -112,9 +112,14 @@ class Device extends Model
 
     public function getWarrantyExpiresSoonAttribute(): bool
     {
-        return $this->warranty_expires_at !== null
-            && $this->warranty_expires_at->isFuture()
-            && $this->warranty_expires_at->diffInDays(now()) <= config('inventory.warranty_warning_days', 30);
+        // diffInDays() sin el flag $absolute devuelve un valor con signo; sin
+        // él, una garantía muy lejana en el futuro (p. ej. a 2 años) daba un
+        // número negativo que siempre satisfacía "<= $dias", marcándola
+        // incorrectamente como "por vencer". No tiene impacto en producción
+        // hoy (el dashboard usa el scope warrantyExpiringSoon(), que sí es
+        // correcto), pero es un bug real en este accessor público.
+        return $this->warranty_is_active
+            && $this->warranty_expires_at->diffInDays(now(), true) <= config('inventory.warranty_warning_days', 30);
     }
 
     public function getAgeAttribute(): ?int

@@ -138,4 +138,27 @@ class DeviceAssignmentServiceTest extends TestCase
 
         $this->service->assign($device, $employee);
     }
+
+    /**
+     * tests/VerifyReplaceNotesFix.php (eliminado en la Fase 6) verificaba
+     * con grep de strings que ReplaceDevicePage pasara return_notes/
+     * assign_notes al service. Este test verifica el comportamiento real:
+     * que esas notas efectivamente terminan en el campo correcto de cada
+     * registro de asignación.
+     */
+    public function test_replace_passes_distinct_notes_to_the_returned_and_assigned_records(): void
+    {
+        $employee = Employee::factory()->activo()->create();
+        $oldDevice = $this->aDevice();
+        $newDevice = $this->aDevice();
+        $this->service->assign($oldDevice, $employee);
+
+        $result = $this->service->replace($oldDevice->fresh(), $newDevice, $employee, [
+            'return_notes' => 'Equipo viejo con rayones en la tapa.',
+            'assign_notes' => 'Equipo nuevo entregado en caja sellada.',
+        ]);
+
+        $this->assertSame('Equipo viejo con rayones en la tapa.', $result['returned']->notes);
+        $this->assertSame('Equipo nuevo entregado en caja sellada.', $result['assigned']->notes);
+    }
 }
