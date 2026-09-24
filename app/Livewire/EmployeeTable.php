@@ -67,8 +67,10 @@ class EmployeeTable extends Component
             $query->where('status', $this->status);
         }
 
-        // Sorting
-        $query->orderBy($this->sortBy === 'created_at' ? 'name' : $this->sortBy, $this->sortDirection);
+        // Sorting. getSortBy() revalida contra $allowedSortColumns en vez de
+        // usar la propiedad pública $sortBy sin validar (Hallazgo Medio M1).
+        $sortBy = $this->getSortBy();
+        $query->orderBy($sortBy === 'created_at' ? 'name' : $sortBy, $this->sortDirection);
 
         $employees = $query->paginate(20);
 
