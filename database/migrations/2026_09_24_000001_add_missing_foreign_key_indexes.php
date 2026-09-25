@@ -42,26 +42,14 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('devices', function (Blueprint $table) {
-            $table->dropIndex(['device_category_id']);
-            $table->dropIndex(['device_model_id']);
-        });
-
-        Schema::table('device_models', function (Blueprint $table) {
-            $table->dropIndex(['device_category_id']);
-        });
-
-        Schema::table('employees', function (Blueprint $table) {
-            $table->dropIndex(['job_position_id']);
-        });
-
-        Schema::table('device_maintenances', function (Blueprint $table) {
-            $table->dropIndex(['user_id']);
-        });
-
-        Schema::table('device_assignments', function (Blueprint $table) {
-            $table->dropIndex(['assigned_by_user_id']);
-            $table->dropIndex(['returned_by_user_id']);
-        });
+        // No se revierten estos índices: las seis columnas son foreign keys,
+        // y en MySQL/MariaDB (a diferencia de SQLite) cada una de ellas
+        // depende exclusivamente del índice creado aquí para satisfacer su
+        // constraint — no queda ningún otro índice sobre la columna una vez
+        // aplicada esta migración. Intentar un dropIndex directo falla con
+        // "Cannot drop index ...: needed in a foreign key constraint"
+        // (SQLSTATE 1553). Quitar también el foreign key para poder
+        // revertir el índice cambiaría el alcance de esta migración más
+        // allá de lo que agrega su up(), así que down() queda como no-op.
     }
 };
