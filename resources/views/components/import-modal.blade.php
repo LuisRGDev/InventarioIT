@@ -6,23 +6,38 @@
     'templateLabel' => 'Descargar Plantilla Excel de Ejemplo (.xlsx)',
 ])
 
-<div x-data="{ show{{ $name }}: false, file: null }" 
-     @open-{{ $name }}-modal.window="show{{ $name }} = true; file = null" 
+<div x-data="{
+        show{{ $name }}: false,
+        file: null,
+        focusables() {
+            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
+            return [...$el.querySelectorAll(selector)].filter(el => ! el.hasAttribute('disabled'))
+        },
+        firstFocusable() { return this.focusables()[0] },
+        lastFocusable() { return this.focusables().slice(-1)[0] },
+        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
+        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
+        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
+        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) - 1 },
+     }"
+     @open-{{ $name }}-modal.window="show{{ $name }} = true; file = null; setTimeout(() => firstFocusable().focus(), 100)"
      @keydown.escape.window="show{{ $name }} = false"
      x-on:reset-file.window="file = null">
 
-    <div x-show="show{{ $name }}" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div x-show="show{{ $name }}" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true"
+         x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
+         x-on:keydown.shift.tab.prevent="prevFocusable().focus()">
         <div class="flex items-center justify-center min-h-screen p-4 text-center sm:block sm:p-0">
-            
-            <div x-show="show{{ $name }}" 
-                 @click="show{{ $name }} = false" 
-                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" 
-                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
+
+            <div x-show="show{{ $name }}"
+                 @click="show{{ $name }} = false"
+                 x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                  class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div x-show="show{{ $name }}" 
+            <div x-show="show{{ $name }}"
                  x-transition:enter="ease-out duration-300" 
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
                  x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
@@ -53,9 +68,9 @@
                                 @endif
                                 
                                 <div class="mt-5">
-                                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Selecciona el archivo Excel de tu computadora</label>
+                                    <label for="import-file-{{ $name }}" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Selecciona el archivo Excel de tu computadora</label>
                                     <div class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-5 text-center bg-slate-50/60 hover:bg-emerald-50/10 transition duration-200">
-                                        <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="block w-full text-sm text-slate-700 font-medium file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer transition"/>
+                                        <input type="file" id="import-file-{{ $name }}" name="file" accept=".xlsx,.xls,.csv" required class="block w-full text-sm text-slate-700 font-medium file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer transition"/>
                                     </div>
                                 </div>
                             </div>

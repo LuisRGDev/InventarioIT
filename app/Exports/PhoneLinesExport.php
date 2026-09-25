@@ -2,20 +2,24 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\PhoneLine;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class PhoneLinesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithStyles
+class PhoneLinesExport implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles
 {
-    public function collection()
+    use EscapesFormulaInjection;
+
+    public function query()
     {
-        return PhoneLine::with(['currentAssignment.employee.currentDevices.category'])->get();
+        return PhoneLine::query()->with(['currentAssignment.employee.currentDevices.category']);
     }
 
     public function chunkSize(): int

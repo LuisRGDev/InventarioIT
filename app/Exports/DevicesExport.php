@@ -2,18 +2,38 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Device;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Support\Roles;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping
+class DevicesExport implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping
 {
-    public function collection()
+    use EscapesFormulaInjection;
+
+    /**
+     * Las llaves BitLocker solo se exponen a Admin TI; para el resto de
+     * roles con acceso a exportar (Técnico, Solo lectura) se redactan.
+     */
+    protected bool $canViewBitlocker;
+
+    public function __construct()
     {
-        return Device::with(['category', 'currentAssignment.employee'])->get();
+        $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
+    }
+
+    public function query()
+    {
+        // FromQuery (en vez de FromCollection) para que WithChunkReading
+        // funcione de verdad: FromCollection carga toda la tabla en memoria
+        // de una sola vez con ->get() antes de que el chunking pudiera
+        // aplicar (Hallazgo Alto H9 de la auditoría).
+        return Device::query()->with(['category', 'currentAssignment.employee']);
     }
 
     public function chunkSize(): int
@@ -78,8 +98,8 @@ class DevicesExport implements FromCollection, ShouldAutoSize, WithChunkReading,
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->bitlocker_identifier,
-            $device->bitlocker_key,
+            $this->canViewBitlocker ? $device->bitlocker_identifier : '***',
+            $this->canViewBitlocker ? $device->bitlocker_key : '***',
             $device->imei,
             $device->notes,
         ];

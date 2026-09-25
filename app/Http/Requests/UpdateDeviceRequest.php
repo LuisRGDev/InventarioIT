@@ -23,8 +23,12 @@ class UpdateDeviceRequest extends FormRequest
             'serial_number' => ['required', 'string', 'max:100', Rule::unique('devices', 'serial_number')->ignore($deviceId)],
             'service_tag' => ['nullable', 'string', 'max:100'],
             'computer_name' => ['nullable', 'string', 'max:100'],
-            'bitlocker_identifier' => ['nullable', 'string', 'max:255'],
-            'bitlocker_key' => ['nullable', 'string'],
+            // 'sometimes': el formulario de edición solo renderiza estos campos
+            // para Admin TI (ver resources/views/devices/edit.blade.php); si
+            // están ausentes del request (Técnico/Solo lectura) no deben
+            // sobrescribirse a null en el update.
+            'bitlocker_identifier' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'bitlocker_key' => ['sometimes', 'nullable', 'string'],
             'mac_address_ethernet' => ['nullable', 'string', 'max:17', Rule::unique('devices', 'mac_address_ethernet')->ignore($deviceId)],
             'mac_address_wifi' => ['nullable', 'string', 'max:17', Rule::unique('devices', 'mac_address_wifi')->ignore($deviceId)],
             'brand' => ['required', 'string', 'max:100'],

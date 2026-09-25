@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDeviceCategoryRequest;
+use App\Http\Requests\UpdateDeviceCategoryRequest;
 use App\Models\DeviceCategory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DeviceCategoryController extends Controller
@@ -18,28 +19,17 @@ class DeviceCategoryController extends Controller
         return view('device-categories.index', compact('categories'));
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreDeviceCategoryRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100', 'unique:device_categories,name'],
-            'slug' => ['nullable', 'string', 'max:100', 'unique:device_categories,slug'],
-            'description' => ['nullable', 'string'],
-        ]);
-
-        DeviceCategory::create($validated);
+        DeviceCategory::create($request->validated());
 
         return redirect()->route('device-categories.index')
             ->with('success', 'Categoría creada correctamente.');
     }
 
-    public function update(Request $request, DeviceCategory $deviceCategory): RedirectResponse
+    public function update(UpdateDeviceCategoryRequest $request, DeviceCategory $deviceCategory): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100', "unique:device_categories,name,{$deviceCategory->id}"],
-            'description' => ['nullable', 'string'],
-        ]);
-
-        $deviceCategory->update($validated);
+        $deviceCategory->update($request->validated());
 
         return redirect()->route('device-categories.index')
             ->with('success', 'Categoría actualizada correctamente.');

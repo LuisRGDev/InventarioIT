@@ -34,7 +34,7 @@ class DeviceAssignmentService
     {
         return DB::transaction(function () use ($device, $employee, $data) {
             // Recargar con lock para evitar condiciones de carrera
-            $device->refresh()->lockForUpdate();
+            $device = Device::whereKey($device->id)->lockForUpdate()->firstOrFail();
 
             if ($device->status !== DeviceStatus::Disponible) {
                 throw new DeviceNotAvailableException(
@@ -102,7 +102,7 @@ class DeviceAssignmentService
     public function returnDevice(Device $device, array $data = []): DeviceAssignment
     {
         return DB::transaction(function () use ($device, $data) {
-            $device->refresh()->lockForUpdate();
+            $device = Device::whereKey($device->id)->lockForUpdate()->firstOrFail();
 
             $assignment = $device->currentAssignment;
 
@@ -174,8 +174,8 @@ class DeviceAssignmentService
         array $data = []
     ): array {
         return DB::transaction(function () use ($oldDevice, $newDevice, $employee, $data) {
-            $oldDevice->refresh()->lockForUpdate();
-            $newDevice->refresh()->lockForUpdate();
+            $oldDevice = Device::whereKey($oldDevice->id)->lockForUpdate()->firstOrFail();
+            $newDevice = Device::whereKey($newDevice->id)->lockForUpdate()->firstOrFail();
 
             $currentAssignment = $oldDevice->currentAssignment;
 

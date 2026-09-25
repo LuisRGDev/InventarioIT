@@ -5,9 +5,10 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
-    Volt::route('register', 'pages.auth.register')
-        ->name('register')
-        ->middleware('throttle:5,1');
+    // El auto-registro público está deshabilitado: las cuentas de esta
+    // herramienta interna deben crearlas un Admin TI (p. ej. vía
+    // `php artisan tinker` o un panel de gestión de usuarios dedicado).
+    // La ruta 'register' se elimina intencionalmente.
 
     Volt::route('login', 'pages.auth.login')
         ->name('login')

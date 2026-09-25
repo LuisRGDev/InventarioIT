@@ -3,40 +3,33 @@
 namespace App\Imports\Sheets;
 
 use App\Enums\DeviceStatus;
+use App\Imports\Concerns\EnforcesImportRowLimit;
+use App\Imports\Concerns\ParsesExcelDates;
+use App\Imports\Concerns\ResolvesDeviceCategory;
 use App\Models\Device;
 use App\Models\DeviceCategory;
 use App\Services\DeviceAssignmentService;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
-    private $categories;
+    use EnforcesImportRowLimit, ParsesExcelDates, ResolvesDeviceCategory;
 
     private $assignmentService;
 
     public function __construct()
     {
-        $this->categories = collect();
-        foreach (DeviceCategory::all() as $cat) {
-            $this->categories->put(mb_strtolower($cat->name, 'UTF-8'), $cat);
-            $this->categories->put(mb_strtolower($cat->slug, 'UTF-8'), $cat);
-            $this->categories->put(str_replace(['á', 'é', 'í', 'ó', 'ú', 'ä', 'ë', 'ï', 'ö', 'ü'], ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'], mb_strtolower($cat->name, 'UTF-8')), $cat);
-        }
+        $this->loadDeviceCategories();
         $this->assignmentService = app(DeviceAssignmentService::class);
     }
 
     public function collection(Collection $rows)
     {
-        $maxRows = config('inventory.import_max_rows', 5000);
-        if ($rows->count() > $maxRows) {
-            throw new \Exception("El archivo contiene {$rows->count()} filas. El máximo permitido es {$maxRows}.");
-        }
+        $this->guardRowLimit($rows);
 
         DB::transaction(function () use ($rows) {
             foreach ($rows as $row) {
@@ -72,10 +65,6 @@ class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, With
                 if (! empty($row['sistema_operativo']) || ! empty($row['os'])) {
                     $specs['os'] = (string) ($row['sistema_operativo'] ?? $row['os']);
                 }
-                if (! empty($row['imei'])) {
-                    $imei = (string) $row['imei'];
-                }
-
                 $existingDevice = Device::where('serial_number', $serialNumber)->first();
                 if (! $categoryId && $existingDevice) {
                     $categoryId = $existingDevice->device_category_id;
@@ -106,7 +95,7 @@ class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, With
                     'purchase_date' => $this->parseDate($row['fecha_compra'] ?? null) ?? $existingDevice?->purchase_date,
                     'warranty_expires_at' => $this->parseDate($row['garantia_expira'] ?? null) ?? $existingDevice?->warranty_expires_at,
                     'specs' => count($specs) > 0 ? array_merge($existingDevice?->specs ?? [], $specs) : ($existingDevice?->specs ?? null),
-                    'imei' => $imei ?? ($existingDevice?->imei ?? null),
+                    'imei' => ! empty($row['imei']) ? (string) $row['imei'] : ($existingDevice?->imei ?? null),
                     'notes' => ! empty($row['notas_ubicacion_en_almacen']) && $row['notas_ubicacion_en_almacen'] !== 'N/A' ? (string) $row['notas_ubicacion_en_almacen'] : (! empty($row['notas']) ? (string) $row['notas'] : ($existingDevice?->notes ?? null)),
                 ];
 
@@ -131,28 +120,5 @@ class UnassignedDevicesImportSheet implements SkipsEmptyRows, ToCollection, With
             'asignado', 'en uso' => DeviceStatus::Disponible, // Como está en la hoja Sin Asignar, si alguien pone Asignado por error pasa a Disponible en stock
             default => DeviceStatus::Disponible,
         };
-    }
-
-    private function parseDate($value)
-    {
-        if (empty($value) || $value === 'N/A' || $value === 'n/a') {
-            return null;
-        }
-
-        try {
-            if (is_numeric($value)) {
-                return Date::excelToDateTimeObject($value);
-            }
-            $valClean = trim((string) $value);
-            if (preg_match('/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/', $valClean)) {
-                $separator = str_contains($valClean, '/') ? '/' : '-';
-
-                return Carbon::createFromFormat("d{$separator}m{$separator}Y", $valClean);
-            }
-
-            return Carbon::parse($valClean);
-        } catch (\Exception $e) {
-            return null;
-        }
     }
 }
