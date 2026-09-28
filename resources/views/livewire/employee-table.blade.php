@@ -3,25 +3,25 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
         <div class="flex flex-wrap gap-3 items-end">
             <div class="flex-1 min-w-[200px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Buscar Empleado</label>
+                <label for="employee-search" class="block text-xs font-medium text-gray-500 mb-1">Buscar Empleado</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </div>
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Nombre, correo, clave..." class="w-full pl-9 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                    <input type="text" id="employee-search" wire:model.live.debounce.300ms="search" placeholder="Nombre, correo, clave..." class="w-full pl-9 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
                 </div>
             </div>
-            
+
             <div class="min-w-[150px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Departamento</label>
-                <input type="text" wire:model.live.debounce.300ms="department" placeholder="Ej. TI, RRHH..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <label for="employee-department-filter" class="block text-xs font-medium text-gray-500 mb-1">Departamento</label>
+                <input type="text" id="employee-department-filter" wire:model.live.debounce.300ms="department" placeholder="Ej. TI, RRHH..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
             </div>
-            
+
             <div class="min-w-[140px]">
-                <label class="block text-xs font-medium text-gray-500 mb-1">Estatus</label>
-                <select wire:model.live="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <label for="employee-status-filter" class="block text-xs font-medium text-gray-500 mb-1">Estatus</label>
+                <select id="employee-status-filter" wire:model.live="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
                     <option value="">Todos</option>
                     @foreach(\App\Enums\EmployeeStatus::cases() as $s)
                         <option value="{{ $s->value }}">{{ $s->label() }}</option>
@@ -122,13 +122,13 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('employees.show', $employee) }}" class="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Ver detalles">
+                                    <a href="{{ route('employees.show', $employee) }}" class="p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Ver detalles">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>
-                                    <a href="{{ route('employees.history', $employee) }}" class="p-1.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Historial">
+                                    <a href="{{ route('employees.history', $employee) }}" class="p-2.5 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition" title="Historial">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </a>
-                                    <a href="{{ route('employees.edit', $employee) }}" class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Editar">
+                                    <a href="{{ route('employees.edit', $employee) }}" class="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Editar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </a>
                                 </div>

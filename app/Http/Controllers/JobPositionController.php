@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreJobPositionRequest;
+use App\Http\Requests\UpdateJobPositionRequest;
 use App\Imports\JobPositionsImport;
 use App\Models\JobPosition;
 use Illuminate\Http\RedirectResponse;
@@ -41,20 +43,9 @@ class JobPositionController extends Controller
         return view('job-positions.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreJobPositionRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'direction' => ['required', 'string', 'max:100'],
-            'area' => ['required', 'string', 'max:100'],
-            'name' => ['required', 'string', 'max:100'],
-            'notes' => ['nullable', 'string'],
-        ], [
-            'direction.required' => 'La dirección es obligatoria.',
-            'area.required' => 'El área es obligatoria.',
-            'name.required' => 'El puesto es obligatorio.',
-        ]);
-
-        JobPosition::create($validated);
+        JobPosition::create($request->validated());
 
         return redirect()->route('job-positions.index')
             ->with('success', 'Puesto registrado con éxito.');
@@ -65,20 +56,9 @@ class JobPositionController extends Controller
         return view('job-positions.edit', compact('jobPosition'));
     }
 
-    public function update(Request $request, JobPosition $jobPosition): RedirectResponse
+    public function update(UpdateJobPositionRequest $request, JobPosition $jobPosition): RedirectResponse
     {
-        $validated = $request->validate([
-            'direction' => ['required', 'string', 'max:100'],
-            'area' => ['required', 'string', 'max:100'],
-            'name' => ['required', 'string', 'max:100'],
-            'notes' => ['nullable', 'string'],
-        ], [
-            'direction.required' => 'La dirección es obligatoria.',
-            'area.required' => 'El área es obligatoria.',
-            'name.required' => 'El puesto es obligatorio.',
-        ]);
-
-        $jobPosition->update($validated);
+        $jobPosition->update($request->validated());
 
         return redirect()->route('job-positions.index')
             ->with('success', 'Puesto actualizado correctamente.');

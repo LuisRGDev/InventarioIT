@@ -22,10 +22,21 @@ class PhoneLineAssignmentService
     public function assign(PhoneLine $phoneLine, Employee $employee, array $data = []): PhoneLineAssignment
     {
         return DB::transaction(function () use ($phoneLine, $employee, $data) {
-            $phoneLine->refresh()->lockForUpdate();
+            $phoneLine = PhoneLine::whereKey($phoneLine->id)->lockForUpdate()->firstOrFail();
 
             if ($phoneLine->status !== PhoneLineStatus::Disponible) {
                 throw new PhoneLineNotAvailableException("La línea {$phoneLine->number} no está disponible (Estatus actual: {$phoneLine->status->label()}).");
+            }
+
+            // Invariante: un empleado solo tiene una línea telefónica activa
+            // a la vez (igual que ExtensionAssignmentService::assign()). Sin
+            // esto, un empleado podía terminar con varias líneas activas
+            // simultáneas si se le asignaba una nueva sin devolver la
+            // anterior desde cualquier punto de entrada distinto de
+            // EmployeeController::update().
+            $currentAssignment = $employee->currentPhoneLineAssignments()->first();
+            if ($currentAssignment) {
+                $this->returnLine($currentAssignment, ['notes' => 'Devolución automática por reasignación.']);
             }
 
             $phoneLine->update([
@@ -50,7 +61,7 @@ class PhoneLineAssignmentService
     public function returnLine(PhoneLineAssignment $assignment, array $data = []): PhoneLineAssignment
     {
         return DB::transaction(function () use ($assignment, $data) {
-            $assignment->phoneLine->refresh()->lockForUpdate();
+            $phoneLine = PhoneLine::whereKey($assignment->phone_line_id)->lockForUpdate()->firstOrFail();
 
             $assignment->update([
                 'returned_at' => now(),
@@ -60,7 +71,7 @@ class PhoneLineAssignmentService
                     : $assignment->notes,
             ]);
 
-            $assignment->phoneLine->update([
+            $phoneLine->update([
                 'status' => PhoneLineStatus::Disponible,
             ]);
 

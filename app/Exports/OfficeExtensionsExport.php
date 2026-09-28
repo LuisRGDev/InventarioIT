@@ -2,17 +2,21 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\OfficeExtension;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class OfficeExtensionsExport implements FromCollection, WithChunkReading, WithHeadings, WithMapping
+class OfficeExtensionsExport implements FromQuery, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping
 {
-    public function collection()
+    use EscapesFormulaInjection;
+
+    public function query()
     {
-        return OfficeExtension::with('currentAssignment.employee')->get();
+        return OfficeExtension::query()->with('currentAssignment.employee');
     }
 
     public function chunkSize(): int

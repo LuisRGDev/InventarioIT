@@ -113,8 +113,11 @@ class DeviceTable extends Component
             $query->whereDate('created_at', '<=', $this->date_to);
         }
 
-        // Sorting
-        $query->orderBy($this->sortBy, $this->sortDirection);
+        // Sorting. getSortBy() revalida contra $allowedSortColumns; usar
+        // $this->sortBy directo aquí dejaría el allowlist sin efecto real,
+        // ya que es una propiedad pública de Livewire modificable por el
+        // cliente sin pasar por sortByField() (Hallazgo Medio M1).
+        $query->orderBy($this->getSortBy(), $this->sortDirection);
 
         $devices = $query->paginate(20);
 

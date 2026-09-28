@@ -24,7 +24,7 @@ class DeviceFactory extends Factory
             'service_tag' => fake()->bothify('???#####'),
             'computer_name' => strtoupper(fake()->bothify('CTI-??-###')),
             'bitlocker_identifier' => fake()->optional(0.7)->uuid(),
-            'bitlocker_key' => fake()->optional(0.7)->hexify('????????-????-????-????-????????????'),
+            'bitlocker_key' => fake()->optional(0.7)->regexify('[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}'),
             'mac_address_ethernet' => fake()->optional(0.8)->macAddress(),
             'mac_address_wifi' => fake()->optional(0.8)->macAddress(),
             'imei' => fake()->optional(0.5)->numerify('###############'),

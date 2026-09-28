@@ -2,19 +2,31 @@
 
 namespace App\Exports\Sheets;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\Device;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use App\Support\Roles;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithTitle;
 
-class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithTitle
+class UnassignedDevicesSheet implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithTitle
 {
-    public function collection()
+    use EscapesFormulaInjection;
+
+    protected bool $canViewBitlocker;
+
+    public function __construct()
     {
-        return Device::whereDoesntHave('currentAssignment')->with(['category'])->get();
+        $this->canViewBitlocker = auth()->user()?->hasRole(Roles::ADMIN) ?? false;
+    }
+
+    public function query()
+    {
+        return Device::whereDoesntHave('currentAssignment')->with(['category']);
     }
 
     public function chunkSize(): int
@@ -67,8 +79,8 @@ class UnassignedDevicesSheet implements FromCollection, ShouldAutoSize, WithChun
             $device->specs['ram'] ?? '',
             $device->specs['storage'] ?? '',
             $device->specs['os'] ?? '',
-            $device->bitlocker_identifier,
-            $device->bitlocker_key,
+            $this->canViewBitlocker ? $device->bitlocker_identifier : '***',
+            $this->canViewBitlocker ? $device->bitlocker_key : '***',
             $device->imei ?? '',
             $device->notes ?? '',
         ];

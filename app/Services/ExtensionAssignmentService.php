@@ -17,7 +17,7 @@ class ExtensionAssignmentService
     public function assign(OfficeExtension $extension, Employee $employee, array $options = []): OfficeExtensionAssignment
     {
         return DB::transaction(function () use ($extension, $employee, $options) {
-            $extension->refresh()->lockForUpdate();
+            $extension = OfficeExtension::whereKey($extension->id)->lockForUpdate()->firstOrFail();
 
             if ($extension->status !== ExtensionStatus::Disponible) {
                 throw new ExtensionNotAvailableException("La extensión {$extension->extension_number} no está disponible.");
@@ -44,7 +44,7 @@ class ExtensionAssignmentService
     public function returnExtension(OfficeExtensionAssignment $assignment, array $options = []): OfficeExtensionAssignment
     {
         return DB::transaction(function () use ($assignment, $options) {
-            $assignment->officeExtension->refresh()->lockForUpdate();
+            $extension = OfficeExtension::whereKey($assignment->office_extension_id)->lockForUpdate()->firstOrFail();
 
             $assignment->update([
                 'returned_at' => now(),
@@ -53,7 +53,7 @@ class ExtensionAssignmentService
                     : $assignment->notes,
             ]);
 
-            $assignment->officeExtension->update(['status' => ExtensionStatus::Disponible->value]);
+            $extension->update(['status' => ExtensionStatus::Disponible->value]);
 
             return $assignment;
         });

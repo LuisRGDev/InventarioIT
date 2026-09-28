@@ -65,6 +65,16 @@ class OfficeExtensionController extends Controller
 
     public function destroy(OfficeExtension $officeExtension): RedirectResponse
     {
+        // Sin este guard, eliminar una extensión con asignación (activa o
+        // histórica) lanza una QueryException sin capturar: desde que
+        // office_extension_assignments.office_extension_id es
+        // restrictOnDelete() (ver migración 2026_09_17_000001), la FK lo
+        // impide a nivel de base de datos.
+        if ($officeExtension->currentAssignment) {
+            return redirect()->back()
+                ->with('error', 'No se puede eliminar la extensión porque tiene una asignación activa.');
+        }
+
         $officeExtension->delete();
 
         return redirect()->route('office-extensions.index')

@@ -16,6 +16,7 @@ services:
 
     volumes:
       - ./:/var/www
+      - inventarioit_vendor:/var/www/vendor
 
     networks:
       - inventarioit_net
@@ -58,10 +59,10 @@ services:
     restart: unless-stopped
 
     environment:
-      MYSQL_DATABASE: itam_system
-      MYSQL_USER: itam_user
-      MYSQL_PASSWORD: itam_password
-      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: ${DB_DATABASE:-itam_system}
+      MYSQL_USER: ${DB_USERNAME:-itam_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?La variable de entorno DB_PASSWORD es obligatoria}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?La variable de entorno DB_ROOT_PASSWORD es obligatoria}
 
     volumes:
       - inventarioit_db_data:/var/lib/mysql
@@ -95,3 +96,4 @@ networks:
 # ============================================================
 volumes:
   inventarioit_db_data:
+  inventarioit_vendor:

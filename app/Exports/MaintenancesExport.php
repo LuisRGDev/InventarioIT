@@ -2,10 +2,12 @@
 
 namespace App\Exports;
 
+use App\Exports\Concerns\EscapesFormulaInjection;
 use App\Models\DeviceMaintenance;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -13,11 +15,13 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class MaintenancesExport implements FromCollection, ShouldAutoSize, WithChunkReading, WithHeadings, WithMapping, WithStyles
+class MaintenancesExport implements FromQuery, ShouldAutoSize, WithChunkReading, WithCustomValueBinder, WithHeadings, WithMapping, WithStyles
 {
-    public function collection()
+    use EscapesFormulaInjection;
+
+    public function query()
     {
-        return DeviceMaintenance::with(['device', 'user', 'device.category'])->latest('started_at')->get();
+        return DeviceMaintenance::with(['device', 'user', 'device.category'])->latest('started_at');
     }
 
     public function chunkSize(): int

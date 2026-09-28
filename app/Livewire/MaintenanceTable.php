@@ -99,11 +99,14 @@ class MaintenanceTable extends Component
             });
         }
 
-        // Default sorting
-        if ($this->sortBy === 'created_at') {
+        // Default sorting. getSortBy() revalida contra $allowedSortColumns
+        // en vez de usar la propiedad pública $sortBy sin validar (Hallazgo
+        // Medio M1).
+        $sortBy = $this->getSortBy();
+        if ($sortBy === 'created_at') {
             $query->latest('started_at');
         } else {
-            $query->orderBy($this->sortBy, $this->sortDirection);
+            $query->orderBy($sortBy, $this->sortDirection);
         }
 
         $maintenances = $query->paginate(15);

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreDeviceModelRequest;
+use App\Http\Requests\UpdateDeviceModelRequest;
 use App\Models\DeviceCategory;
 use App\Models\DeviceModel;
 use Illuminate\Http\RedirectResponse;
@@ -56,26 +58,9 @@ class DeviceModelController extends Controller
     /**
      * Almacena un nuevo modelo/estándar de hardware en la base de datos.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreDeviceModelRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'device_category_id' => ['required', 'exists:device_categories,id'],
-            'brand' => ['required', 'string', 'max:100'],
-            'model' => ['required', 'string', 'max:150'],
-            'variant' => ['nullable', 'string', 'max:150'],
-            'cpu' => ['nullable', 'string', 'max:255'],
-            'cores' => ['nullable', 'string', 'max:100'],
-            'ram' => ['nullable', 'string', 'max:100'],
-            'storage' => ['nullable', 'string', 'max:150'],
-            'os' => ['nullable', 'string', 'max:150'],
-            'notes' => ['nullable', 'string'],
-        ], [
-            'device_category_id.required' => 'Debes seleccionar una categoría para este estándar de hardware.',
-            'brand.required' => 'La marca (ej. Dell, Apple, HP) es obligatoria.',
-            'model.required' => 'El nombre o número de modelo es obligatorio.',
-        ]);
-
-        DeviceModel::create($validated);
+        DeviceModel::create($request->validated());
 
         return redirect()->route('device-models.index')
             ->with('success', '¡Modelo y estándar de hardware registrado y disponible para el inventario con éxito!');
@@ -94,26 +79,9 @@ class DeviceModelController extends Controller
     /**
      * Actualiza un estándar corporativo existente.
      */
-    public function update(Request $request, DeviceModel $deviceModel): RedirectResponse
+    public function update(UpdateDeviceModelRequest $request, DeviceModel $deviceModel): RedirectResponse
     {
-        $validated = $request->validate([
-            'device_category_id' => ['required', 'exists:device_categories,id'],
-            'brand' => ['required', 'string', 'max:100'],
-            'model' => ['required', 'string', 'max:150'],
-            'variant' => ['nullable', 'string', 'max:150'],
-            'cpu' => ['nullable', 'string', 'max:255'],
-            'cores' => ['nullable', 'string', 'max:100'],
-            'ram' => ['nullable', 'string', 'max:100'],
-            'storage' => ['nullable', 'string', 'max:150'],
-            'os' => ['nullable', 'string', 'max:150'],
-            'notes' => ['nullable', 'string'],
-        ], [
-            'device_category_id.required' => 'Debes seleccionar una categoría para este estándar.',
-            'brand.required' => 'La marca del modelo es obligatoria.',
-            'model.required' => 'El nombre o número del modelo es obligatorio.',
-        ]);
-
-        $deviceModel->update($validated);
+        $deviceModel->update($request->validated());
 
         return redirect()->route('device-models.index')
             ->with('success', '¡Estándar de hardware modificado y actualizado correctamente!');

@@ -156,16 +156,26 @@ class EmployeeOnboardingWizard extends Component
         $employee = Employee::create($validated);
         $this->employeeId = $employee->id;
 
-        if ($assignPhoneLineId) {
-            $phoneService = app(PhoneLineAssignmentService::class);
-            $phoneLine = PhoneLine::findOrFail($assignPhoneLineId);
-            $phoneService->assign($phoneLine, $employee);
-        }
+        // El empleado ya quedó creado arriba: si la línea/extensión elegida
+        // ya no está disponible (p. ej. una condición de carrera con otro
+        // admin) no debe perderse ese progreso ni dejar al usuario varado
+        // en un error sin estilo; se avisa y se puede asignar después desde
+        // Asignaciones, igual que en assignComputer()/assignSmartphone().
+        try {
+            if ($assignPhoneLineId) {
+                $phoneService = app(PhoneLineAssignmentService::class);
+                $phoneLine = PhoneLine::findOrFail($assignPhoneLineId);
+                $phoneService->assign($phoneLine, $employee);
+            }
 
-        if ($assignExtensionId) {
-            $extensionService = app(ExtensionAssignmentService::class);
-            $extension = OfficeExtension::findOrFail($assignExtensionId);
-            $extensionService->assign($extension, $employee);
+            if ($assignExtensionId) {
+                $extensionService = app(ExtensionAssignmentService::class);
+                $extension = OfficeExtension::findOrFail($assignExtensionId);
+                $extensionService->assign($extension, $employee);
+            }
+        } catch (\Exception $e) {
+            report($e);
+            $this->errorMessage = 'El empleado se creó correctamente, pero no se pudo asignar la línea telefónica o extensión seleccionada. Puedes asignarla después desde Asignaciones.';
         }
 
         $this->step = 2;

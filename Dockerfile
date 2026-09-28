@@ -83,12 +83,16 @@ RUN mkdir -p \
         bootstrap/cache
 
 # ============================================================
-# Cambiar a usuario no-root
-# ============================================================
-USER www-data
-
-# ============================================================
 # PHP-FPM
+#
+# El proceso maestro de php-fpm se queda como root (igual que en la imagen
+# base php:*-fpm oficial): necesita ese privilegio para arrancar y para que
+# el entrypoint pueda corregir el dueño de storage/bootstrap/cache cuando
+# se monta el proyecto como bind mount desde el host (docker-compose.yml)
+# con un UID distinto al de www-data dentro del contenedor. Los workers de
+# PHP-FPM igual corren como www-data, definido en el pool por defecto
+# (www.conf: user = www-data). Poner aquí `USER www-data` rompía tanto el
+# chmod del entrypoint en build time como ese fix de permisos en runtime.
 # ============================================================
 EXPOSE 9000
 
