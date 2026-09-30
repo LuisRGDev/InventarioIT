@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,5 +33,15 @@ class AppServiceProvider extends ServiceProvider
             'permission',
             'role_or_permission',
         ]);
+
+        // Política de contraseñas centralizada: aplica automáticamente a
+        // todo uso de Password::defaults() (reseteo, cambio de contraseña
+        // en el perfil, alta de usuarios). No se usa uncompromised() porque
+        // consulta la API de Have I Been Pwned por HTTPS en cada validación;
+        // en una red corporativa con salida a internet restringida eso
+        // podría bloquear o hacer fallar silenciosamente el formulario.
+        Password::defaults(function () {
+            return Password::min(10)->mixedCase()->numbers()->symbols();
+        });
     }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\JobPositionController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\OfficeExtensionController;
 use App\Http\Controllers\PhoneLineController;
+use App\Http\Controllers\UserController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\AssignExtensionPage;
 use App\Livewire\AssignPhoneLinePage;
@@ -95,6 +96,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('job-positions/import-template', [JobPositionController::class, 'downloadTemplate'])->name('job-positions.import.template');
         Route::post('job-positions/import', [JobPositionController::class, 'import'])->name('job-positions.import')->middleware('throttle:5,1');
         Route::resource('job-positions', JobPositionController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
+
+        // ── Administración de usuarios: solo Admin TI ──
+        Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
     });
 
     // ── Lectura: dashboard export, listados, detalle, historial, exportaciones ──

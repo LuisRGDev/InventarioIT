@@ -156,6 +156,13 @@ new class extends Component
                         <span class="w-5 h-5 flex items-center justify-center opacity-80">💼</span>
                         Puestos
                     </a>
+
+                    @role('Admin TI')
+                        <a href="{{ route('users.index') }}" wire:navigate class="{{ $navItemClasses }} {{ request()->routeIs('users.*') ? $activeClasses : $inactiveClasses }}">
+                            <span class="w-5 h-5 flex items-center justify-center opacity-80">🔐</span>
+                            Usuarios
+                        </a>
+                    @endrole
                 </div>
             </div>
             
