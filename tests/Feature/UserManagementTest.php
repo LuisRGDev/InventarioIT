@@ -55,6 +55,22 @@ class UserManagementTest extends TestCase
         $this->actingAs($admin)->get('/users')->assertOk();
     }
 
+    /**
+     * Regresión: scopeRole() de spatie/laravel-permission resuelve el
+     * nombre con Role::findByName() y lanza RoleDoesNotExist si no
+     * coincide con ninguno de los 3 roles reales — un valor cualquiera en
+     * la querystring (?role=lo-que-sea) tiraba la página entera con un 500
+     * en vez de simplemente ignorar el filtro.
+     */
+    public function test_an_invalid_role_filter_is_ignored_instead_of_crashing(): void
+    {
+        $admin = $this->adminUser();
+
+        $this->actingAs($admin)
+            ->get('/users?role=rol-que-no-existe')
+            ->assertOk();
+    }
+
     public function test_admin_can_create_a_user_with_a_role(): void
     {
         $admin = $this->adminUser();

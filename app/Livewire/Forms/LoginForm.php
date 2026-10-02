@@ -58,8 +58,15 @@ class LoginForm extends Form
 
             app(LoginAuditService::class)->record($authenticatedUser, $this->email, false, 'inactive_account');
 
+            // Mismo mensaje genérico que credenciales inválidas: un mensaje
+            // distinto aquí ("cuenta desactivada") le permitía a cualquiera
+            // probar correos y distinguir "no existe / contraseña
+            // incorrecta" de "existe pero está desactivada" — una fuga de
+            // información menor sobre quién tiene o tuvo cuenta. El motivo
+            // real sigue quedando visible para el admin en la bitácora de
+            // /users.
             throw ValidationException::withMessages([
-                'form.email' => 'Esta cuenta está desactivada. Contacta a un administrador.',
+                'form.email' => trans('auth.failed'),
             ]);
         }
 

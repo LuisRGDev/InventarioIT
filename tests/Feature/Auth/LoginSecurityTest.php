@@ -40,6 +40,36 @@ class LoginSecurityTest extends TestCase
         ]);
     }
 
+    /**
+     * Regresión: el error de login para una cuenta desactivada era un
+     * mensaje distinto ("Esta cuenta está desactivada...") al de
+     * credenciales inválidas, lo que permitía enumerar si un correo
+     * específico existe (pero está desactivado) vs. no existe. Ahora usa
+     * el mismo mensaje genérico en ambos casos; el motivo real
+     * (inactive_account vs invalid_credentials) sigue quedando en
+     * login_audits para que el admin lo vea desde /users.
+     */
+    public function test_inactive_account_shows_the_same_generic_message_as_invalid_credentials(): void
+    {
+        $inactiveUser = User::factory()->create(['active' => false]);
+        $otherUser = User::factory()->create();
+
+        $inactiveAttempt = Volt::test('pages.auth.login')
+            ->set('form.email', $inactiveUser->email)
+            ->set('form.password', 'password');
+        $inactiveAttempt->call('login');
+
+        $wrongPasswordAttempt = Volt::test('pages.auth.login')
+            ->set('form.email', $otherUser->email)
+            ->set('form.password', 'wrong-password');
+        $wrongPasswordAttempt->call('login');
+
+        $this->assertSame(
+            $wrongPasswordAttempt->errors()->first('form.email'),
+            $inactiveAttempt->errors()->first('form.email')
+        );
+    }
+
     public function test_successful_login_is_recorded_in_the_audit_log(): void
     {
         $user = User::factory()->create();

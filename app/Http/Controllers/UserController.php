@@ -25,7 +25,13 @@ class UserController extends Controller
             });
         }
 
-        if ($request->filled('role')) {
+        // in_array estricto en vez de pasar el valor directo a scopeRole():
+        // spatie/laravel-permission resuelve el nombre con
+        // Role::findByName() y lanza RoleDoesNotExist si no coincide con
+        // ninguno de los 3 roles reales — un valor cualquiera en la
+        // querystring (?role=lo-que-sea) tiraba la página con un 500 en
+        // vez de simplemente ignorar un filtro inválido.
+        if ($request->filled('role') && in_array($request->role, [Roles::ADMIN, Roles::TECNICO, Roles::SOLO_LECTURA], true)) {
             $query->role($request->role);
         }
 
