@@ -28,10 +28,21 @@ class AppServiceProvider extends ServiceProvider
         // lista fija de "persistent middleware" (auth, can:, etc.). Hay que
         // añadir explícitamente los alias de spatie/laravel-permission a esa
         // lista para que los mismos roles se re-verifiquen en cada acción.
+        //
+        // "active" (App\Http\Middleware\EnsureUserIsActive) está además
+        // registrado en el grupo global "web" (bootstrap/app.php), que sí
+        // cubre /livewire/update en una petición HTTP real. Pero el harness
+        // de pruebas de Livewire (Volt::test()/Livewire::test()) no repite
+        // el pipeline HTTP completo: solo vuelve a aplicar esta lista de
+        // "persistent middleware". Sin añadirlo aquí también, un usuario
+        // desactivado seguía pudiendo ejecutar acciones Livewire en los
+        // tests (y, por prudencia, mejor no depender únicamente del
+        // comportamiento del grupo "web" en producción tampoco).
         Livewire::addPersistentMiddleware([
             'role',
             'permission',
             'role_or_permission',
+            'active',
         ]);
 
         // Política de contraseñas centralizada: aplica automáticamente a

@@ -99,4 +99,41 @@ class LoginSecurityTest extends TestCase
         $component->assertHasErrors();
         $this->assertGuest();
     }
+
+    /**
+     * Regresión: login_audits.email/user_agent son VARCHAR(255). Un correo
+     * o un User-Agent (controlado por completo por el cliente, sin
+     * validación de Laravel) más largos que eso reventaban el INSERT con
+     * una excepción no capturada (SQLSTATE 22001 en MySQL/MariaDB) en
+     * pleno intento de login. SQLite no aplica el límite de VARCHAR, así
+     * que esta prueba verifica el truncado en sí (LoginAuditService),
+     * no el motor de base de datos.
+     */
+    public function test_an_overly_long_user_agent_does_not_crash_the_audit_log(): void
+    {
+        $user = User::factory()->create();
+
+        request()->headers->set('User-Agent', str_repeat('A', 2000));
+
+        Volt::test('pages.auth.login')
+            ->set('form.email', $user->email)
+            ->set('form.password', 'password')
+            ->call('login');
+
+        $audit = LoginAudit::where('email', $user->email)->first();
+
+        $this->assertNotNull($audit);
+        $this->assertLessThanOrEqual(255, strlen($audit->user_agent));
+    }
+
+    public function test_an_overly_long_login_email_is_rejected_by_validation(): void
+    {
+        $component = Volt::test('pages.auth.login')
+            ->set('form.email', str_repeat('a', 250).'@example.com')
+            ->set('form.password', 'password');
+
+        $component->call('login');
+
+        $component->assertHasErrors(['form.email']);
+    }
 }
