@@ -286,6 +286,7 @@
                                 </svg>
                                 Asignar extensión
                             </a>
+                            @if($employee->currentAssignments->isNotEmpty())
                             <a href="{{ route('assignments.replace', $employee->id) }}"
                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-lg transition group">
                                 <svg class="w-4 h-4 text-gray-400 group-hover:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -293,6 +294,7 @@
                                 </svg>
                                 Reemplazar equipo
                             </a>
+                            @endif
                             <a href="{{ route('employees.edit', $employee) }}"
                                class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition group">
                                 <svg class="w-4 h-4 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

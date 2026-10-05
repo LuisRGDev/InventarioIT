@@ -325,7 +325,7 @@
                                     </svg>
                                     <p class="text-sm text-gray-400">Sin asignación activa</p>
                                     @if($device->status->value === 'disponible')
-                                        <a href="{{ route('assignments.assign') }}"
+                                        <a href="{{ route('assignments.assign', ['selectedDeviceId' => $device->id]) }}"
                                            class="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>

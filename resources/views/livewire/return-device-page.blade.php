@@ -20,15 +20,45 @@
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6 sm:p-8">
-            @if (!$this->device)
+            @if (!$this->deviceId)
+                {{-- Sin equipo: lista con buscador de los equipos que están asignados --}}
+                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Selecciona el equipo a devolver</h3>
+                <div class="relative">
+                    <input type="text" wire:model.live.debounce.300ms="deviceSearch" placeholder="Buscar por serial, marca, modelo o empleado..." class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 pl-10 text-sm" aria-label="Buscar equipo asignado">
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+                <div class="mt-3 border border-gray-200 rounded-lg shadow-sm bg-white overflow-hidden max-h-96 overflow-y-auto">
+                    @forelse ($this->assignedDevices as $assigned)
+                        <button type="button" wire:click="selectDevice({{ $assigned->id }})" class="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0 transition flex items-center justify-between gap-4">
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">{{ $assigned->brand }} {{ $assigned->model }}</p>
+                                <p class="text-xs text-gray-500 font-mono">SN: {{ $assigned->serial_number }}</p>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <p class="text-sm text-gray-700">{{ $assigned->currentAssignment->employee?->name ?? 'N/A' }}</p>
+                                <p class="text-xs text-gray-400">{{ $assigned->category?->name }}</p>
+                            </div>
+                        </button>
+                    @empty
+                        <div class="px-4 py-6 text-sm text-gray-500 text-center">
+                            {{ $deviceSearch !== '' ? 'No se encontraron equipos asignados con ese criterio.' : 'No hay equipos asignados actualmente.' }}
+                        </div>
+                    @endforelse
+                </div>
+            @elseif (!$this->device)
                 <div class="text-center py-10">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">Equipo no encontrado</h3>
                     <p class="mt-1 text-sm text-gray-500">No se pudo localizar el equipo o no se especificó un ID válido.</p>
-                    <div class="mt-6">
-                        <a href="{{ route('assignments.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">
+                    <div class="mt-6 flex items-center justify-center gap-3">
+                        <button type="button" wire:click="clearDevice" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">
+                            Elegir otro equipo
+                        </button>
+                        <a href="{{ route('assignments.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
                             Volver a Asignaciones
                         </a>
                     </div>
@@ -42,8 +72,11 @@
                     </div>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">Equipo no asignado</h3>
                     <p class="mt-1 text-sm text-gray-500">Este equipo ({{ $this->device->serial_number }}) actualmente se encuentra disponible en almacén, no tiene una asignación activa para devolver.</p>
-                    <div class="mt-6">
-                        <a href="{{ route('assignments.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">
+                    <div class="mt-6 flex items-center justify-center gap-3">
+                        <button type="button" wire:click="clearDevice" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700">
+                            Elegir otro equipo
+                        </button>
+                        <a href="{{ route('assignments.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
                             Volver a Asignaciones
                         </a>
                     </div>

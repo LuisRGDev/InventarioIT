@@ -14,6 +14,9 @@ class ReturnDevicePage extends Component
 {
     public ?int $deviceId = null;
 
+    // Búsqueda (cuando se entra sin equipo, p. ej. desde el menú lateral)
+    public string $deviceSearch = '';
+
     // Formulario
     public string $conditionOnReturn = 'buen_estado';
 
@@ -41,6 +44,26 @@ class ReturnDevicePage extends Component
             : null;
     }
 
+    /**
+     * Equipos con una asignación activa, para elegir cuál devolver cuando
+     * la pantalla se abre sin un equipo (menú lateral). Busca por serial,
+     * marca, modelo o nombre del empleado que lo tiene.
+     */
+    #[Computed]
+    public function assignedDevices()
+    {
+        return Device::whereHas('currentAssignment')
+            ->with(['currentAssignment.employee', 'category'])
+            ->when($this->deviceSearch, fn ($q) => $q->where(fn ($w) => $w->where('serial_number', 'like', "%{$this->deviceSearch}%")
+                ->orWhere('brand', 'like', "%{$this->deviceSearch}%")
+                ->orWhere('model', 'like', "%{$this->deviceSearch}%")
+                ->orWhereHas('currentAssignment.employee', fn ($e) => $e->where('name', 'like', "%{$this->deviceSearch}%"))
+            ))
+            ->orderBy('brand')
+            ->limit(15)
+            ->get();
+    }
+
     #[Computed]
     public function conditions()
     {
@@ -56,6 +79,21 @@ class ReturnDevicePage extends Component
             DeviceStatus::Obsoleto,
             DeviceStatus::Baja,
         ];
+    }
+
+    public function selectDevice(int $id): void
+    {
+        $this->deviceId = $id;
+        $this->deviceSearch = '';
+        $this->errorMessage = null;
+        $this->showConfirm = false;
+    }
+
+    public function clearDevice(): void
+    {
+        $this->deviceId = null;
+        $this->showConfirm = false;
+        $this->errorMessage = null;
     }
 
     public function updatedConditionOnReturn(string $value): void

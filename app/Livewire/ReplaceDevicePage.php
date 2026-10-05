@@ -60,9 +60,11 @@ class ReplaceDevicePage extends Component
     {
         return Employee::active()
             ->has('currentAssignments') // Solo empleados con equipos activos
-            ->when($this->employeeSearch, fn ($q) => $q->where('name', 'like', "%{$this->employeeSearch}%")
+            // where(fn) agrupa el OR: sin el grupo escapaba de active() y de
+            // has('currentAssignments') y listaba empleados sin equipos.
+            ->when($this->employeeSearch, fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', "%{$this->employeeSearch}%")
                 ->orWhere('email', 'like', "%{$this->employeeSearch}%")
-            )
+            ))
             ->orderBy('name')
             ->limit(10)
             ->get();

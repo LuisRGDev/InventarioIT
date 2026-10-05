@@ -105,6 +105,13 @@
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-2">
+                                            @if($ext->status === \App\Enums\ExtensionStatus::Disponible)
+                                                @hasanyrole(\App\Support\Roles::WRITE)
+                                                    <a href="{{ route('assignments.assign-extension', ['selectedExtensionId' => $ext->id]) }}" class="p-2.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition" title="Asignar" aria-label="Asignar">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                    </a>
+                                                @endhasanyrole
+                                            @endif
                                             <a href="{{ route('office-extensions.edit', $ext) }}" class="inline-flex items-center justify-center p-2.5 text-gray-400 hover:text-indigo-600 bg-white rounded-lg hover:bg-indigo-50 border border-transparent hover:border-indigo-100 transition shadow-sm" title="Editar" aria-label="Editar">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                             </a>

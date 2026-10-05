@@ -21,6 +21,7 @@ class AssignExtensionPage extends Component
     #[Url]
     public ?int $selectedEmployeeId = null;
 
+    #[Url]
     public ?int $selectedExtensionId = null;
 
     // Formulario
@@ -35,14 +36,33 @@ class AssignExtensionPage extends Component
 
     public ?int $lastAssignmentId = null;
 
+    /**
+     * Los ids vienen de la URL (#[Url]): se descartan los que ya no sirven
+     * (empleado inexistente/inactivo, extensión que dejó de estar disponible).
+     */
+    public function mount(): void
+    {
+        if ($this->selectedEmployeeId && ! Employee::active()->whereKey($this->selectedEmployeeId)->exists()) {
+            $this->selectedEmployeeId = null;
+        }
+
+        if ($this->selectedExtensionId && ! OfficeExtension::available()->whereKey($this->selectedExtensionId)->exists()) {
+            $this->selectedExtensionId = null;
+            $this->errorMessage = 'La extensión seleccionada ya no está disponible para asignar.';
+        }
+    }
+
     #[Computed]
     public function employees()
     {
+        // El where(fn) agrupa los orWhere: sin el grupo, el OR escapaba del
+        // scope active() y listaba empleados inactivos si coincidían por
+        // correo o código.
         return Employee::active()
-            ->when($this->employeeSearch, fn ($q) => $q->where('name', 'like', "%{$this->employeeSearch}%")
+            ->when($this->employeeSearch, fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', "%{$this->employeeSearch}%")
                 ->orWhere('email', 'like', "%{$this->employeeSearch}%")
                 ->orWhere('employee_code', 'like', "%{$this->employeeSearch}%")
-            )
+            ))
             ->orderBy('name')
             ->limit(10)
             ->get();
@@ -135,6 +155,7 @@ class AssignExtensionPage extends Component
             $this->errorMessage = $e->getMessage();
             $this->showConfirm = false;
         } catch (\Exception $e) {
+            report($e);
             $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
             $this->showConfirm = false;
         }

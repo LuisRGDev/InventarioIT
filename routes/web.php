@@ -124,14 +124,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('office-extensions/export', function () {
             return Excel::download(new OfficeExtensionsExport, 'extensiones_telefonicas.xlsx');
         })->name('office-extensions.export')->middleware('throttle:10,1');
-        Route::resource('office-extensions', OfficeExtensionController::class)->only(['index', 'show']);
+        Route::resource('office-extensions', OfficeExtensionController::class)->only(['index']);
 
         Route::get('maintenances/export', [MaintenanceController::class, 'export'])->name('maintenances.export')->middleware('throttle:10,1');
         Route::resource('maintenances', MaintenanceController::class)->only(['index', 'show']);
 
         Route::resource('device-categories', DeviceCategoryController::class)->only(['index']);
-        Route::resource('device-models', DeviceModelController::class)->only(['index', 'show']);
-        Route::resource('job-positions', JobPositionController::class)->only(['index', 'show']);
+        Route::resource('device-models', DeviceModelController::class)->only(['index']);
+        Route::resource('job-positions', JobPositionController::class)->only(['index']);
 
         Route::get('assignments', [AssignmentController::class, 'index'])->name('assignments.index');
         Route::get('assignments/{assignment}/carta-responsiva', [AssignmentController::class, 'downloadCartaResponsiva'])

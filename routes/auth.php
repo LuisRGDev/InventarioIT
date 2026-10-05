@@ -10,17 +10,21 @@ Route::middleware('guest')->group(function () {
     // `php artisan tinker` o un panel de gestión de usuarios dedicado).
     // La ruta 'register' se elimina intencionalmente.
 
+    // Sin throttle de ruta: estas rutas Volt solo sirven la página (GET); el
+    // envío del formulario viaja por /livewire/update, así que un
+    // throttle:5,1 aquí no frenaba ningún intento de login y sí devolvía 429
+    // a quien recargara la página unas veces (o a toda una oficina detrás de
+    // la misma IP). El freno real de fuerza bruta está en LoginForm (por
+    // correo+IP y por correo); el reset de contraseña lo limita el broker
+    // de Laravel (config auth.passwords.*.throttle).
     Volt::route('login', 'pages.auth.login')
-        ->name('login')
-        ->middleware('throttle:5,1');
+        ->name('login');
 
     Volt::route('forgot-password', 'pages.auth.forgot-password')
-        ->name('password.request')
-        ->middleware('throttle:5,1');
+        ->name('password.request');
 
     Volt::route('reset-password/{token}', 'pages.auth.reset-password')
-        ->name('password.reset')
-        ->middleware('throttle:5,1');
+        ->name('password.reset');
 });
 
 Route::middleware('auth')->group(function () {

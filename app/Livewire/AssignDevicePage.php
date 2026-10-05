@@ -22,6 +22,7 @@ class AssignDevicePage extends Component
     #[Url]
     public ?int $selectedEmployeeId = null;
 
+    #[Url]
     public ?int $selectedDeviceId = null;
 
     public ?int $selectedCategoryId = null;
@@ -40,14 +41,34 @@ class AssignDevicePage extends Component
 
     public ?int $lastAssignmentId = null;
 
+    /**
+     * Los ids vienen de la URL (#[Url]): se descartan los que ya no sirven
+     * (empleado inexistente/inactivo, equipo que dejó de estar disponible)
+     * en vez de dejar al usuario con una selección fantasma.
+     */
+    public function mount(): void
+    {
+        if ($this->selectedEmployeeId && ! Employee::active()->whereKey($this->selectedEmployeeId)->exists()) {
+            $this->selectedEmployeeId = null;
+        }
+
+        if ($this->selectedDeviceId && ! Device::available()->whereKey($this->selectedDeviceId)->exists()) {
+            $this->selectedDeviceId = null;
+            $this->errorMessage = 'El equipo seleccionado ya no está disponible para asignar.';
+        }
+    }
+
     #[Computed]
     public function employees()
     {
+        // El where(fn) agrupa los orWhere: sin el grupo, el OR escapaba del
+        // scope active() y listaba empleados inactivos si coincidían por
+        // correo o código.
         return Employee::active()
-            ->when($this->employeeSearch, fn ($q) => $q->where('name', 'like', "%{$this->employeeSearch}%")
+            ->when($this->employeeSearch, fn ($q) => $q->where(fn ($w) => $w->where('name', 'like', "%{$this->employeeSearch}%")
                 ->orWhere('email', 'like', "%{$this->employeeSearch}%")
                 ->orWhere('employee_code', 'like', "%{$this->employeeSearch}%")
-            )
+            ))
             ->orderBy('name')
             ->limit(10)
             ->get();
@@ -152,6 +173,7 @@ class AssignDevicePage extends Component
             $this->errorMessage = $e->getMessage();
             $this->showConfirm = false;
         } catch (\Exception $e) {
+            report($e);
             $this->errorMessage = 'Ocurrió un error inesperado. Intenta de nuevo.';
             $this->showConfirm = false;
         }
