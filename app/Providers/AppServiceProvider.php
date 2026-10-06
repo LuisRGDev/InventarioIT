@@ -43,6 +43,9 @@ class AppServiceProvider extends ServiceProvider
             'permission',
             'role_or_permission',
             'active',
+            // Exige 2FA activo también en las acciones Livewire de las páginas
+            // protegidas (ver EnsureTwoFactorIsEnabled).
+            'two_factor',
         ]);
 
         // Política de contraseñas centralizada: aplica automáticamente a

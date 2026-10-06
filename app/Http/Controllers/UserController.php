@@ -6,6 +6,8 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\LoginAudit;
 use App\Models\User;
+use App\Services\LoginAuditService;
+use App\Services\TwoFactorService;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -102,5 +104,29 @@ class UserController extends Controller
         $user->syncRoles([$data['role']]);
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+    }
+
+    /**
+     * Quita el 2FA a un usuario (teléfono y códigos de respaldo perdidos) y
+     * le cierra todas las sesiones; al volver a entrar tendrá que
+     * configurarlo de nuevo. Queda registrado en la bitácora de accesos.
+     * No se permite sobre uno mismo: si es el único admin y pierde todo,
+     * la vía es el comando `php artisan 2fa:reset {correo}` en el servidor.
+     */
+    public function resetTwoFactor(User $user, TwoFactorService $twoFactor, LoginAuditService $audit): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'No puedes restablecer tu propio 2FA desde aquí. Pídele a otro administrador que lo haga.');
+        }
+
+        if (! $user->hasTwoFactorEnabled()) {
+            return back()->with('error', 'Este usuario no tiene el 2FA activado.');
+        }
+
+        $twoFactor->reset($user);
+
+        $audit->record($user, $user->email, true, 'two_factor_reset:'.auth()->user()->email);
+
+        return redirect()->route('users.edit', $user)->with('success', 'Se restableció el 2FA de '.$user->name.' y se cerraron sus sesiones.');
     }
 }

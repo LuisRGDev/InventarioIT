@@ -21,6 +21,18 @@
     <div class="py-8">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 space-y-4">
 
+            @if (session('success'))
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-2xl shadow-xs">
+                    <p class="text-sm font-bold text-emerald-900">{{ session('success') }}</p>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-2xl shadow-xs">
+                    <p class="text-sm font-bold text-rose-900">{{ session('error') }}</p>
+                </div>
+            @endif
+
             @if($user->id === auth()->id())
                 <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-2xl shadow-xs">
                     <p class="text-sm font-bold text-amber-900">Estás editando tu propia cuenta. No podrás desactivarla ni quitarte el rol Admin TI si eres el único administrador activo.</p>
@@ -88,6 +100,34 @@
                         </button>
                     </div>
                 </form>
+            </div>
+
+            {{-- Autenticación en dos pasos --}}
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+                <div class="p-6 sm:p-10 space-y-4">
+                    <h3 class="text-lg font-black text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                        <span class="text-2xl">🔒</span> Autenticación en dos pasos
+                    </h3>
+                    @if($user->hasTwoFactorEnabled())
+                        <p class="text-sm font-semibold text-slate-600">
+                            Activada desde {{ $user->two_factor_confirmed_at->format('d/m/Y H:i') }}.
+                            Si el usuario perdió su teléfono y sus códigos de respaldo, puedes restablecerla: se cierran todas sus sesiones y tendrá que configurarla de nuevo al iniciar sesión.
+                        </p>
+                        @if($user->id === auth()->id())
+                            <p class="text-xs font-bold text-amber-700">No puedes restablecer tu propio 2FA desde aquí. Genera códigos de respaldo nuevos desde tu perfil, o pídele a otro administrador que lo haga.</p>
+                        @else
+                            <form action="{{ route('users.two-factor.reset', $user) }}" method="POST"
+                                  onsubmit="return confirm('¿Restablecer el 2FA de {{ $user->name }}? Se cerrarán todas sus sesiones y deberá configurarlo de nuevo.');">
+                                @csrf
+                                <button type="submit" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-black text-sm rounded-xl shadow-sm transition active:scale-95">
+                                    Restablecer 2FA
+                                </button>
+                            </form>
+                        @endif
+                    @else
+                        <p class="text-sm font-semibold text-slate-600">Este usuario aún no ha configurado el 2FA. Se le pedirá en su próximo inicio de sesión.</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

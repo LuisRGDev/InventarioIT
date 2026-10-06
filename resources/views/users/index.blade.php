@@ -90,6 +90,7 @@
                                     <th class="py-4 px-6">Usuario</th>
                                     <th class="py-4 px-6">Rol</th>
                                     <th class="py-4 px-6">Estado</th>
+                                    <th class="py-4 px-6">2FA</th>
                                     <th class="py-4 px-6 text-right">Acciones</th>
                                 </tr>
                             </thead>
@@ -119,6 +120,13 @@
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-500 border border-slate-200">
                                                     ● Inactivo
                                                 </span>
+                                            @endif
+                                        </td>
+                                        <td class="py-4 px-6 whitespace-nowrap">
+                                            @if($listedUser->hasTwoFactorEnabled())
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">🔒 Activo</span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-extrabold bg-amber-50 text-amber-700 border border-amber-200">Pendiente</span>
                                             @endif
                                         </td>
                                         <td class="py-4 px-6 text-right whitespace-nowrap">
@@ -164,12 +172,19 @@
                                     <tr>
                                         <td class="py-3 px-6 font-semibold text-slate-700">{{ $audit->email }}</td>
                                         <td class="py-3 px-6">
-                                            @if($audit->successful)
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700">Exitoso</span>
+                                            @if(str_starts_with((string) $audit->reason, 'two_factor_reset'))
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700" title="{{ $audit->reason }}">2FA restablecido por un admin</span>
+                                            @elseif($audit->successful)
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700">
+                                                    Exitoso
+                                                    @if($audit->reason === 'recovery_code_used') (código de respaldo) @endif
+                                                </span>
                                             @else
                                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-700">
                                                     Fallido
                                                     @if($audit->reason === 'inactive_account') (cuenta desactivada) @endif
+                                                    @if($audit->reason === 'invalid_two_factor_code') (código 2FA incorrecto) @endif
+                                                    @if($audit->reason === 'invalid_recovery_code') (código de respaldo incorrecto) @endif
                                                 </span>
                                             @endif
                                         </td>

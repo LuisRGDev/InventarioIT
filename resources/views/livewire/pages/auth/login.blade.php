@@ -16,9 +16,16 @@ new #[Layout('layouts.guest')] class extends Component
     {
         $this->validate();
 
-        $this->form->authenticate();
+        $authenticated = $this->form->authenticate();
 
         Session::regenerate();
+
+        // Contraseña correcta pero falta el segundo factor (2FA).
+        if (! $authenticated) {
+            $this->redirect(route('two-factor.challenge', absolute: false), navigate: true);
+
+            return;
+        }
 
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
     }

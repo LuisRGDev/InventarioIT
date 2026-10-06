@@ -26,15 +26,31 @@ class LoginForm extends Form
     /**
      * Attempt to authenticate the request's credentials.
      *
+     * Devuelve true si el usuario quedó con la sesión abierta, o false si la
+     * contraseña es correcta pero falta el segundo factor: en ese caso NO se
+     * abre sesión, solo se deja un pendiente en la sesión (2 FA) que
+     * consume la pantalla /two-factor-challenge.
+     *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function authenticate(): bool
     {
         $this->ensureIsNotRateLimited();
 
         $user = User::where('email', $this->email)->first();
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        // Con 2FA activo la contraseña se valida SIN abrir sesión
+        // (Auth::validate): con Auth::attempt() + logout() se rotaría el
+        // remember_token y se cerrarían las sesiones "recordarme" de otros
+        // dispositivos del usuario en cada intento.
+        $needsTwoFactor = $user && $user->active && $user->hasTwoFactorEnabled();
+
+        $credentials = $this->only(['email', 'password']);
+        $valid = $needsTwoFactor
+            ? Auth::validate($credentials)
+            : Auth::attempt($credentials, $this->remember);
+
+        if (! $valid) {
             RateLimiter::hit($this->throttleKey());
             // Límite adicional por email (sin importar la IP): el límite de
             // arriba es por email+IP, así que un atacante que rote de IP
@@ -49,6 +65,20 @@ class LoginForm extends Form
             throw ValidationException::withMessages([
                 'form.email' => trans('auth.failed'),
             ]);
+        }
+
+        if ($needsTwoFactor) {
+            RateLimiter::clear($this->throttleKey());
+            RateLimiter::clear($this->emailThrottleKey());
+
+            session()->put('two_factor.login', [
+                'id' => $user->id,
+                'remember' => $this->remember,
+                'email' => $this->email,
+                'expires_at' => now()->addMinutes(config('two_factor.challenge_ttl_minutes'))->timestamp,
+            ]);
+
+            return false;
         }
 
         $authenticatedUser = Auth::user();
@@ -74,6 +104,8 @@ class LoginForm extends Form
         RateLimiter::clear($this->emailThrottleKey());
 
         app(LoginAuditService::class)->record($authenticatedUser, $this->email, true);
+
+        return true;
     }
 
     /**

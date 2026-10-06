@@ -20,6 +20,12 @@ Route::middleware('guest')->group(function () {
     Volt::route('login', 'pages.auth.login')
         ->name('login');
 
+    // Segundo paso del login: solo se llega con una contraseña ya validada
+    // (pendiente en sesión, ver LoginForm::authenticate()); sin pendiente
+    // la propia página redirige a /login.
+    Volt::route('two-factor-challenge', 'pages.auth.two-factor-challenge')
+        ->name('two-factor.challenge');
+
     Volt::route('forgot-password', 'pages.auth.forgot-password')
         ->name('password.request');
 

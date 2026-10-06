@@ -17,6 +17,7 @@ use App\Livewire\AssignExtensionPage;
 use App\Livewire\AssignPhoneLinePage;
 use App\Livewire\ReplaceDevicePage;
 use App\Livewire\ReturnDevicePage;
+use App\Livewire\TwoFactorSettings;
 use App\Support\Roles;
 use Illuminate\Support\Facades\Route;
 use Maatwebsite\Excel\Facades\Excel;
@@ -26,20 +27,27 @@ Route::redirect('/', 'dashboard');
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified', 'role:'.Roles::READ])
+    ->middleware(['auth', 'two_factor', 'verified', 'role:'.Roles::READ])
     ->name('dashboard');
 
 // ─── Perfil (Breeze) — autogestión, no requiere rol de inventario ────────────
 Route::view('profile', 'profile')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'two_factor'])
     ->name('profile');
+
+// ─── Autenticación en dos pasos ──────────────────────────────────────────────
+// Sin 'two_factor': es justo la pantalla a la que se redirige a quien aún no
+// lo ha activado.
+Route::get('two-factor', TwoFactorSettings::class)
+    ->middleware(['auth'])
+    ->name('two-factor.settings');
 
 // ─── Rutas autenticadas ───────────────────────────────────────────────────────
 // Los grupos siguientes aplican el modelo de permisos definido en App\Support\Roles:
 //   READ       → Admin TI, Técnico, Solo lectura (ver/listar/exportar)
 //   WRITE      → Admin TI, Técnico (crear/editar/asignar/devolver/reemplazar/importar)
 //   ADMIN_ONLY → Admin TI (eliminar registros y gestionar catálogos)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'two_factor'])->group(function () {
 
     // Nota de orden: dentro de un mismo verbo HTTP, Laravel prueba las rutas
     // en el orden en que se registran. "GET /recurso/create" y "GET
@@ -99,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
 
         // ── Administración de usuarios: solo Admin TI ──
         Route::resource('users', UserController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+        Route::post('users/{user}/two-factor/reset', [UserController::class, 'resetTwoFactor'])->name('users.two-factor.reset');
     });
 
     // ── Lectura: dashboard export, listados, detalle, historial, exportaciones ──
