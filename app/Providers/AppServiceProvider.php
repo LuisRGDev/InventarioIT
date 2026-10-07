@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Livewire;
@@ -48,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
             'two_factor',
             // Ídem para la contraseña temporal (EnsurePasswordIsChanged).
             'password_changed',
+            'password_reset_available',
         ]);
 
         // Política de contraseñas centralizada: aplica automáticamente a
@@ -56,6 +59,24 @@ class AppServiceProvider extends ServiceProvider
         // consulta la API de Have I Been Pwned por HTTPS en cada validación;
         // en una red corporativa con salida a internet restringida eso
         // podría bloquear o hacer fallar silenciosamente el formulario.
+        // Correo de restablecimiento en español (el de Laravel viene en inglés).
+        ResetPassword::toMailUsing(function (object $notifiable, string $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+            $minutes = config('auth.passwords.'.config('auth.defaults.passwords').'.expire');
+
+            return (new MailMessage)
+                ->subject('Restablecer contraseña — '.config('app.name'))
+                ->greeting('Hola')
+                ->line('Recibimos una solicitud para restablecer la contraseña de tu cuenta.')
+                ->action('Restablecer contraseña', $url)
+                ->line("Este enlace caduca en {$minutes} minutos.")
+                ->line('Si no fuiste tú, ignora este correo: tu contraseña no cambiará.')
+                ->salutation('Equipo de TI');
+        });
+
         Password::defaults(function () {
             return Password::min(10)->mixedCase()->numbers()->symbols();
         });

@@ -26,10 +26,15 @@ Route::middleware('guest')->group(function () {
     Volt::route('two-factor-challenge', 'pages.auth.two-factor-challenge')
         ->name('two-factor.challenge');
 
+    // Solo con correo saliente real configurado (ver MailAvailability): con
+    // MAIL_MAILER=log el enlace nunca le llegaría al usuario, así que estas
+    // rutas responden 404 y el login no ofrece "¿Olvidaste tu contraseña?".
     Volt::route('forgot-password', 'pages.auth.forgot-password')
+        ->middleware('password_reset_available')
         ->name('password.request');
 
     Volt::route('reset-password/{token}', 'pages.auth.reset-password')
+        ->middleware('password_reset_available')
         ->name('password.reset');
 });
 

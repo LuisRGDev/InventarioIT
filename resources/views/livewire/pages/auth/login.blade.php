@@ -9,6 +9,14 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public LoginForm $form;
 
+    // "¿Olvidaste tu contraseña?" solo si el correo saliente está configurado.
+    public function with(): array
+    {
+        return [
+            'canResetByMail' => \App\Support\MailAvailability::canDeliver() && Route::has('password.request'),
+        ];
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -64,7 +72,7 @@ new #[Layout('layouts.guest')] class extends Component
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
+            @if ($canResetByMail)
                 <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
                     {{ __('Forgot your password?') }}
                 </a>
@@ -74,5 +82,9 @@ new #[Layout('layouts.guest')] class extends Component
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
+
+        @unless ($canResetByMail)
+            <p class="mt-4 text-xs text-gray-500 text-center">¿Olvidaste tu contraseña? Pide a un administrador de TI que la restablezca.</p>
+        @endunless
     </form>
 </div>

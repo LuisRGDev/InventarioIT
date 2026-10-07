@@ -7,6 +7,27 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Despliegue seguro (InventarioIT)
+
+Después de cada despliegue, en el servidor:
+
+```bash
+docker compose exec app php artisan migrate --force
+docker compose exec app php artisan optimize:clear
+docker compose exec app php artisan security:check
+```
+
+`security:check` revisa el `.env` y señala lo que el código no puede garantizar: `APP_DEBUG`/`APP_ENV`
+en un servidor, cookie de sesión `Secure` si se sirve por HTTPS, 2FA obligatorio y si el correo saliente
+está configurado. Termina con error si encuentra algo grave.
+
+- **2FA:** obligatorio para todos (`TWO_FACTOR_REQUIRED=true`). Si un admin pierde su teléfono y sus códigos de
+  respaldo: `docker compose exec app php artisan 2fa:reset correo@empresa.com`.
+- **Correo:** con `MAIL_MAILER=log` el "¿Olvidaste tu contraseña?" se oculta y los admin restablecen
+  contraseñas desde `/users`. Con SMTP real configurado se habilita solo.
+- **Dependencias nuevas:** `vendor` es un volumen con nombre; tras un `git pull` que cambie `composer.lock`,
+  ejecuta `docker compose exec app composer install --no-interaction --optimize-autoloader`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

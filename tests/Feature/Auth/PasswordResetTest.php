@@ -13,6 +13,15 @@ class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // El restablecimiento por correo solo está disponible con un mailer
+        // que entregue (no log/array): ver App\Support\MailAvailability.
+        config(['mail.default' => 'smtp', 'mail.mailers.smtp' => ['transport' => 'smtp']]);
+    }
+
     public function test_reset_password_link_screen_can_be_rendered(): void
     {
         $response = $this->get('/forgot-password');
