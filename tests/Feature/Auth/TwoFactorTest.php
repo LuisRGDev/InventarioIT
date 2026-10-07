@@ -375,9 +375,10 @@ class TwoFactorTest extends TestCase
         $this->assertFalse($target->hasTwoFactorEnabled());
         $this->assertNull($target->two_factor_secret);
         $this->assertNull($target->two_factor_recovery_codes);
-        $this->assertDatabaseHas('login_audits', [
-            'user_id' => $target->id,
-            'reason' => 'two_factor_reset:'.$admin->email,
+        $this->assertDatabaseHas('admin_audits', [
+            'actor_id' => $admin->id,
+            'subject_id' => $target->id,
+            'action' => 'two_factor_reset',
         ]);
     }
 
@@ -433,7 +434,7 @@ class TwoFactorTest extends TestCase
         $this->artisan('2fa:reset', ['email' => 'nadie@example.com'])->assertFailed();
     }
 
-    public function test_users_index_shows_the_two_factor_state_and_reset_events(): void
+    public function test_users_index_shows_the_two_factor_state_and_legacy_reset_events(): void
     {
         $admin = User::factory()->create();
         $admin->assignRole(Roles::ADMIN);

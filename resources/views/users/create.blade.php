@@ -41,7 +41,7 @@
                             <div>
                                 <x-input-label for="password" :value="__('Contraseña')" class="font-extrabold text-slate-700" />
                                 <x-text-input id="password" name="password" type="password" class="mt-2 block w-full bg-slate-50/50 focus:bg-white" required autocomplete="new-password" />
-                                <p class="mt-2 text-xs font-semibold text-slate-400">Mínimo 10 caracteres, mayúsculas, minúsculas, números y símbolos.</p>
+                                <p class="mt-2 text-xs font-semibold text-slate-400">Mínimo 10 caracteres, mayúsculas, minúsculas, números y símbolos. Es temporal: el usuario deberá cambiarla en su primer inicio de sesión.</p>
                                 <x-input-error class="mt-2 font-bold" :messages="$errors->get('password')" />
                             </div>
 

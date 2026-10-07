@@ -121,6 +121,9 @@
                                                     ● Inactivo
                                                 </span>
                                             @endif
+                                            @if($listedUser->must_change_password)
+                                                <div class="mt-1 text-[11px] font-bold text-amber-700">Debe cambiar su contraseña</div>
+                                            @endif
                                         </td>
                                         <td class="py-4 px-6 whitespace-nowrap">
                                             @if($listedUser->hasTwoFactorEnabled())
@@ -190,6 +193,47 @@
                                         </td>
                                         <td class="py-3 px-6 text-slate-500 font-mono text-xs">{{ $audit->ip_address ?? '—' }}</td>
                                         <td class="py-3 px-6 text-slate-500 text-xs">{{ $audit->created_at->format('d/m/Y H:i') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Bitácora de acciones administrativas --}}
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide">Acciones administrativas recientes</h3>
+                </div>
+                @if($adminAudits->isEmpty())
+                    <p class="p-6 text-sm text-slate-500 font-medium">Aún no hay acciones administrativas registradas.</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50/80 border-b border-slate-100 text-xs font-extrabold uppercase text-slate-500 tracking-wider">
+                                    <th class="py-3 px-6">Quién</th>
+                                    <th class="py-3 px-6">Acción</th>
+                                    <th class="py-3 px-6">Sobre</th>
+                                    <th class="py-3 px-6">Detalle</th>
+                                    <th class="py-3 px-6">Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-sm">
+                                @foreach($adminAudits as $adminAudit)
+                                    <tr>
+                                        <td class="py-3 px-6 font-semibold text-slate-700">{{ $adminAudit->actor_email }}</td>
+                                        <td class="py-3 px-6 text-slate-700 font-bold">{{ $adminAudit->actionLabel() }}</td>
+                                        <td class="py-3 px-6 text-slate-600">{{ $adminAudit->subject_email ?? '—' }}</td>
+                                        <td class="py-3 px-6 text-xs text-slate-500">
+                                            @forelse($adminAudit->detailLines() as $line)
+                                                <div>{{ $line }}</div>
+                                            @empty
+                                                —
+                                            @endforelse
+                                        </td>
+                                        <td class="py-3 px-6 text-slate-500 text-xs whitespace-nowrap">{{ $adminAudit->created_at->format('d/m/Y H:i') }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

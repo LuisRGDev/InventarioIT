@@ -15,6 +15,7 @@ use App\Http\Controllers\UserController;
 use App\Livewire\AssignDevicePage;
 use App\Livewire\AssignExtensionPage;
 use App\Livewire\AssignPhoneLinePage;
+use App\Livewire\ForcePasswordChange;
 use App\Livewire\ReplaceDevicePage;
 use App\Livewire\ReturnDevicePage;
 use App\Livewire\TwoFactorSettings;
@@ -27,13 +28,20 @@ Route::redirect('/', 'dashboard');
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'two_factor', 'verified', 'role:'.Roles::READ])
+    ->middleware(['auth', 'password_changed', 'two_factor', 'verified', 'role:'.Roles::READ])
     ->name('dashboard');
 
 // ─── Perfil (Breeze) — autogestión, no requiere rol de inventario ────────────
 Route::view('profile', 'profile')
-    ->middleware(['auth', 'two_factor'])
+    ->middleware(['auth', 'password_changed', 'two_factor'])
     ->name('profile');
+
+// ─── Cambio obligatorio de contraseña temporal ───────────────────────────────
+// Sin 'password_changed': es la pantalla a la que se redirige a quien aún no
+// la ha cambiado. Va antes que el 2FA en el flujo de un usuario recién creado.
+Route::get('change-password', ForcePasswordChange::class)
+    ->middleware(['auth'])
+    ->name('password.force-change');
 
 // ─── Autenticación en dos pasos ──────────────────────────────────────────────
 // Sin 'two_factor': es justo la pantalla a la que se redirige a quien aún no
@@ -47,7 +55,7 @@ Route::get('two-factor', TwoFactorSettings::class)
 //   READ       → Admin TI, Técnico, Solo lectura (ver/listar/exportar)
 //   WRITE      → Admin TI, Técnico (crear/editar/asignar/devolver/reemplazar/importar)
 //   ADMIN_ONLY → Admin TI (eliminar registros y gestionar catálogos)
-Route::middleware(['auth', 'two_factor'])->group(function () {
+Route::middleware(['auth', 'password_changed', 'two_factor'])->group(function () {
 
     // Nota de orden: dentro de un mismo verbo HTTP, Laravel prueba las rutas
     // en el orden en que se registran. "GET /recurso/create" y "GET

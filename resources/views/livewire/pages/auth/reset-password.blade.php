@@ -46,6 +46,7 @@ new #[Layout('layouts.guest')] class extends Component
             $this->only('email', 'password', 'password_confirmation', 'token'),
             function ($user) {
                 $user->forceFill([
+                    'must_change_password' => false,
                     'password' => Hash::make($this->password),
                     'remember_token' => Str::random(60),
                 ])->save();

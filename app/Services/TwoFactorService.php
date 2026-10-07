@@ -7,7 +7,6 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -153,12 +152,9 @@ class TwoFactorService
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
             'two_factor_last_used_step' => null,
-            'remember_token' => null,
         ])->save();
 
-        if (config('session.driver') === 'database') {
-            DB::table(config('session.table', 'sessions'))->where('user_id', $user->id)->delete();
-        }
+        $user->invalidateSessions();
     }
 
     private function normalizeCode(string $code): string

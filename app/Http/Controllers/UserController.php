@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\AdminAudit;
 use App\Models\LoginAudit;
 use App\Models\User;
-use App\Services\LoginAuditService;
+use App\Services\AdminAuditService;
 use App\Services\TwoFactorService;
 use App\Support\Roles;
 use Illuminate\Http\RedirectResponse;
@@ -40,8 +41,9 @@ class UserController extends Controller
         $users = $query->orderBy('name')->paginate(15)->withQueryString();
 
         $recentAudits = LoginAudit::latest('created_at')->limit(15)->get();
+        $adminAudits = AdminAudit::latest('created_at')->latest('id')->limit(15)->get();
 
-        return view('users.index', compact('users', 'recentAudits'));
+        return view('users.index', compact('users', 'recentAudits', 'adminAudits'));
     }
 
     public function create(): View
@@ -49,7 +51,7 @@ class UserController extends Controller
         return view('users.create');
     }
 
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(StoreUserRequest $request, AdminAuditService $audit): RedirectResponse
     {
         $data = $request->validated();
 
@@ -60,7 +62,17 @@ class UserController extends Controller
             'active' => $request->boolean('active'),
         ]);
 
+        // La contraseña la fijó un admin: es temporal, el usuario debe
+        // cambiarla en su primer inicio de sesión.
+        $user->forceFill(['must_change_password' => true])->save();
+
         $user->assignRole($data['role']);
+
+        $audit->record($request->user(), AdminAudit::USER_CREATED, $user, [
+            'role' => $data['role'],
+            'active' => $user->active,
+            'temporary_password' => true,
+        ]);
 
         return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
     }
@@ -70,7 +82,7 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, User $user, AdminAuditService $audit): RedirectResponse
     {
         $data = $request->validated();
         $willBeActive = $request->boolean('active');
@@ -91,17 +103,53 @@ class UserController extends Controller
             }
         }
 
+        $before = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'active' => $user->active,
+            'role' => $user->getRoleNames()->first(),
+        ];
+
         $user->update([
             'name' => $data['name'],
             'email' => $data['email'],
             'active' => $willBeActive,
         ]);
 
+        $details = [];
+
         if (! empty($data['password'])) {
             $user->update(['password' => $data['password']]);
+
+            // Un admin que le fija la contraseña a OTRO usuario (típicamente
+            // porque la olvidó o se sospecha de ella): la nueva es temporal,
+            // debe cambiarla al entrar, y se cierran sus sesiones abiertas.
+            // Si el admin cambia la suya, es la que eligió: no se fuerza nada.
+            if ($user->id !== $request->user()->id) {
+                $user->forceFill(['must_change_password' => true])->save();
+                $user->invalidateSessions();
+                $details['password_changed'] = true;
+            }
         }
 
         $user->syncRoles([$data['role']]);
+
+        $after = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'active' => $user->active,
+            'role' => $data['role'],
+        ];
+
+        foreach ($after as $field => $value) {
+            if ($before[$field] !== $value) {
+                $details[$field] = ['from' => $before[$field], 'to' => $value];
+            }
+        }
+
+        if ($details) {
+            $audit->record($request->user(), AdminAudit::USER_UPDATED, $user, $details);
+        }
 
         return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
     }
@@ -109,11 +157,11 @@ class UserController extends Controller
     /**
      * Quita el 2FA a un usuario (teléfono y códigos de respaldo perdidos) y
      * le cierra todas las sesiones; al volver a entrar tendrá que
-     * configurarlo de nuevo. Queda registrado en la bitácora de accesos.
+     * configurarlo de nuevo. Queda registrado en la bitácora de acciones administrativas.
      * No se permite sobre uno mismo: si es el único admin y pierde todo,
      * la vía es el comando `php artisan 2fa:reset {correo}` en el servidor.
      */
-    public function resetTwoFactor(User $user, TwoFactorService $twoFactor, LoginAuditService $audit): RedirectResponse
+    public function resetTwoFactor(User $user, TwoFactorService $twoFactor, AdminAuditService $audit): RedirectResponse
     {
         if ($user->id === auth()->id()) {
             return back()->with('error', 'No puedes restablecer tu propio 2FA desde aquí. Pídele a otro administrador que lo haga.');
@@ -125,7 +173,7 @@ class UserController extends Controller
 
         $twoFactor->reset($user);
 
-        $audit->record($user, $user->email, true, 'two_factor_reset:'.auth()->user()->email);
+        $audit->record(auth()->user(), AdminAudit::TWO_FACTOR_RESET, $user);
 
         return redirect()->route('users.edit', $user)->with('success', 'Se restableció el 2FA de '.$user->name.' y se cerraron sus sesiones.');
     }

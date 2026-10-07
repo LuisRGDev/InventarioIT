@@ -46,6 +46,8 @@ class AppServiceProvider extends ServiceProvider
             // Exige 2FA activo también en las acciones Livewire de las páginas
             // protegidas (ver EnsureTwoFactorIsEnabled).
             'two_factor',
+            // Ídem para la contraseña temporal (EnsurePasswordIsChanged).
+            'password_changed',
         ]);
 
         // Política de contraseñas centralizada: aplica automáticamente a

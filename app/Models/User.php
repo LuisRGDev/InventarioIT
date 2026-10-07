@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -50,10 +51,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'active' => 'boolean',
+            'must_change_password' => 'boolean',
             'two_factor_secret' => 'encrypted',
             'two_factor_recovery_codes' => 'encrypted:array',
             'two_factor_confirmed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Cierra todas las sesiones abiertas del usuario (incluidas las de
+     * "recordarme"). Solo es posible con SESSION_DRIVER=database; con otros
+     * drivers al menos se rota el remember_token.
+     */
+    public function invalidateSessions(): void
+    {
+        $this->forceFill(['remember_token' => null])->save();
+
+        if (config('session.driver') === 'database') {
+            DB::table(config('session.table', 'sessions'))->where('user_id', $this->id)->delete();
+        }
     }
 
     public function hasTwoFactorEnabled(): bool

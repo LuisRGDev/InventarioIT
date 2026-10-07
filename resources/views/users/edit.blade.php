@@ -64,7 +64,7 @@
                             <div>
                                 <x-input-label for="password" :value="__('Nueva contraseña (opcional)')" class="font-extrabold text-slate-700" />
                                 <x-text-input id="password" name="password" type="password" class="mt-2 block w-full bg-slate-50/50 focus:bg-white" autocomplete="new-password" />
-                                <p class="mt-2 text-xs font-semibold text-slate-400">Déjalo en blanco para no cambiarla. Si la cambias: mínimo 10 caracteres, mayúsculas, minúsculas, números y símbolos.</p>
+                                <p class="mt-2 text-xs font-semibold text-slate-400">Déjalo en blanco para no cambiarla. Si la cambias: mínimo 10 caracteres, mayúsculas, minúsculas, números y símbolos; si es la de otro usuario, será temporal (deberá cambiarla al entrar) y se cerrarán sus sesiones abiertas.</p>
                                 <x-input-error class="mt-2 font-bold" :messages="$errors->get('password')" />
                             </div>
 

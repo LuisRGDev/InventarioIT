@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsurePasswordIsChanged;
 use App\Http\Middleware\EnsureTwoFactorIsEnabled;
 use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Foundation\Application;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'active' => EnsureUserIsActive::class,
             'two_factor' => EnsureTwoFactorIsEnabled::class,
+            'password_changed' => EnsurePasswordIsChanged::class,
         ]);
 
         // A diferencia de role:/permission: (middleware por ruta, que
